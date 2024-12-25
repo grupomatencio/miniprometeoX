@@ -1,0 +1,72 @@
+@import './boostrap_css/bootstrap.min.css';
+
+* {
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    background-image: url("../img/3.jpeg");
+
+    height: 100vh;
+    display: flex;
+    align-items: center;
+}
+
+#caja {
+    margin-left: auto;
+    margin-right: auto;
+    height: 80%;
+    width: 40%;
+    /*background-color: #ffffff ;*/
+    /*background: rgb(212,179,16);
+    background: radial-gradient(circle, rgba(212,179,16,1) 0%, rgba(149,1,23,1) 87%);*/
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 10px;
+    border-radius: 15px;
+}
+
+form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.form-floating {
+    width: 70%;
+    height: 25%;
+}
+input[type="submit"]{
+    width: 70%;
+    padding: 10px;
+    border: none;
+    background-color: #344dcd;
+    color: white;
+    border-radius: 5px;
+}input[type="submit"]:hover{
+    background-color: #647bc6;
+}
+img{
+    height:60%;
+    margin: 3%;
+}
+
+.text-danger{
+    font-size: 8pt;
+}
+
+
+@media all and (max-width: 1024px) {
+    #caja {
+        height: 100%;
+        width: 100%;
+    }
+
+    img{
+        height: 40%;
+    }
+}
