@@ -6,6 +6,8 @@ use App\Http\Controllers\MachineController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\ConfiguracionController;
+use App\Http\Middleware\Authenticate;
+use App\Http\Middleware\CheckProcessorSerial;
 use Illuminate\Support\Facades\Auth;
 
 /*
@@ -31,30 +33,23 @@ Route::get('/', function () {
 });
 
 // Домашняя страница после входа
-Route::get('/home', [HomeController::class, 'index'])->name('home')->middleware(['auth', 'check.processor']);
-
-// Страница запроса помощи
-// Route::get('/pedir_ayuda', [PedirAyudaController::class, 'sendMessage'])->name('pedir.ayuda');
+Route::get('/home', [HomeController::class, 'index'])->name('home') ->middleware('auth', CheckProcessorSerial::class);
 
 // Приветственная страница
 /*Route::get('/welcome', function () {
     return view('welcome');
-})->name('welcome');
+})->name('welcome'); */
 
-// Управление машинами
+// Gestion de maquinas
 Route::get('/machines/search', [MachineController::class, 'search'])->name('machines.search');
 Route::resource('machines', MachineController::class)->middleware(['auth']);
 
-// Импорт данных
+// Import datos
 Route::get('/import', [ImportController::class, 'index'])->name('import.index')->middleware(['auth']);
 Route::get('/import/store', [ImportController::class, 'store'])->name('import.store')->middleware(['auth']);
 
-// Настройки конфигурации
+// Configurationes
 Route::post('/configuracion/company', [ConfiguracionController::class, 'guardarDatosCompania'])->name('configuracion.company')->middleware(['auth']);
 Route::get('/configuracion/buscar', [ConfiguracionController::class, 'buscar'])->name('configuracion.buscar')->middleware(['auth']);
 Route::resource('configuracion', ConfiguracionController::class)->names('configuracion')->middleware(['auth']);
 
-// Пример маршрута для короткой страницы
-Route::get('/corto', function () {
-    return view('corto.index');
-})->middleware(['auth']); */

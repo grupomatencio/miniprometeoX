@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Models\Acumulado;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 
 
 use Illuminate\Http\Request;
@@ -30,6 +31,10 @@ class HomeController extends Controller
     public function index()
 
     {
+        // dd ('home');
+
+        Log::info('Home:', request()->cookies->all());
+
         $acumulados = Acumulado::all();
 
         $configuracionTS = User::where('name', 'ccm') -> first();
