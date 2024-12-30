@@ -21,6 +21,7 @@ class ConfiguracionController extends Controller
      */
     public function index()
     {
+        $user_prometeo = User::where('name','prometeo') -> first();
         $user_cambio = User::where('name','ccm') -> first();
         $user_comDataHost = User::where('name','admin') -> first();
 
@@ -30,6 +31,7 @@ class ConfiguracionController extends Controller
         $company = getCompany();
 
         $data = [
+            'user_prometeo' => $user_prometeo,
             'user_cambio' => $user_cambio,
             'user_comDataHost' => $user_comDataHost,
             'locales' => $disposicion['locales'],
@@ -96,19 +98,25 @@ class ConfiguracionController extends Controller
        // dd ($request->all());
 
        $request->validate([
+        'ip_prometeo' => ['required', 'ipv4'],
+        'port_prometeo' => ['required', 'numeric', 'max:65535'],
         'ip_cambio' => ['required', 'ipv4'],
         'port_cambio' => ['required', 'numeric', 'max:65535'],
         'ip_comdatahost' => ['required', 'ipv4'],
         'port_comdatahost' => ['required', 'numeric', 'max:65535'],
         'locales' => ['required']
     ], [
+        'ip_prometeo.required' => 'Este campo es obligatorio.',
+        'port_prometeo.required' => 'Este campo es obligatorio.',
         'ip_cambio.required' => 'Este campo es obligatorio.',
         'port_cambio.required' => 'Este campo es obligatorio.',
         'ip_comdatahost.required' => 'Este campo es obligatorio.',
         'port_comdatahost.required' => 'Este campo es obligatorio.',
+        'ip_prometeo.ipv4' => 'En este campo solo IP',
         'ip_cambio.ipv4' => 'En este campo solo IP',
         'ip_comdatahost.ipv4' => 'En este campo solo IP',
-        'port_cambio.numeric' => 'En    este campo solo digitos',
+        'port_prometeo.numeric' => 'En este campo solo digitos',
+        'port_cambio.numeric' => 'En este campo solo digitos',
         'port_cambio.min' => 'Numero de puerto muy grande',
         'port_comdatahost.numeric' => 'En este campo solo digitos',
         'port_comdatahost.min' => 'Numero de puerto muy grande',
@@ -121,8 +129,12 @@ class ConfiguracionController extends Controller
 
         try {
 
-
             $data = $request-> except ('_token');
+
+            User::where('name','prometeo') -> update ([
+                'ip' => $data['ip_prometeo'],
+                'port' => $data['port_prometeo']
+            ]);
             User::where('name','ccm') -> update ([
                 'ip' => $data['ip_cambio'],
                 'port' => $data['port_cambio']
@@ -133,6 +145,8 @@ class ConfiguracionController extends Controller
             ]);
 
             $serialNumberProcessor = getSerialNumber();
+
+            //dd ($serialNumberProcessor);
 
             try {
                 $connection = DB::connection('remote_prometeo_test');
@@ -203,6 +217,11 @@ class ConfiguracionController extends Controller
      */
     public function destroy($id)
     {
+        $user_prometeo = User::where('name','prometeo') -> first();
+        $user_prometeo ->ip = null;
+        $user_prometeo ->port = null;
+        $user_prometeo -> save();
+
         $user_cambio = User::where('name','ccm') -> first();
         $user_cambio ->ip = null;
         $user_cambio ->port = null;
@@ -244,6 +263,10 @@ class ConfiguracionController extends Controller
         $user_comDataHost ->ip = $this -> getLocalIp ();
         $user_comDataHost ->port = 3506;
 
+        $user_prometeo = new User;
+        $user_prometeo ->ip = "0.0.0.0";
+        $user_prometeo ->port = 0;
+
         // Obtener datos de Local, zona, delegacion
         $disposicion = getDisposicion();
 
@@ -251,6 +274,7 @@ class ConfiguracionController extends Controller
         $company = getCompany();
 
         $data = [
+            'user_prometeo' => $user_prometeo,
             'user_cambio' => $user_cambio,
             'user_comDataHost' => $user_comDataHost,
             'locales' => $disposicion['locales'],
@@ -264,7 +288,7 @@ class ConfiguracionController extends Controller
 
     private function getLocalIp () {
 
-        $output = shell_exec('ipconfig');
+        $output = shell_exec('ipconfig');  // Para windows
 
         if (preg_match('/IPv4.*?:\s*([0-9.]+)/', $output, $matches)) {
             $localIp = $matches[1];

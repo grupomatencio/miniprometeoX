@@ -7,15 +7,45 @@
     <form action="{{ route('configuracion.update', $data['user_cambio']) }}" method="POST" autocomplete="off">
         @csrf
         @method('PUT')
+
+        <div class="col-8 offset-2 isla-list p-4 mt-2 mb-2 border border-primary">
+            <h2 class="mb-3"> Configurar conexión con servidor Prometeo</h2>
+
+            <!-- IP -->
+            <div class="form-floating pb-3">
+                <input type="text" name="ip_prometeo" class="form-control @error('ip_prometeo') is-invalid @enderror"
+                    id="ip_prometeo" placeholder="IP"
+                    @if (old('ip_prometeo'))
+                        value="{{ old('ip_prometeo') }}"
+                    @elseif ($data['user_prometeo']->ip)
+                        value="{{$data['user_prometeo']->ip}}"
+                    @endif>
+                <label for="ip_prometeo">IP</label>
+                @if ($errors->has('ip_prometeo'))
+                    <div class="invalid-feedback"> {{ $errors->first('ip_prometeo') }} </div>
+                @endif
+            </div>
+
+            <!-- Puerto -->
+            <div class="form-floating">
+                <input type="text" name="port_prometeo" class="form-control @error('port_prometeo') is-invalid @enderror"
+                    id="port_prometeo" placeholder="Puerto"
+                    @if (old('port_prometeo'))
+                        value="{{ old('port_prometeo') }}"
+                    @elseif ($data['user_prometeo']->port)
+                        value="{{$data['user_prometeo']->port}}"
+                    @endif>
+                <label for="port_prometeo">Puerto</label>
+                @error('port_prometeo')
+                    <div class="invalid-feedback"> {{ $message }} </div>
+                @enderror
+            </div>
+        </div>
+
+
+
         <div class="col-8 offset-2 isla-list p-4 mt-2 mb-2 border border-primary">
             <h2 class="mb-3"> Configurar conexión con maquina cambio</h2>
-
-
-
-            @if ($errors->any())
-              <div class=""> {{$errors->first()}} </div>
-            @endif
-
             <!-- IP -->
             <div class="form-floating pb-3">
                 <input type="text" name="ip_cambio" class="form-control @error('ip_cambio') is-invalid @enderror"
@@ -123,7 +153,7 @@
                                     <select name="locales" class="form-control @error('locales') is-invalid @enderror">
                                         <option value =""> == Elije un Local ==</option>
                                         @foreach ($data['locales'] as $local)
-                                            <option value = "{{$local -> id}}">{{$local -> name}} </option>
+                                            <option value = "{{$local -> id}}">{{$local -> name}}{{$local -> id}} </option>
                                         @endforeach
                                     </select>
                                     @error('locales')

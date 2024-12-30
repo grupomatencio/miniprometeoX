@@ -9,7 +9,7 @@ use App\Models\lastUserMcDate;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-
+use Illuminate\Support\Facades\Crypt;
 
 
 function nuevaConexion($local)
@@ -53,8 +53,11 @@ function nuevaConexionLocal($name)
         $database = "comdata";
     }
 
+    Log::info($user);
     // Log::info('util');
-    // Log::info($user);
+    $passDecrypt = Crypt::decryptString($user->password);
+
+    Log::info($passDecrypt);
 
     DB::purge($connectionName);
 
@@ -65,8 +68,9 @@ function nuevaConexionLocal($name)
             'database.connections.' . $connectionName . '.port' => $user->port,
             'database.connections.' . $connectionName . '.database' => $database,
             'database.connections.' . $connectionName . '.username' => $user->name,
-            'database.connections.' . $connectionName . '.password' => $user->password,
+            'database.connections.' . $connectionName . '.password' => $passDecrypt,
             'database.connections.' . $connectionName . '.driver' => 'mysql',
+            'database.connections.' . $connectionName . '.options' => [PDO::ATTR_PERSISTENT=> false, PDO::ATTR_TIMEOUT => 2],
         ]);
 
         $config = config ('database.connections'.$database);

@@ -197,6 +197,7 @@
                     fetch(url, {method: 'GET'})
                         .then (response => response.json())
                         .then (data => {   // devolvemos un array con boolean [false,true,true]
+                            console.log (data);
 
                             contadorDeAlertes = 0;
                             alertes.forEach ((alert) => {    // comprobamos cada conexion
@@ -219,14 +220,14 @@
                                 alert.classList.add('alert-danger');
                         })
                         })
-                }, 5000);
+                }, 10000);
             }
 
 
 
 checkConnect ();
 
-
+            /*
 
         const buttonPedirAyuda = document.getElementById('pedirAyuda');
 
@@ -276,6 +277,7 @@ checkConnect ();
                     $error_message.classList.add('alert-danger');
                 });
         });
+        */
 
         /*
         var configuracionTS_IP = @json(session('configuracionTS_IP'));

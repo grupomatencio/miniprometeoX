@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Models\Local;
+use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 
@@ -16,7 +17,9 @@ class ApiCheckConexionesController extends Controller
         $conexiones = [false,false,false]; // Conexiones por default
 
         // Probar conexiones con prometeo
-        $url = 'http://192.168.1.41:8000/api/checkConexion';
+        $urlPrometeo = User::where('name', 'prometeo');
+        $url = 'http://'.  $urlPrometeo -> ip. ':8000/api/checkConexion';
+        Log::info($url);
         try {
             $conPrometeo = Http::get($url);
             if ($conPrometeo) {
@@ -25,14 +28,14 @@ class ApiCheckConexionesController extends Controller
         } catch (\Exception $e) {
             Log::info($e);
         }
-
+/*
         $conexionConTicketServer = nuevaConexionLocal('ccm');
-        Log::info($conexionConTicketServer);
+        Log::info(message: $conexionConTicketServer);
         $conexiones [1] = $this -> checkConexion($conexionConTicketServer);
         $conexionConComData = nuevaConexionLocal('admin');
         Log::info($conexionConComData);
         $conexiones [2] = $this -> checkConexion($conexionConComData);
-
+*/
         return $conexiones;
 
     }
@@ -40,7 +43,9 @@ class ApiCheckConexionesController extends Controller
 
     private function checkConexion ($nameConexion) {
         try {
-            DB::connection($nameConexion) -> getPdo();
+
+            Log::info ($nameConexion);
+            DB::connection($nameConexion) -> select ('SELECT 1');
             // Log::info($name);
 
             return true;

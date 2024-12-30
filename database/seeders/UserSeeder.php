@@ -29,6 +29,10 @@ class UserSeeder extends Seeder
             'password' => bcrypt("qwert123"),
         ]);
         User::create([
+            'name' => "prometeo",
+            'password' => Crypt::encryptString("qwert123"),
+        ]);
+        User::create([
             'name' => "ccm",
             'password' => Crypt::encryptString("ccm10"),
         ]);
