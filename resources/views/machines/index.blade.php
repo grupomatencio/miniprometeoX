@@ -1,4 +1,4 @@
-@extends('plantilla.plantilla')
+@extends('plantilla.plantilla') 
 @section('titulo', 'Delegations')
 @section('contenido')
     <div class="container d-none d-md-block">
