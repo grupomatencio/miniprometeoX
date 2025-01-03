@@ -40,6 +40,23 @@
                                         <strong>{{ $message }}</strong>
                                     </span>
                                 @enderror
+<<<<<<< HEAD
+=======
+
+
+                                @if ($errors->any())
+                                    <div class="alert alert-danger">
+                                        <ul>
+                                            @foreach ($errors->all() as $error)
+                                                <li>{{ $error }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                @endif
+
+
+
+>>>>>>> master
                                 <div class="text-center">
                                     @if (Route::has('password.request'))
                                         <a class="btn btn-link p-0" href="{{ route('password.request') }}">

@@ -171,8 +171,11 @@ class Machine extends Model
     }
 
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> master
     public function plate()
     {
         return $this->hasOne(Plate::class);

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 @extends('plantilla.plantilla') 
+=======
+@extends('plantilla.plantilla')
+>>>>>>> master
 @section('titulo', 'Delegations')
 @section('contenido')
     <div class="container d-none d-md-block">
@@ -45,7 +49,11 @@
                                                 @csrf
                                                 @method('PUT')
                                                     <td>
+<<<<<<< HEAD
                                                         <input type="text" class="form-control w-50 @error('alias.' .$machine->id) is-invalid @enderror"
+=======
+                                                        <input type="text" class="form-control w-100 @error('alias.' .$machine->id) is-invalid @enderror"
+>>>>>>> master
                                                             name = "alias[{{$machine -> id}}]"
                                                             id="{{$machine -> id}}"
                                                             value = "{{ $machine->alias}}"
@@ -56,22 +64,39 @@
                                                     </td>
                                                     <td>{{ $machine->identificador }}</td>
                                                     <td>
+<<<<<<< HEAD
                                                         <input type="text" class="form-control w-50 @error('auxiliar.' .$machine->id) is-invalid @enderror"
                                                             id="{{ $machine -> id}}"
                                                             name ="auxiliar[{{ $machine->id}}]"
                                                             value = "{{ $machine->auxiliar}}"
                                                             disabled>
                                                         @error('auxiliar.' .$machine->id)
+=======
+                                                        <input type="text" class="form-control w-100 @error('r_auxiliar.' .$machine->id) is-invalid @enderror"
+                                                            id="{{ $machine -> id}}"
+                                                            name ="r_auxiliar[{{ $machine->id}}]"
+                                                            value = "{{ $machine->r_auxiliar}}"
+                                                            disabled>
+                                                        @error('r_auxiliar.' .$machine->id)
+>>>>>>> master
                                                             <div class="invalid-feedback text-start"> {{ $message }} </div>
                                                         @enderror
                                                     </td>
                                                     <td>
                                                         <div class="d-flex">
+<<<<<<< HEAD
                                                             <button type="button" class="btn btn-primary w-100 btn-in edit" id="{{ $machine -> id}}">Editar</button>
                                                             <button type="submit" class="btn btn-success w-100 btn-in d-none guardar" id="{{ $machine -> id}}">Guardar</button>
                                                             <button type="button" class="btn btn-primary w-100 btn-in ms-2 d-none volver" id="{{ $machine -> id}}">Volver</button>
                                                             <a class="btn btn-danger w-100 btn-inf ms-2 eliminar" id="{{ $machine -> id}}" data-bs-toggle="modal"
                                                                 data-bs-target="#modalAccionesLocal{{ $machine->id }}">Eliminar</a>
+=======
+                                                            <button type="button" class="btn btn-primary w-100 btn-in edit" id="{{ $machine -> id}}"><i class="bi bi-pencil-square" id="{{ $machine -> id}}"></i></button>
+                                                            <button type="submit" class="btn btn-success w-100 btn-in d-none guardar" id="{{ $machine -> id}}"><i class="bi bi-check-lg"></i></button>
+                                                            <button type="button" class="btn btn-primary w-100 btn-in ms-2 d-none volver" id="{{ $machine -> id}}"><i class="bi bi-x-circle"></i></button>
+                                                            <a class="btn btn-danger w-100 btn-in ms-2 eliminar" id="{{ $machine -> id}}" data-bs-toggle="modal"
+                                                                data-bs-target="#modalAccionesLocal{{ $machine->id }}"><i class="bi bi-trash3"></i></a>
+>>>>>>> master
                                                         </div>
                                                     </td>
 
@@ -285,9 +310,17 @@
             button.addEventListener('click', function() {
                 const buttonId = Number (event.target.id);
 
+<<<<<<< HEAD
                 editButtons.forEach(but => {
                     if (Number(but.id) == buttonId) {
                         but.classList.add('d-none');
+=======
+                console.log ('check', buttonId);
+                editButtons.forEach(but => {
+                    if (Number(but.id) == buttonId) {
+                        but.classList.add('d-none');
+                        console.log ('yyy');
+>>>>>>> master
                     } else {
                         but.classList.remove('d-none');
                     }
@@ -316,7 +349,10 @@
                 })
 
                 eliminarButtons.forEach(eliminar => {
+<<<<<<< HEAD
                     console.log(eliminarButtons);
+=======
+>>>>>>> master
                     if (Number(eliminar.id) == buttonId) {
                         eliminar.classList.add('d-none');
                     } else {

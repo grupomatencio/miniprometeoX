@@ -7,6 +7,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+<<<<<<< HEAD
+=======
+use App\Models\Company;
+use app\Models\User;
+>>>>>>> master
 
 
 use App\Services\getProcessorSerialNumber;
@@ -24,6 +29,11 @@ class CheckProcessorSerial
     public function handle(Request $request, Closure $next)
     {
 
+<<<<<<< HEAD
+=======
+        // dd ('checkController0');
+
+>>>>>>> master
         $error = false; // flag para error
 
         // Comprobar hay configuraciones en BD o no
@@ -39,7 +49,11 @@ class CheckProcessorSerial
 
             if ($serialNumberProcessor) {
 
+<<<<<<< HEAD
                 $checkSerialNumber = $this -> compartirSerialNumber($serialNumberProcessor, $local);
+=======
+                $checkSerialNumber = compartirSerialNumber($serialNumberProcessor, $local);
+>>>>>>> master
 
                 // dd ($checkSerialNumber);
 
@@ -65,10 +79,15 @@ class CheckProcessorSerial
 
         }
 
+<<<<<<< HEAD
+=======
+        // dd (session() -> all());
+>>>>>>> master
         return $next($request);
 
     }
 
+<<<<<<< HEAD
 
 
     private function compartirSerialNumber($serialNumberProcessor, $local) {
@@ -108,6 +127,8 @@ class CheckProcessorSerial
         }
     }
 
+=======
+>>>>>>> master
     private function checkConfiguracion () {
 
 
@@ -117,7 +138,16 @@ class CheckProcessorSerial
             !isset($configuracion['locales']) || $configuracion['locales'] == null || is_array($configuracion['locales'])) {
             return 0;
         }
+<<<<<<< HEAD
 
         return $configuracion['locales'];
+=======
+        if ($configuracion['locales'] -> isNotEmpty()) {
+            $local = $configuracion['locales'] -> first() -> id;
+        } else {
+            $local = null;
+        }
+        return $local;
+>>>>>>> master
     }
 }

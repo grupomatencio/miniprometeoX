@@ -3,6 +3,11 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+<<<<<<< HEAD
+=======
+use App\Http\Middleware\Authenticate;
+use App\Http\Middleware\CheckProcessorSerial;
+>>>>>>> master
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -12,7 +17,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+<<<<<<< HEAD
         //
+=======
+>>>>>>> master
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

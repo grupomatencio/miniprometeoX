@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 @import './boostrap_css/bootstrap.min.css';
+=======
+@import './bootstrap_css/bootstrap.min.css';
+>>>>>>> master
 
 * {
     padding: 0;

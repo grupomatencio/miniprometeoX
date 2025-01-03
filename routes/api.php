@@ -20,6 +20,12 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });*/
 
+<<<<<<< HEAD
 Route::get('/index', [ApiControllerGetSerialNumber::class, 'index'])->name('index');
 Route::get('/checkConexion', [ApiCheckConexionesController::class, 'index'])->name('checkConexion');
 Route::post('/compareSerialNumber', [ApiControllerGetSerialNumber::class, 'compareSerialNumber'])->name('compareSerialNumber');
+=======
+// Route::get('/index', [ApiControllerGetSerialNumber::class, 'index'])->name('index');
+Route::get('/checkConexion', [ApiCheckConexionesController::class, 'index'])->name('checkConexion');
+// Route::post('/compareSerialNumber', [ApiControllerGetSerialNumber::class, 'compareSerialNumber'])->name('compareSerialNumber');
+>>>>>>> master
