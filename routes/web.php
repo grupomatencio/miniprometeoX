@@ -13,17 +13,13 @@ use Illuminate\Support\Facades\Auth;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
-|--------------------------------------------------------------------------
-|
-| Здесь вы можете зарегистрировать веб-маршруты для вашего приложения. Эти
-| маршруты загружаются RouteServiceProvider и защищены middleware.
 |
 */
 
-// Breeze аутентификация
+// Breeze auth
 require __DIR__.'/auth.php';
 
-// Главная страница
+// Pagina Inicio
 Route::get('/', function () {
     $error = session()->get('error');
     if (Auth::check()) {
@@ -32,13 +28,8 @@ Route::get('/', function () {
     return redirect('/login');
 });
 
-// Домашняя страница после входа
+// Pagina home
 Route::get('/home', [HomeController::class, 'index'])->name('home') ->middleware('auth', CheckProcessorSerial::class);
-
-// Приветственная страница
-/*Route::get('/welcome', function () {
-    return view('welcome');
-})->name('welcome'); */
 
 // Gestion de maquinas
 Route::get('/machines/search', [MachineController::class, 'search'])->name('machines.search');
@@ -49,6 +40,7 @@ Route::get('/import', [ImportController::class, 'index'])->name('import.index')-
 Route::get('/import/store', [ImportController::class, 'store'])->name('import.store')->middleware(['auth']);
 
 // Configurationes
+Route::post('/configuracion/save_company', [ConfiguracionController::class, 'guardarCompania'])->name('configuracion.save_company')->middleware(['auth']);
 Route::post('/configuracion/company', [ConfiguracionController::class, 'guardarDatosCompania'])->name('configuracion.company')->middleware(['auth']);
 Route::get('/configuracion/buscar', [ConfiguracionController::class, 'buscar'])->name('configuracion.buscar')->middleware(['auth']);
 Route::resource('configuracion', ConfiguracionController::class)->names('configuracion')->middleware(['auth']);

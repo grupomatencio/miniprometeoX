@@ -17,9 +17,8 @@ class ApiCheckConexionesController extends Controller
         $conexiones = [false,false,false]; // Conexiones por default
 
         // Probar conexiones con prometeo
-        $urlPrometeo = User::where('name', 'prometeo');
-        $url = 'http://'.  $urlPrometeo -> ip. ':8000/api/checkConexion';
-        Log::info($url);
+        $urlPrometeo = User::where('name', 'prometeo')->first();
+        $url = 'http://'.  $urlPrometeo -> ip. ':' . $urlPrometeo -> port . '/api/checkConexion';
         try {
             $conPrometeo = Http::get($url);
             if ($conPrometeo) {

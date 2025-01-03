@@ -125,21 +125,22 @@ class MachineController extends Controller
      */
     public function update(Request $request, $id)
     {
-        // dd($request->alias);
+        //dd($request->all());
+
         $request->validate([
             'alias.*' => ['required'],
-            'auxiliar.*' => ['required', 'numeric', 'unique:machines,auxiliar,' . $id]
+            'r_auxiliar.*' => ['required', 'numeric', 'unique:machines,r_auxiliar,' . $id]
         ], [
             'alias.*.required' => 'El alias de la máquina es obligatorio.',
-            'auxiliar.*.required' => 'El número de la máquina es obligatorio.',
-            'auxiliar.*.numeric' => 'En este campo solo deben ir dígitos.',
-            'auxiliar.*.unique' => "Este número ya está en uso."
+            'r_auxiliar.*.required' => 'El número de la máquina es obligatorio.',
+            'r_auxiliar.*.numeric' => 'En este campo solo deben ir dígitos.',
+            'r_auxiliar.*.unique' => "Este número ya está en uso."
         ]);
 
 
         Machine::find($id) -> update ([
             'alias' => $request->alias[$id],
-            'auxiliar' => $request->auxiliar[$id]
+            'r_auxiliar' => $request->r_auxiliar[$id]
         ]);
 
         return redirect()->route('machines.index', $request->delegation_id);

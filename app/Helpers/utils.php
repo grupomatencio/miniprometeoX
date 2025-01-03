@@ -10,8 +10,13 @@ use App\Models\lastUserMcDate;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Http;
 
 
+// IP y Puerto prometeo Principal
+
+define('PROMETEO_PRINCIPAL_IP', "192.168.1.41");
+define('PROMETEO_PRINCIPAL_PORT', "8000");
 function nuevaConexion($local)
 {
     $localDate = Local::find($local);
@@ -87,7 +92,7 @@ function nuevaConexionLocal($name)
 }
 
 
-
+// function para obtener serial numer de Procesador
 function getSerialNumber() :string
 {
     if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
@@ -155,5 +160,54 @@ function getSerialNumber() :string
         } catch (\Exception $e) {
             Log::info($e);
             return null;
+        }
+    }
+
+
+    // function para conexion con prometeo y comprobar licencia
+    function compartirSerialNumber($serialNumberProcessor, $local) {
+
+        try {
+
+                    // Probar conexiones con prometeo
+                    $urlPrometeo = User::where('name', 'prometeo')->first();
+                    $company = Company::first();
+                    $url = 'http://'. PROMETEO_PRINCIPAL_IP . ':8000/api/verify-licence-company';
+
+                    // dd ($local);
+
+                    try {
+                        $response = Http::post($url, [
+                            'local_id' => $local,
+                            'serialNumber' => $serialNumberProcessor,
+                            'company' => $company -> name
+                        ]);
+                        // dd ($response-> json());
+
+                    } catch (\Exception $e) {
+
+                        Log::info($e);
+                    }
+
+                    $result = $response -> json();
+
+                    if ($result !== null && $result['success']) {
+
+                        return [true, null];
+                    } else {
+
+                        $error = "Serial numero de processador es incorrecto";
+                        session([ 'localId' => $local, "serialNumberProcessor" => $serialNumberProcessor]);
+
+                        return [false, $error];
+                    }
+
+        }catch (\Illuminate\Database\QueryException $ex) {
+            Log::info($ex);
+            $error = "No hay conexión.";
+            return [false, $error];
+        } catch (\Exception $exception) {
+            $error = "Hay algun error desconocido";
+            return [false, $error];
         }
     }

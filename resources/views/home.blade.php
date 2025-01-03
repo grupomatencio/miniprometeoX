@@ -227,57 +227,59 @@
 
 checkConnect ();
 
-            /*
 
         const buttonPedirAyuda = document.getElementById('pedirAyuda');
 
-        buttonPedirAyuda.addEventListener('click', function(event) {
-            var serialNumberProcessor = @json(session('serialNumberProcessor'));
-            var localId = @json(session('localId'));
+        if (buttonPedirAyuda !== null) {
+            buttonPedirAyuda.addEventListener('click', function(event) {
+                var serialNumberProcessor = @json(session('serialNumberProcessor'));
+                var localId = @json(session('localId'));
+                var prometo_ip = @json(session('prometeo_ip'));
+                var prometo_port = @json(session('prometeo_port'));
 
-            $error_message = document.getElementById('mensage_error'); // ventana de message de error
+                $error_message = document.getElementById('mensage_error'); // ventana de message de error
 
-            console.log(localId); // Verificar el valor de localId
+                $url = 'http://'+prometo_ip+':' + prometeo_port + '/api/verify-serial-change';
 
-            fetch('http://192.168.1.41:8000/api/verify-serial-change', {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        serialNumber: serialNumberProcessor,
-                        local_id: localId || 1 // Usar localId de la sesión o 1 como fallback
-                    }),
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
+                fetch($url, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            serialNumber: serialNumberProcessor,
+                            local_id: localId || 1 // Usar localId de la sesión o 1 como fallback
+                        }),
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
 
-                })
-                .then(response => response.json())
-                .then(data => {
+                    })
+                    .then(response => response.json())
+                    .then(data => {
 
-                        console.log(data);
+                            console.log(data);
 
-                        $button = document.getElementById('button_comprobar_serial_number');
-                        $button.classList.remove('d-none');
-                        $button.classList.add('d-block');
+                            $button = document.getElementById('button_comprobar_serial_number');
+                            $button.classList.remove('d-none');
+                            $button.classList.add('d-block');
 
-                    if (data.status === 'pending') {
+                        if (data.status === 'pending') {
 
-                        $error_message.innerHTML = "Esperando confirmación del administrador";
-                        $error_message.classList.remove('alert-danger', 'alert-success') ;
-                        $error_message.classList.add('alert-warning');
+                            $error_message.innerHTML = "Esperando confirmación del administrador";
+                            $error_message.classList.remove('alert-danger', 'alert-success') ;
+                            $error_message.classList.add('alert-warning');
 
-                    } else if (data.status === 'ok') {
-                        $error_message.innerHTML = "Serial number correcto.";
-                        $error_message.classList.remove('alert-danger', 'alert-warning' );
-                        $error_message.classList.add('alert-success');
-                    }
-                })
-                .catch(error => {
-                    $error_message.innerHTML = "Ocurrió un error al intentar enviar la solicitud.";
-                    $error_message.classList.remove('alert-warning', 'alert-success');
-                    $error_message.classList.add('alert-danger');
-                });
-        });
-        */
+                        } else if (data.status === 'ok') {
+                            $error_message.innerHTML = "Serial number correcto.";
+                            $error_message.classList.remove('alert-danger', 'alert-warning' );
+                            $error_message.classList.add('alert-success');
+                        }
+                    })
+                    .catch(error => {
+                        $error_message.innerHTML = "Ocurrió un error al intentar enviar la solicitud.";
+                        $error_message.classList.remove('alert-warning', 'alert-success');
+                        $error_message.classList.add('alert-danger');
+                    });
+            });
+        }
 
         /*
         var configuracionTS_IP = @json(session('configuracionTS_IP'));

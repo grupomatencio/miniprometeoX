@@ -37,8 +37,15 @@ class HomeController extends Controller
 
         $acumulados = Acumulado::all();
 
+        $configuracionPrometeo = User::where('name', 'prometeo') -> first();
         $configuracionTS = User::where('name', 'ccm') -> first();
         $configuracionCDH = User::where('name', 'admin') -> first();
+
+
+        if($configuracionPrometeo){
+            session() -> flash('prometeo_ip',$configuracionPrometeo->ip);
+            session() -> flash('prometeo_port',$configuracionPrometeo->port);
+        }
 
         if($configuracionTS){
             session() -> flash('configuracionTS_IP',$configuracionTS->ip);

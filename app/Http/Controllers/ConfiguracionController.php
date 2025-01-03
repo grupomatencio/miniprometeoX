@@ -8,6 +8,7 @@ use App\Models\Local;
 use App\Models\Zone;
 use App\Models\Delegation;
 use App\Models\Company;
+use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -39,6 +40,11 @@ class ConfiguracionController extends Controller
             'name_delegation' => $disposicion['name_delegation'],
             'company' => $company
         ];
+
+        // Enviar IP Prometeo Principal
+
+        session() -> flash('PROMETEO_PRINCIPAL_IP',PROMETEO_PRINCIPAL_IP);
+        session() -> flash('PROMETEO_PRINCIPAL_PORT',PROMETEO_PRINCIPAL_PORT);
 
         return view('configuracion.index', compact('data'));
     }
@@ -146,26 +152,9 @@ class ConfiguracionController extends Controller
 
             $serialNumberProcessor = getSerialNumber();
 
-            //dd ($serialNumberProcessor);
+            $checkSerialNumber = compartirSerialNumber($serialNumberProcessor, $data['locales']);
 
-            try {
-                $connection = DB::connection('remote_prometeo_test');
-
-                // dd ($data['locales']);
-
-                $result =$connection->table('licences')
-                     -> where('local_id',$data['locales'])
-                     -> where('serial_number',$serialNumberProcessor )
-                     -> first ();
-
-                // dd ($result);
-
-            } catch (\Exception $exception) {
-                Log::info($exception);
-                $result = null;
-            }
-
-            if ($result !== null) {
+            if ($checkSerialNumber !== null && $checkSerialNumber[0]) {
                 try {
 
                     DB::beginTransaction();
@@ -297,51 +286,85 @@ class ConfiguracionController extends Controller
     }
 
 
+    // function para guardar nombre y IP compania
+
+    public function guardarCompania (Request $request) {
+
+        try {
+
+            $company = $request -> input ('$company');
+
+            $companyNew = new Company();
+            $companyNew -> id = $request['id'];
+            $companyNew -> name = $request['name'];
+            $companyNew -> save();
+
+            User::where('name','prometeo') -> update ([
+                'ip' => $request['ip'],
+                'port' => $request['port']
+            ]);
+
+            return response()-> json(['message' => 'success'], 200);
+        } catch (Exception $e) {
+            Log::info ($e);
+            return response()-> json(['message' => 'error'], 400);
+        }
+
+    }
+
+
+    // function para guardar datos de compania: delegaciones, zonas y locales
     public function guardarDatosCompania (Request $request) {
 
-        $company = $request -> input ('$company');
+        try {
 
-        $companyNew = new Company();
-        $companyNew -> id = $company['id'];
-        $companyNew -> name = $company['name'];
-        $companyNew -> save();
+            DB::beginTransaction();
 
-        $delegations = $request -> input ('$company.delegations');
-        // Log::info($delegations);
+            $delegations = $request -> delegations;
+            // Log::info($delegations);
 
-        foreach ($delegations as $delegation) {
-            $delegationNew = new Delegation();
-            $delegationNew -> id = $delegation['id'];
-            $delegationNew -> name = $delegation['name'];
-            $delegationNew -> company_id = $delegation['company_id'];
-            $delegationNew -> save ();
+            foreach ($delegations as $delegation) {
+                $delegationNew = new Delegation();
+                $delegationNew -> id = $delegation['id'];
+                $delegationNew -> name = $delegation['name'];
+                $delegationNew -> company_id = $delegation['company_id'];
+                $delegationNew -> save ();
 
-            $zones = $delegation['zones'];
+                $zones = $delegation['zones'];
 
-            foreach ($zones as $zone) {
+                foreach ($zones as $zone) {
 
-                $zoneNew = new Zone();
-                $zoneNew -> id = $zone['id'];
-                $zoneNew -> name = $zone['name'];
-                $zoneNew -> delegation_id = $zone['delegation_id'];
-                $zoneNew -> save ();
+                    $zoneNew = new Zone();
+                    $zoneNew -> id = $zone['id'];
+                    $zoneNew -> name = $zone['name'];
+                    $zoneNew -> delegation_id = $zone['delegation_id'];
+                    $zoneNew -> save ();
 
-                $locals = $zone['locals'];
+                    $locals = $zone['locals'];
 
-                foreach ($locals as $local) {
+                    foreach ($locals as $local) {
 
-                    $localNew = new Local();
-                    $localNew -> id = $local['id'];
-                    $localNew -> name = $local['name'];
-                    $localNew -> zone_id = $local['zone_id'];
-                    $localNew -> dbconection = $local['dbconection'];
-                    $localNew -> idMachines = $local['idMachines'];
-                    $localNew -> save ();
+                        $localNew = new Local();
+                        $localNew -> id = $local['id'];
+                        $localNew -> name = $local['name'];
+                        $localNew -> zone_id = $local['zone_id'];
+                        $localNew -> dbconection = $local['dbconection'];
+                        $localNew -> idMachines = $local['idMachines'];
+                        $localNew -> save ();
+
+                    }
 
                 }
-
+                // Log::info($zones);
             }
-            // Log::info($zones);
+            DB::commit();
+            return response()-> json(['message' => 'success'], 200);
+
+        } catch ( Exception $e) {
+            DB::rollBack();
+            Log::info ($e);
+            return response()-> json(['message' => 'error'], 400);
+
         }
     }
 }

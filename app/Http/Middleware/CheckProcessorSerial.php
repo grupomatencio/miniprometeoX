@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use App\Models\Company;
+use app\Models\User;
 
 
 use App\Services\getProcessorSerialNumber;
@@ -41,7 +43,7 @@ class CheckProcessorSerial
 
             if ($serialNumberProcessor) {
 
-                $checkSerialNumber = $this -> compartirSerialNumber($serialNumberProcessor, $local);
+                $checkSerialNumber = compartirSerialNumber($serialNumberProcessor, $local);
 
                 // dd ($checkSerialNumber);
 
@@ -67,49 +69,9 @@ class CheckProcessorSerial
 
         }
 
-        // dd ($errorMessage);
-
+        // dd (session() -> all());
         return $next($request);
 
-    }
-
-
-
-    private function compartirSerialNumber($serialNumberProcessor, $local) {
-
-        // dd($local);
-
-        try {
-            $connection = DB::connection('remote_prometeo_test');
-
-            // dd($local[0]->id);
-
-            $result =$connection->table('licences')
-                    -> where('local_id',$local[0]->id)
-                    -> where('serial_number',$serialNumberProcessor )
-                    -> first ();
-
-                // dd($result);
-
-                    if ($result && $result !== null) {
-                        // dd($result);
-                        return [true, null];
-                    } else {
-                        // dd($result);
-                        $error = "Serial numero de processador es incorrecto";
-                        session([ 'localId' => $local, "serialNumberProcessor" => $serialNumberProcessor]);
-
-                        return [false, $error];
-                    }
-
-        }catch (\Illuminate\Database\QueryException $ex) {
-             dd($ex);
-            $error = "No hay conexión.";
-            return [false, $error];
-        } catch (\Exception $exception) {
-            $error = "Hay algun error desconocido";
-            return [false, $error];
-        }
     }
 
     private function checkConfiguracion () {
@@ -121,7 +83,11 @@ class CheckProcessorSerial
             !isset($configuracion['locales']) || $configuracion['locales'] == null || is_array($configuracion['locales'])) {
             return 0;
         }
-
-        return $configuracion['locales'];
+        if ($configuracion['locales'] -> isNotEmpty()) {
+            $local = $configuracion['locales'] -> first() -> id;
+        } else {
+            $local = null;
+        }
+        return $local;
     }
 }
