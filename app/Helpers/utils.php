@@ -5,7 +5,7 @@ use App\Models\Zone;
 use App\Models\User;
 use App\Models\Delegation;
 use App\Models\Company;
-use App\Models\lastUserMcDate;
+use App\Models\Job;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -235,4 +235,26 @@ function getSerialNumber() :string
             $error = "Hay algun error desconocido";
             return [false, $error];
         }
+    }
+
+
+    // function para buscar job en la tabla jobs
+
+    function buscarJob ($nameJob){
+
+        $jobs = Job::all();
+
+        $isDuplicate = false;
+
+        foreach ($jobs as $job) {
+            $payload = json_decode($job -> payload, true);
+
+            if (isset($payload['data']['commandName']) && $payload['data']['commandName'] === $nameJob) {
+                $isDuplicate = true;
+                break;
+            }
+        }
+
+        return $isDuplicate;
+
     }

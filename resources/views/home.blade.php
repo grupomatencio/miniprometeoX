@@ -179,7 +179,7 @@
                                 alert.classList.add('alert-warning');
                         })
                         })
-                }, 20000);
+                }, 5000);
             }
 
 
@@ -237,7 +237,7 @@ function checkAcumulados () {
                 .catch (error => {  // si no hay data - todo rojo
                         console.log ('error')
                 })
-        }, 20000);
+        }, 5000);
     }
 
 
