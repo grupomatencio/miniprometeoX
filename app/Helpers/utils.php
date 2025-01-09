@@ -146,7 +146,7 @@ function getSerialNumber() :string
         return trim($serial);
     }
 
-    return null; // Si hay otro
+    return ''; // Si el SO no es Windows ni Linux, retorna una cadena vacía
 }
 
     // Para obtener datos de local, zona, delegation

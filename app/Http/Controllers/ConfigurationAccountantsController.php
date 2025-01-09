@@ -17,6 +17,7 @@ class ConfigurationAccountantsController extends Controller
     public function index()
     {
         try {
+
             // Conexión con la base de datos externa
             $conexionComdata = nuevaConexionLocal('admin');
 
