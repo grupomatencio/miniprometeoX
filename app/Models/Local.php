@@ -25,6 +25,11 @@ class Local extends Model
         return $this->hasMany(Machine::class);
     }
 
+    public function acumulado()
+    {
+        return $this->hasMany(Acumulado::class);
+    }
+
 
 
 }

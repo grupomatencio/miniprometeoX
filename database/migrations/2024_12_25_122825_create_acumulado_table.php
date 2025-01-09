@@ -17,6 +17,10 @@ return new class extends Migration
         Schema::create('acumulado', function (Blueprint $table) {
             $table->id();
             $table -> integer('NumPlaca') -> default (0);
+            $table->foreignId('local_id')
+                    ->constrained()
+                    ->cascadeOnDelete()
+                    ->cascadeOnUpdate();
             $table -> string('nombre') -> nullable() -> default (NULL);
             $table -> bigInteger('entradas') -> nullable() -> default (0);
             $table -> bigInteger('salidas') -> nullable() -> default (0);
@@ -67,6 +71,7 @@ return new class extends Migration
             $table -> integer('c50c') -> nullable() -> default (0);
             $table -> integer('c1e') -> nullable() -> default (0);
             $table -> integer('c2e') -> nullable() -> default (0);
+            $table->timestamps();
         });
     }
 

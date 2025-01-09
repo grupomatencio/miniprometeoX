@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 use App\Models\Acumulado;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
+use App\Jobs\TestConexionaes;
+use App\Jobs\ObtenerDatosTablaAcumulados;
 
 
 use Illuminate\Http\Request;
@@ -33,9 +35,11 @@ class HomeController extends Controller
     {
         // dd ('home');
 
-        Log::info('Home:', request()->cookies->all());
+        TestConexionaes::dispatch();
+        ObtenerDatosTablaAcumulados::dispatch();
 
-        $acumulados = Acumulado::all();
+
+        Log::info('Home:', request()->cookies->all());
 
         $configuracionPrometeo = User::where('name', 'prometeo') -> first();
         $configuracionTS = User::where('name', 'ccm') -> first();
@@ -57,6 +61,6 @@ class HomeController extends Controller
             session() -> flash('configuracionCDH_Port',$configuracionCDH->port);
         }
 
-        return view("home", compact("acumulados"));
+        return view("home");
     }
 }

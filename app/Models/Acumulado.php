@@ -13,6 +13,7 @@ class Acumulado extends Model
 
     protected $fillable = [
         'name',
+        'local_id',
         'NumPlaca',
         'nombre',
         'entradas',
@@ -65,4 +66,9 @@ class Acumulado extends Model
         'c1e',
         'c2e',
     ];
+
+    public function local()
+    {
+       return $this->belongsTo(Local::class, 'local_id');
+    }
 }

@@ -3,11 +3,12 @@
 @section('contenido')
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-8 isla-list text-center p-2">
-                <div class="">
 
-                        <!-- Versión "corta" -->
-                        @if (session('error'))
+
+            <!-- Versión "corta" -->
+            @if (session('error'))
+                <div class="col-8 isla-list text-center p-2">
+
                             <div>
                                 <div class="row p-2">
                                     <div class="col-12">
@@ -41,38 +42,78 @@
                                     </a>
                                 </div>
                             </div>
-                        @endif
                 </div>
-            </div>
+            @else
 
 
             <!-- contenido principal -->
 
-        <div class="container d-none d-md-block text-center pt-5">
-            <div class="row">
-                <div class="col-12 text-center d-flex justify-content-center mt-4 mb-3">
-                    <div class="w-50 ttl">
-                        <h1>Conexión dispositivos</h1>
+                <div class="container d-none d-md-block text-center pt-5">
+                    <div class="row">
+                        <div class="col-12 text-center d-flex justify-content-center mt-4 mb-3">
+                            <div class="w-50 ttl">
+                                <h1>Conexión dispositivos</h1>
+                            </div>
+                        </div>
+
+                        <div class="col-12 text-center row justify-content-center mt-4 mb-3">
+                            <div class="col-3 alert alert-warning m-2 alertInfo">Prometeo</div>
+                            <div class="col-3 alert alert-warning m-2 alertInfo">ComDataHost</div>
+                            <div class="col-3 alert alert-warning m-2 alertInfo">TicketServer</div>
+                        </div>
+
+                        <div class="mt-2">
+                            <div class="row">
+                                <div class="col-10 offset-1 isla-list">
+                                    <div class="pading-dinamico-3 pb-0">
+                                        <div class="row p-2">
+                                            <div class="col-12">
+                                                <a class="btn btn-primary w-100 btn-ttl">Dispositivos</a>
+                                            </div>
+                                        </div>
+
+                                        <table class="table table-bordered text-center">
+                                            <thead>
+                                                <tr>
+                                                    <th scope="col">Num</th>
+                                                    <th scope="col">Nombre</th>
+                                                    <th scope="col">Estado</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="tbody_acumulado">
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <div class="d-flex justify-content-center mt-4">
+                                        pagination
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="col-12 text-center row justify-content-center mt-4 mb-3">
-                    <div class="col-3 alert alert-warning m-2 alertInfo">Prometeo</div>
-                    <div class="col-3 alert alert-warning m-2 alertInfo">ComDataHost</div>
-                    <div class="col-3 alert alert-warning m-2 alertInfo">TicketServer</div>
-                </div>
+                <div class="container d-block d-md-none text-center pt-5">
+                    <div class="ttl d-flex align-items-center p-2">
+                        <div>
+                            <a href="#" class="titleLink">
+                                <i style="font-size: 30pt" class="bi bi-arrow-bar-left"></i>
+                            </a>
+                        </div>
+                        <div>
+                            <h1>Conexión dispositivos</h1>
+                        </div>
+                    </div>
 
-                <div class="mt-2">
-                    <div class="row">
-                        <div class="col-10 offset-1 isla-list">
-                            <div class="pading-dinamico-3 pb-0">
-                                <div class="row p-2">
-                                    <div class="col-12">
-                                        <a class="btn btn-primary w-100 btn-ttl">Dispositivos</a>
-                                    </div>
+                    <div class="mt-5 p-3 isla-list">
+                            <div class="row p-2 mb-4">
+                                <div class="col-12">
+                                    <a class="btn btn-primary w-100 btn-ttl">Dispositivos</a>
                                 </div>
-
-                                <table class="table table-bordered text-center">
+                            </div>
+                            <div class="overflow-auto">
+                                <table class="table table-bordered text-center overflow-auto">
                                     <thead>
                                         <tr>
                                             <th scope="col">Num</th>
@@ -81,109 +122,27 @@
                                             <th scope="col">Versión</th>
                                             <th scope="col">Estado</th>
                                             <th scope="col">Comentario</th>
-
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        @foreach ($acumulados as $acumulado)
-                                            <tr class="user-row
-                                                @if ($acumulado->EstadoMaquina == 'OK')
-                                                    bg-success-subtle
-                                                @elseif ($acumulado->EstadoMaquina == 'ARRANCADO' || $acumulado->EstadoMaquina == 'LEYENDO DATOS')
-                                                    bg-warning-subtle
-                                                @elseif ($acumulado->EstadoMaquina == 'SIN DATOS' || $acumulado->EstadoMaquina == 'DESCONECTADO')
-                                                    bg-danger-subtle
-                                                @endif
-                                            ">
+                                    <tbody id ="tbody_acumulado">
 
-                                                <td style="background-color:transparent">{{ $acumulado->NumPlaca }}</td>
-                                                <td style="background-color:inherit">{{ $acumulado->nombre }}</td>
-                                                <td style="background-color:inherit">{{ $acumulado->TipoProtocolo }}</td>
-                                                <td style="background-color:inherit">{{ $acumulado->version }}</td>
-                                                <td style="background-color:inherit">{{ $acumulado->EstadoMaquina }}</td>
-                                                <td style="background-color:inherit">{{ $acumulado->comentario }}</td>
-                                            </tr>
-                                        @endforeach
                                     </tbody>
                                 </table>
                             </div>
-
                             <div class="d-flex justify-content-center mt-4">
-                                   pagination
+                                Pagination <!--  { $machines->links('vendor.pagination.bootstrap-5') }} -->
                             </div>
-                        </div>
                     </div>
+
+
                 </div>
-            </div>
-        </div>
-
-        <div class="container d-block d-md-none text-center pt-5">
-            <div class="ttl d-flex align-items-center p-2">
-                <div>
-                    <a href="#" class="titleLink">
-                        <i style="font-size: 30pt" class="bi bi-arrow-bar-left"></i>
-                    </a>
-                </div>
-                <div>
-                    <h1>Conexión dispositivos</h1>
-                </div>
-            </div>
-
-            <div class="mt-5 p-3 isla-list">
-                @if (count($acumulados) != 0)
-                    <div class="row p-2 mb-4">
-                        <div class="col-12">
-                            <a class="btn btn-primary w-100 btn-ttl">Dispositivos</a>
-                        </div>
-                    </div>
-                    <div class="overflow-auto">
-                        <table class="table table-bordered text-center overflow-auto">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Num</th>
-                                    <th scope="col">Nombre</th>
-                                    <th scope="col">Tipo</th>
-                                    <th scope="col">Versión</th>
-                                    <th scope="col">Estado</th>
-                                    <th scope="col">Comentario</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($acumulados as $acumulado)
-                                    <tr class="user-row
-                                        @if ($acumulado->EstadoMaquina == 'OK')
-                                            bg-success-subtle
-                                        @elseif ($acumulado->EstadoMaquina == 'ARRANCADO' || $acumulado->EstadoMaquina == 'LEYENDO DATOS')
-                                            bg-warning-subtle
-                                        @elseif ($acumulado->EstadoMaquina == 'SIN DATOS' || $acumulado->EstadoMaquina == 'DESCONECTADO')
-                                            bg-danger-subtle
-                                        @endif
-                                    ">
-                                        <td style="background-color:transparent">{{ $acumulado->NumPlaca }}</td>
-                                        <td style="background-color:inherit">{{ $acumulado->nombre }}</td>
-                                        <td style="background-color:inherit">{{ $acumulado->TipoProtocolo }}</td>
-                                        <td style="background-color:inherit">{{ $acumulado->version }}</td>
-                                        <td style="background-color:inherit">{{ $acumulado->EstadoMaquina }}</td>
-                                        <td style="background-color:inherit">{{ $acumulado->comentario }}</td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="d-flex justify-content-center mt-4">
-                          Pagination <!--  { $machines->links('vendor.pagination.bootstrap-5') }} -->
-                    </div>
-                @else
-                    <p>No existen máquinas!</p>
-                @endif
-            </div>
-
-
-        </div>
+            @endif
     </div>
 
     <script>
-        // funcion para enviar solicitud de cambio de serial number
+
+
+        // funcion para comprobar conexiones
 
         function checkConnect () {
 
@@ -216,16 +175,76 @@
                         .catch (error => {  // si no hay data - todo rojo
                             alertes.forEach (alert => {
                                 alert.classList.remove('alert-success');
-                                alert.classList.remove('alert-warning');
-                                alert.classList.add('alert-danger');
+                                alert.classList.remove('alert-danger');
+                                alert.classList.add('alert-warning');
                         })
                         })
-                }, 10000);
+                }, 20000);
             }
 
 
 
+// funcion para sincronizar tabla acumulados
+
+function checkAcumulados () {
+
+    const tablaAcumulado = document.getElementById('tbody_acumulado');
+
+    setInterval (async () => {
+
+        const url = "/api/checkAcumulados"
+
+            fetch(url, {method: 'GET'})
+                .then (response => response.json())
+                .then (data => {   // devolvemos un array con boolean [false,true,true]
+                    acumulados = data;
+
+                    console.log (tablaAcumulado);
+                    tablaAcumulado.innerHTML ="";
+                    let rowColor;
+
+                    acumulados.forEach ((acumulado) => {
+
+                        switch (acumulado.EstadoMaquina) {
+                        case 'OK':
+                            rowColor = 'bg-success-subtle';
+                            break;
+                        case 'ARRANCANDO':
+                            rowColor = 'bg-warning-subtle';
+                            break;
+                        case 'LEYENDO DATOS':
+                            rowColor = 'bg-warning-subtle';
+                            break;
+                        case 'DESCONECTADA':
+                            rowColor = 'bg-danger-subtle';
+                            break;
+                        case 'SIN DATOS':
+                            rowColor = 'bg-danger-subtle';
+                            break;
+                        default:
+                            rowColor = 'bg-danger-subtle';
+                    }
+
+                        tablaAcumulado.innerHTML +=
+                                    ` <tr class="${rowColor}">
+                                        <td style="background-color:transparent"> ${acumulado.NumPlaca} </td>
+                                        <td style="background-color:inherit"> ${acumulado.nombre} </td>
+                                        <td style="background-color:inherit"> ${acumulado.EstadoMaquina} </td>
+                                    </tr> `
+
+                    })
+                })
+                .catch (error => {  // si no hay data - todo rojo
+                        console.log ('error')
+                })
+        }, 20000);
+    }
+
+
+
 checkConnect ();
+checkAcumulados ();
+
 
 
         const buttonPedirAyuda = document.getElementById('pedirAyuda');

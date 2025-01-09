@@ -270,129 +270,52 @@
 
 
 
-<!--
-<script>
-
-    const buttonPedirCompany = document.getElementById('button_company');
-    const blockDeError = document.getElementById('company_error_message');
-    const PROMETEO_PRINCIPAL_IP = @json(session('PROMETEO_PRINCIPAL_IP'));
-
-    if (buttonPedirCompany !==null) {
-
-        buttonPedirCompany.addEventListener('click', function(event) {
-
-                const company_name =  document.getElementById('input_company').value;
-
-                console.log(company_name); // Verificar el valor de localId
-
-                let $url = "http://"+PROMETEO_PRINCIPAL_IP+":8000/api/verify-company";
-
-                    fetch($url, {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            company_name
-                        }),
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
-
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        $company = data.company;
-                        $ip_prometeo_propio = $company['ip'];   // IP prometeo de cliente
-                        $port_prometeo_propio = $company['port']; // // Port prometeo de cliente
-
-                        if (data.status === 'error') {
-                            blockDeError.innerHTML = "Datos enviados son incorrectos";
-                            blockDeError.classList.add('d-block');
-                        } else {
-
-                            fetch ('{{ route ('configuracion.save_company')}}', {   // guardamos datos de compania y ip
-                                method:'POST',
-                                headers: {'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                                },
-                                body: JSON.stringify({
-                                    $company
-                                })
 
 
-                            })
-                            .then (response => {
+                                        <!--Modal para reiniciar session-->
+                                                <div class="modal fade" id="reiniciarModal"
+                                                data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+                                                aria-labelledby="eliminarModal1" aria-hidden="true">
+                                                <div class="modal-dialog">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h1 class="modal-title fs-5" id="staticBackdropLabel">!Reiniciar session!</h1>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                                aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            ¿Quieres reiniciar el sesión?
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <form action="{{ route('logout') }}"
+                                                                method="POST">
+                                                                @csrf
 
-                                if (response.status !== 200) {
-                                    blockDeError.innerHTML = "Error de guardar datos";
-                                    blockDeError.classList.add('d-block');
-                                } else {        // si datos guardados correctamento
+                                                                <button type="submitt" class="btn btn-danger">Reiniciarr</button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
 
-                                    $url_prometeo_propio = "http://" + $ip_prometeo_propio + ":" + $port_prometeo_propio + "/api/send-data-company"  // url prometeo de cliente
-                                    fetch($url_prometeo_propio, {    // preguntamos sobre informacion delegaciones, locales etc
-                                        method: 'POST',
-                                        body: JSON.stringify({
-                                            company_name
-                                        }),
-                                        headers: {
-                                            'Content-Type': 'application/json'
-                                        }
 
-                                    })
 
-                                    .then(response => response.json())
-                                    .then(data => {
-                                        $companyInfo = data.company;
-
-                                        if (data.status === 'error') {
-                                            blockDeError.innerHTML = "No hay datos en servidor Prometeo";
-                                            blockDeError.classList.add('d-block');
-                                        } else {
-
-                                            fetch ('{{ route ('configuracion.company')}}', {   // guardamos datos a BD
-                                                method:'POST',
-                                                headers: {'Content-Type': 'application/json',
-                                                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                                                },
-                                                body: JSON.stringify({
-                                                    $companyInfo
-                                                })
-                                            })
-                                            .then (response => {
-                                                window.location.href = '{{ route ('configuracion.index')}}';
-                                                console.log ('finalizado!');
-                                            })
-
-                                            .catch(error => {
-                                                 blockDeError.innerHTML = "Error de BD.";
-                                                blockDeError.classList.add('d-block');
-                                            });
-                                        }
-                                    })
-                                    .catch(error => {
-                                        blockDeError.innerHTML = "Error de servidor Prometeo.";
-                                        blockDeError.classList.add('d-block');
-                                    });
-
-                                    }
-                                })
-
-                            .catch(error => {
-                                    blockDeError.innerHTML = "Error de BD.";
-                                    blockDeError.classList.add('d-block');
-                            });
-                        }
-
-                    })
-                    .catch(error => {
-                        blockDeError.innerHTML = "Ocurrió un error al intentar enviar la solicitud.";
-                        blockDeError.classList.add('d-block');
-                    });
+@if(session('reiniciar') === true)
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var myModal = new bootstrap.Modal(document.getElementById('reiniciarModal'), {
+                keyboard: false
             });
-    }
-</script>
+            myModal.show();
+        });
+    </script>
+@endif
 
--->
+
+
 
 <script>
+
     const buttonPedirCompany = document.getElementById('button_company');
     const blockDeError = document.getElementById('company_error_message');
     const PROMETEO_PRINCIPAL_IP = @json(session('PROMETEO_PRINCIPAL_IP'));

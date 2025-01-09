@@ -11,12 +11,36 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache;
 
 
 // IP y Puerto prometeo Principal
 
 define('PROMETEO_PRINCIPAL_IP', "192.168.1.41");
 define('PROMETEO_PRINCIPAL_PORT', "8000");
+
+// Funciones para manejar el estado de las conexiones
+function setEstadoConexiones($estadoConexiones) {
+    // Log::info ('utils:', $estadoConexiones);
+    Cache::put('conexiones', $estadoConexiones);
+}
+
+function getEstadoConexiones() {
+    return Cache::get('conexiones', []); // Devuelve un array vacío si no existe
+}
+
+// function para controlar el tiempo de la ultima verificacón de conexiones
+
+function setTimeConexiones($lastTime) {
+    // Log::info ('utils:', $estadoConexiones);
+    Cache::put('lastTime', $lastTime);
+}
+
+function getTimeConexiones() {
+    return Cache::get('lastTime', 0); // Devuelve 0 si no existe
+}
+
+// function para hacer nuevo conexion
 function nuevaConexion($local)
 {
     $localDate = Local::find($local);
@@ -53,9 +77,9 @@ function nuevaConexionLocal($name)
     $connectionName = 'mariadb'. '-'. $name;
 
     if ($name === 'admin') {
-        $database = 'ticketserver';
+        $database = 'comdata';
     } else {
-        $database = "comdata";
+        $database = "ticketserver";
     }
 
     Log::info($user);
@@ -74,8 +98,7 @@ function nuevaConexionLocal($name)
             'database.connections.' . $connectionName . '.database' => $database,
             'database.connections.' . $connectionName . '.username' => $user->name,
             'database.connections.' . $connectionName . '.password' => $passDecrypt,
-            'database.connections.' . $connectionName . '.driver' => 'mysql',
-            'database.connections.' . $connectionName . '.options' => [PDO::ATTR_PERSISTENT=> false, PDO::ATTR_TIMEOUT => 2],
+            'database.connections.' . $connectionName . '.driver' => 'mysql'
         ]);
 
         $config = config ('database.connections'.$database);
@@ -165,22 +188,24 @@ function getSerialNumber() :string
 
 
     // function para conexion con prometeo y comprobar licencia
-    function compartirSerialNumber($serialNumberProcessor, $local) {
+    function compartirSerialNumber($serialNumberProcessor, $local_id) {
 
         try {
 
                     // Probar conexiones con prometeo
                     $urlPrometeo = User::where('name', 'prometeo')->first();
                     $company = Company::first();
-                    $url = 'http://'. PROMETEO_PRINCIPAL_IP . ':8000/api/verify-licence-company';
+                    $local = Local::find($local_id);
+                    $url = 'http://'. PROMETEO_PRINCIPAL_IP . ':'. PROMETEO_PRINCIPAL_PORT .'/api/verify-licence-company';
 
                     // dd ($local);
 
                     try {
                         $response = Http::post($url, [
-                            'local_id' => $local,
+                            'local_id' => $local_id,
                             'serialNumber' => $serialNumberProcessor,
-                            'company' => $company -> name
+                            'company' => $company -> name,
+                            'local_name' => $local -> name
                         ]);
                         // dd ($response-> json());
 

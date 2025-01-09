@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Artisan;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -31,20 +32,15 @@ class AuthenticatedSessionController extends Controller
              'password' => 'required|string',
          ]);
 
-         Log::info('ASController1', request()->cookies->all());
 
          // dd($request->password);
          if (Auth::attempt(['name' => $request->name, 'password' => $request->password], $request->boolean('remember'))) {
                 $request->session()->regenerate();
-             // dd ('stop1');
-             Log::info('tyt');
+                // exec('start php ' . base_path('artisan') . ' queue:work');
 
-             // $middleware = app(\App\Http\Middleware\CheckProcessorSerial::class);
-            // dd($middleware);
 
-             // dd($request->password);
-             Log::info('ASController2', request()->cookies->all());
-             // dd ('stop');
+                // dd('tyt');
+
              return redirect(route('home')) ->with('csrf_token', csrf_token());
          }
 

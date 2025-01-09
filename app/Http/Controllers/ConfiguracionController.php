@@ -195,6 +195,9 @@ class ConfiguracionController extends Controller
             Log::info($exception);
         }
 
+        // Value para preguntar - quieres reiniciar session?
+        session() -> flash('reiniciar',true);
+
         return redirect()->route('configuracion.index');
     }
 
