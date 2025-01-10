@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('collects', function (Blueprint $table) {
+        Schema::create('collectdetails', function (Blueprint $table) {
             $table->id();
             $table->foreignId('local_id')
                     ->references('id')
@@ -19,14 +19,15 @@ return new class extends Migration
                     ->onDelete('cascade')
                     ->onUpdate('cascade'); // Definir la clave foránea
             $table->string('UserMoney');
-            $table->string('LocationType');
-            $table->string('MoneyType');
-            $table->string('MoneyValue');
-            $table->integer('Quantity');
-            $table->double('Amount');
+            $table->string('Name', 64);
+            $table->decimal('Money1', 10, 2);
+            $table->decimal('Money2', 10, 2);
+            $table->decimal('Money3', 10, 2);
+            $table->char('CollectDetailType', 1)->default('0');
             $table->char('State', 1)->default('A');
             $table->timestamps();
         });
+
 
     }
 
@@ -35,6 +36,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('collects');
+        Schema::dropIfExists('collectdetails');
     }
 };
