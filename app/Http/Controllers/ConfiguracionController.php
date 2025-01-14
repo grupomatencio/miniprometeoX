@@ -29,6 +29,7 @@ class ConfiguracionController extends Controller
         // Obtener datos de Local, zona, delegacion
         $disposicion = getDisposicion();
 
+        // Obtener nombre de compania
         $company = getCompany();
 
         $data = [
@@ -101,7 +102,6 @@ class ConfiguracionController extends Controller
      */
     public function update(Request $request, $id)
     {
-       // dd ($request->all());
 
        $request->validate([
         'ip_prometeo' => ['required', 'ipv4'],
@@ -129,14 +129,11 @@ class ConfiguracionController extends Controller
         'locales.required' => 'Este campo es obligatorio.'
     ]);
 
-
-
-       // dd ($id);
-
         try {
 
             $data = $request-> except ('_token');
 
+            // Guardamos datos de servidores
             User::where('name','prometeo') -> update ([
                 'ip' => $data['ip_prometeo'],
                 'port' => $data['port_prometeo']
@@ -152,8 +149,10 @@ class ConfiguracionController extends Controller
 
             $serialNumberProcessor = getSerialNumber();
 
+            // Comprobar serial Number
             $checkSerialNumber = compartirSerialNumber($serialNumberProcessor, $data['locales']);
 
+            // Si resultados de comprobación es bien - guardamos datos de local
             if ($checkSerialNumber !== null && $checkSerialNumber[0]) {
                 try {
 
@@ -227,7 +226,7 @@ class ConfiguracionController extends Controller
         return redirect()->route('configuracion.index');
     }
 
-    // Para obtener datos en modo automatico
+    // Para obtener datos de servidores en modo automatico
     public function buscar() {
         $user_cambio = User::where('name','ccm') -> first();
 
@@ -278,6 +277,8 @@ class ConfiguracionController extends Controller
         return view('configuracion.index', compact('data'));
     }
 
+    // function para obtener datos de local ip
+    // @return $localIp
     private function getLocalIp () {
 
         $output = shell_exec('ipconfig');  // Para windows
@@ -290,6 +291,7 @@ class ConfiguracionController extends Controller
 
 
     // function para guardar nombre y IP compania
+    // @return Response con estado de resultado operación
 
     public function guardarCompania (Request $request) {
 
@@ -317,6 +319,7 @@ class ConfiguracionController extends Controller
 
 
     // function para guardar datos de compania: delegaciones, zonas y locales
+    // @return Response con estado de resultado operación
     public function guardarDatosCompania (Request $request) {
 
         try {

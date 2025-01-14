@@ -33,6 +33,8 @@ class CheckSynchronizationServidores extends Command
     {
 
         global $conexiones;
+
+        // variable que devolvemos de metodo con estados de conexiones
         $conexiones = [false,false,false];
 
         // Probar conexiones con prometeo
@@ -48,12 +50,10 @@ class CheckSynchronizationServidores extends Command
             Log::info($e);
         }
 
-
+        // Probamos otro conexiones
         $conexionConComData = nuevaConexionLocal('admin');
-        // Log::info($conexionConComData);
         $conexiones [1] = $this -> checkConexion($conexionConComData);
         $conexionConTicketServer = nuevaConexionLocal('ccm');
-        // Log::info($conexionConTicketServer);
         $conexiones [2] = $this -> checkConexion($conexionConTicketServer);
 
         // Guardamos información sobre resultados ultimos conexiones
@@ -63,6 +63,7 @@ class CheckSynchronizationServidores extends Command
     }
 
 
+    // function para comprobar conexion. Entra: nobre de conexion y devulve estado
     private function checkConexion ($nameConexion) {
         try {
 

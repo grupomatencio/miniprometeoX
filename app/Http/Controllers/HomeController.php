@@ -6,8 +6,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use App\Jobs\TestConexionaes;
 use App\Jobs\ObtenerDatosTablaAcumulados;
-
-
+use Exception;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -33,19 +32,28 @@ class HomeController extends Controller
     public function index()
 
     {
-        // dd ('home');
 
+        // Bloque para iniciar tareas en modo automatico
+        /*
+        $taskName = 'LaravelQueueWork';
+        $command = 'queue:work';
+        $this -> ensureTaskExists($taskName,$command);
+
+        $taskName = 'LaravelScheduleWork';
+        $command = 'schedule:work';
+        $this -> ensureTaskExists($taskName,$command);
+        */
+
+        // Iniciamos Jobs para comprobar conexiones y datos de TicketServer
         TestConexionaes::dispatch();
         ObtenerDatosTablaAcumulados::dispatch();
 
-
-        Log::info('Home:', request()->cookies->all());
-
+        // Obtener datos de conexiones
         $configuracionPrometeo = User::where('name', 'prometeo') -> first();
         $configuracionTS = User::where('name', 'ccm') -> first();
         $configuracionCDH = User::where('name', 'admin') -> first();
 
-
+        // Enviar datos para utilizar en JavaScript
         if($configuracionPrometeo){
             session() -> flash('prometeo_ip',$configuracionPrometeo->ip);
             session() -> flash('prometeo_port',$configuracionPrometeo->port);
@@ -63,4 +71,44 @@ class HomeController extends Controller
 
         return view("home");
     }
+
+    // function para comprobar si hay task en Task Shedule
+    // @return void o crea nuevo Task
+    function ensureTaskExists($taskName, $command) {
+        // Проверка задачи
+        $output = null;
+        $returnVar = null;
+        exec("schtasks /query /tn \"$taskName\" 2>&1", $output, $returnVar);
+
+        if ($returnVar !== 0) {
+            // Создание задачи
+
+            $this -> createTask($taskName, $command);
+
+        } else {
+            Log::info("Task '$taskName' already exists.");
+        }
+    }
+
+    // funcción para crear Task
+    function createTask($taskName, $command) {
+        $phpPath = 'C:\\xampp\\php\\php.exe'; // via a PHP
+        $artisanPath = 'C:\\Users\\Magarin\\miniprometeoXX\\artisan'; // via a artisan
+        // $schedule = '/sc minute /mo 1'; // Cada 1 minuta
+
+        $command = "schtasks /create /tn \"$taskName\" /tr \"$phpPath $artisanPath $command\" /sc onstart";
+        // dd($command);
+        try {
+            exec($command, $output, $returnVar);
+        } catch (Exception $e) {
+            Log::error($e);
+        }
+
+        if ($returnVar === 0) {
+            Log::info("Task '$taskName' created successfully.");
+        } else {
+            Log::error("Failed to create task '$taskName': " . implode("\n", $output));
+        }
+    }
+
 }

@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Delegation;
 use App\Models\Company;
 use App\Models\Job;
+use App\Models\Acumulado;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -20,6 +21,7 @@ define('PROMETEO_PRINCIPAL_IP', "192.168.1.41");
 define('PROMETEO_PRINCIPAL_PORT', "8000");
 
 // Funciones para manejar el estado de las conexiones
+// variable $estadoConexiones - es array con estados
 function setEstadoConexiones($estadoConexiones) {
     // Log::info ('utils:', $estadoConexiones);
     Cache::put('conexiones', $estadoConexiones);
@@ -29,10 +31,10 @@ function getEstadoConexiones() {
     return Cache::get('conexiones', []); // Devuelve un array vacío si no existe
 }
 
-// function para controlar el tiempo de la ultima verificacón de conexiones
+// functioes para controlar el tiempo de la ultima verificacón de conexiones
+// variable $lastTime - es tiempo de ultimo conexion
 
 function setTimeConexiones($lastTime) {
-    // Log::info ('utils:', $estadoConexiones);
     Cache::put('lastTime', $lastTime);
 }
 
@@ -41,6 +43,7 @@ function getTimeConexiones() {
 }
 
 // function para hacer nuevo conexion
+// @return nombre de conexion  $connectionName
 function nuevaConexion($local)
 {
     $localDate = Local::find($local);
@@ -70,7 +73,9 @@ function nuevaConexion($local)
 //
 
 
-// conexion depende de nombre usuario
+// function para conexion depende de nombre usuario
+// @return nombre de conexion  $connectionName
+
 function nuevaConexionLocal($name)
 {
     $user = User::where('name', $name) ->first();
@@ -82,11 +87,7 @@ function nuevaConexionLocal($name)
         $database = "ticketserver";
     }
 
-    Log::info($user);
-    // Log::info('util');
     $passDecrypt = Crypt::decryptString($user->password);
-
-    Log::info($passDecrypt);
 
     DB::purge($connectionName);
 
@@ -103,9 +104,6 @@ function nuevaConexionLocal($name)
 
         $config = config ('database.connections'.$database);
 
-        // Log::info('database.connections.' . $connectionName . '.host');
-
-        // Limpiar la conexión para que se apliquen los nuevos valores
     }catch (\Exception $e) {
         Log::info($e);
 
@@ -116,6 +114,7 @@ function nuevaConexionLocal($name)
 
 
 // function para obtener serial numer de Procesador
+// @return serial number $serial o null
 function getSerialNumber() :string
 {
     if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
@@ -135,8 +134,8 @@ function getSerialNumber() :string
 
     // Para Linux
     elseif (strtoupper(substr(PHP_OS, 0, 6)) === 'LINUX') {
-        $output = "ID: C1 06 08 00 FF FB EB BF";  // solo para probar
-        //shell_exec('sudo /usr/sbin/dmidecode -t 4 | grep ID');
+        $output = "ID: C1 06 08 00 FF FB EB BF";  // solo para probar  ***********!!!!!!!!!!!!!!!!!!!!!!!!!!!!*************************
+        // shell_exec('sudo /usr/sbin/dmidecode -t 4 | grep ID');
 
         if ($output) {
             preg_match('/ID:\s*([a-fA-F0-9\s]+)/', $output, $matches);
@@ -151,6 +150,8 @@ function getSerialNumber() :string
 }
 
     // Para obtener datos de local, zona, delegation
+    // @return array $disposision con local, zona, delegation
+
     function getDisposicion () {
         $locales = Local::all();
         $zones=Zone::all();
@@ -174,6 +175,7 @@ function getSerialNumber() :string
     }
 
     // function para comprobar si hay Compania en BD
+    // @return nombre company $company o null
     function getCompany () {
         try {
             $company = Company::first();
@@ -188,6 +190,7 @@ function getSerialNumber() :string
 
 
     // function para conexion con prometeo y comprobar licencia
+    // @return array [resultado de comprobación, error]
     function compartirSerialNumber($serialNumberProcessor, $local_id) {
 
         try {
@@ -238,7 +241,8 @@ function getSerialNumber() :string
     }
 
 
-    // function para buscar job en la tabla jobs
+    // function para buscar job en la tabla jobs para no repetir
+    // @$isDuplicate - boolean con resultado comprobacón
 
     function buscarJob ($nameJob){
 
@@ -258,3 +262,16 @@ function getSerialNumber() :string
         return $isDuplicate;
 
     }
+
+    // function para desconectar todos machines en tabla acumulados cuando no hay conexiones
+    // @return void
+
+    function desconectMachines () {
+
+     $machinesAcumulados = Acumulado::all();
+                // Desconectamos cada machine
+                foreach ($machinesAcumulados as $machine) {
+
+                    $machine -> update(['EstadoMaquina'=>'DESCONECTADA']);
+                }
+        }

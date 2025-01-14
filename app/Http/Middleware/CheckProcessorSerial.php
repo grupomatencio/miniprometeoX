@@ -26,26 +26,20 @@ class CheckProcessorSerial
     public function handle(Request $request, Closure $next)
     {
 
-        // dd ('checkController0');
-
-        $error = false; // flag para error
-
         // Comprobar hay configuraciones en BD o no
 
         if ($this -> checkConfiguracion()) {
 
             $local = $this -> checkConfiguracion();
 
-            // Comprobar serial numero de processador
+            // Obtener serial numero de processador
 
             $serialNumberProcessor = getSerialNumber();
 
-
+            // Comprobar serial numero de processador
             if ($serialNumberProcessor) {
 
                 $checkSerialNumber = compartirSerialNumber($serialNumberProcessor, $local);
-
-                // dd ($checkSerialNumber);
 
                 if($checkSerialNumber[0] == false){
 
@@ -68,17 +62,19 @@ class CheckProcessorSerial
             $error = true;
 
         }
-
-        // dd (session() -> all());
         return $next($request);
 
     }
 
+    // function para probar hay configuraciones o no
+    // @return $local - local o null
     private function checkConfiguracion () {
 
 
+        // Obtener datos de local
         $configuracion = getDisposicion();
 
+        // Comprobar hay datos o no
         if (!isset($configuracion['name_delegation']) || $configuracion['name_delegation'] == null || !isset($configuracion['name_zona']) || $configuracion['name_zona'] == null ||
             !isset($configuracion['locales']) || $configuracion['locales'] == null || is_array($configuracion['locales'])) {
             return 0;

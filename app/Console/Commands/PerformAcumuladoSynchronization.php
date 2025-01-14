@@ -194,12 +194,7 @@ class PerformAcumuladoSynchronization extends Command
             DB::beginTransaction();
             try {
 
-                $machinesAcumulados = Acumulado::all();
-                // Desconectamos cada machine
-                foreach ($machinesAcumulados as $machine) {
-
-                    $machine -> update(['EstadoMaquina'=>'DESCONECTADA']);
-                }
+                 desconectMachines (); // function para hacer estado maquinas al "desconectar" en BD en util.php
                  DB::commit();
             } catch (\Exception $e) {
                 DB::rollBack();

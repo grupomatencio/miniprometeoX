@@ -23,6 +23,17 @@ class ApiCheckAcumuladoController extends Controller
             ObtenerDatosTablaAcumulados::dispatch();
         }
 
+        // Probamos tiempo de ultimo prueba de conexión
+        $lastTimeConexiones = getTimeConexiones(); // tiempo de ultimos pruebos de conexiones
+        $diferenciaTiempo = now()->diffInSeconds($lastTimeConexiones);
+
+        if ($diferenciaTiempo < -45) desconectMachines (); // si tiempo mas de 45 segundos - desconectamos machines en tabla acumulados
+
+        // Comprobamos estado de conexion con TicketServer
+        $conexiones = getEstadoConexiones();   // resultados de ultimos prubos de conexiones
+
+        if ($conexiones[2] === false) desconectMachines (); // si no hay conexiones con TicketServer - desconectamos machines en tabla acumulados
+
         // Devolvemos datos de tabala acumulado
         try {
             $acumulados = Acumulado::all();

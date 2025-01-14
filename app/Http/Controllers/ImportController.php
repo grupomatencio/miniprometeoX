@@ -12,10 +12,6 @@ use Illuminate\Support\Facades\Log;
 class ImportController extends Controller
 {
 
-    // Variable para datos de prometeo
-
-    private $f;
-
     public function index()
     {
 
@@ -25,17 +21,16 @@ class ImportController extends Controller
                                 -> orWhere('type',null)
                                 -> get();
             $machines_prometeo = collect();
-            $importBD = false;        // Si no habia importacion - false
+            $importBD = false;        // Variables para resultado de importacón
             $message = "";              // Mensaje de informacion de servicio
             $local = Local::all();
 
-
+            // Si no hay locales - volveremos un error
             if (count($local) !== 1) {
                 return redirect()->back()->with("errorConfiguracion", "No hay configuración del sistema");
             }
 
-            // $local[0] -> id = 18;
-
+            // Obtener datos de machines de prometeo
             try {
                 $connection = DB::connection('remote_prometeo_test');
 
@@ -43,8 +38,6 @@ class ImportController extends Controller
                      -> where('local_id',$local[0] -> id)
                      //-> where('parent',)
                      -> get ();
-
-                // dd ($machines_prometeo);
 
             } catch (\Exception $exception) {
                 Log::info($exception);
@@ -84,7 +77,7 @@ class ImportController extends Controller
         try {
             $machines = Machine::all();
             $machines_prometeo = collect();
-            $importBD = false;        // Si no habia importacion - false
+            $importBD = false;        // Variables para resultado de importacón
             $message = "";              // Mensaje de informacion de servicio
             $local = Local::all();
 
@@ -93,8 +86,7 @@ class ImportController extends Controller
                 return redirect()->back()->with("errorConfiguracion", "No hay configuración de sistema");
             }
 
-            // $local[0] -> id = 18;
-
+            // Obtener datos de machines de prometeo
             try {
                 $connection = DB::connection('remote_prometeo_test');
 
@@ -111,8 +103,8 @@ class ImportController extends Controller
 
             $machines_prometeo_array = $machines_prometeo->toArray();
 
+            // Eliminar tabla machines de miniprometeo y recargar de nuevo
             Machine::truncate();
-
 
             foreach ($machines_prometeo_array as $machine) {
 
@@ -129,12 +121,11 @@ class ImportController extends Controller
                     $newMachine -> parent_id = $machine -> parent_id;
                     $newMachine -> r_auxiliar = $machine -> r_auxiliar;
 
-                    // dd($newMachine);
                     $newMachine -> save();
 
 
                 } catch (\Exception $e) {
-                    dd($e -> getMessage());
+                    Log::info($e -> getMessage());
                 }
             }
 
@@ -164,6 +155,8 @@ class ImportController extends Controller
 
     }
 
+    // function para comparar arrays de machines
+    // @return $diff - array con diferencia
     private function comparar ($machines, $machines_prometeo) {
         $identificadoresMachine = $machines -> pluck ('identificador');
         $identificadoresMachinePrometeo = $machines_prometeo -> pluck ('identificador');

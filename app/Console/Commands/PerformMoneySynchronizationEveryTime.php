@@ -42,6 +42,7 @@ class PerformMoneySynchronizationEveryTime extends Command
 
     protected function connectToTicketServer(Local $local): void
     {
+        LOG::info('88888888888888888888888888888888888888888888888888888888888888888888888888888888');
         $connectionName = nuevaConexionLocal('ccm');
 
         try {
