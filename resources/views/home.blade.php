@@ -252,13 +252,13 @@ checkAcumulados ();
         if (buttonPedirAyuda !== null) {
             buttonPedirAyuda.addEventListener('click', function(event) {
                 var serialNumberProcessor = @json(session('serialNumberProcessor'));
-                var localId = @json(session('localId'));
-                var prometo_ip = @json(session('prometeo_ip'));
-                var prometo_port = @json(session('prometeo_port'));
+                var localId = @json(session('localId->id'));
+                var prometeo_ip = @json(session('prometeo_ip'));
+                var prometeo_port = @json(session('prometeo_port'));
 
                 $error_message = document.getElementById('mensage_error'); // ventana de message de error
 
-                $url = 'http://'+prometo_ip+':' + prometeo_port + '/api/verify-serial-change';
+                $url = 'http://'+prometeo_ip+':' + prometeo_port + '/api/verify-serial-change';
 
                 fetch($url, {
                         method: 'POST',

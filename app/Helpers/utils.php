@@ -88,7 +88,7 @@ function nuevaConexionLocal($name)
     }
 
     $passDecrypt = Crypt::decryptString($user->password);
-
+    Log::info($passDecrypt);
     DB::purge($connectionName);
 
     try {
@@ -225,7 +225,7 @@ function getSerialNumber() :string
                     } else {
 
                         $error = "Serial numero de processador es incorrecto";
-                        session([ 'localId' => $local, "serialNumberProcessor" => $serialNumberProcessor]);
+                        session([ 'localId' => $local->id, "serialNumberProcessor" => $serialNumberProcessor]);
 
                         return [false, $error];
                     }

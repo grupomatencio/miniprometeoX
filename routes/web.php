@@ -6,6 +6,7 @@ use App\Http\Controllers\MachineController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\ConfiguracionController;
+use App\Http\Controllers\SyncMoneyController;
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\CheckProcessorSerial;
 use Illuminate\Support\Facades\Auth;
@@ -38,6 +39,8 @@ Route::resource('machines', MachineController::class)->middleware(['auth']);
 // Import datos
 Route::get('/import', [ImportController::class, 'index'])->name('import.index')->middleware(['auth']);
 Route::get('/import/store', [ImportController::class, 'store'])->name('import.store')->middleware(['auth']);
+
+Route::get('/syncmoney', SyncMoneyController::class);
 
 // Configurationes
 Route::post('/configuracion/save_company', [ConfiguracionController::class, 'guardarCompania'])->name('configuracion.save_company')->middleware(['auth']);

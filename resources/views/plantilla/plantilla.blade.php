@@ -61,11 +61,14 @@
                          <a class="nav-link" href="/configuracion"s>
                             <i class="bi bi-square-fill"></i> Configuración miniprometeo
                         </a>
-                        <a class="nav-link" href="/welcome" >
+                        <a class="nav-link" href="/welcome">
                             <i class="bi bi-square-fill"></i> Asignar recargas auxilares
                         </a>
                         <a class="nav-link" href="/machines">
                             <i class="bi bi-square-fill"></i> Conexiones de dispositivos
+                        </a>
+                        <a class="nav-link" href="/syncmoney">
+                            <i class="bi bi-square-fill"></i> Sincronización de máquina de cambio
                         </a>
                     </li>
                 </ul>

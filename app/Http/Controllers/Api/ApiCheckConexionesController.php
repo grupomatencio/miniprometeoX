@@ -29,6 +29,8 @@ class ApiCheckConexionesController extends Controller
         $lastTimeConexiones = getTimeConexiones(); // tiempo de ultimos prubos de conexiones
         $diferenciaTiempo = now()->diffInSeconds($lastTimeConexiones);
 
+
+
         Log::Info($diferenciaTiempo);
 
         if ($diferenciaTiempo < -45) return null;

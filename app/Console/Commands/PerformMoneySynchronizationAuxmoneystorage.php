@@ -46,6 +46,7 @@ class PerformMoneySynchronizationAuxmoneystorage extends Command
             DB::connection($connectionName)->getPdo();
 
             $auxmoneystorage = DB::connection($connectionName)->table('auxmoneystorage')->get();
+            Log::info(message: $auxmoneystorage);
 
             DB::beginTransaction();
             try {

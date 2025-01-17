@@ -56,6 +56,11 @@ class PerformMoneySynchronization extends Command
             $collectinfo = DB::connection($connectionName)->table('collectinfo')->get();
             $auxmoneystorageinfo = DB::connection($connectionName)->table('auxmoneystorageinfo')->get();
 
+            Log::info($tickets);
+            Log::info($logs);
+            Log::info($collectinfo);
+            Log::info($auxmoneystorageinfo);
+
 
             // TABLAS PARA PARA INSERETAR DATOS O ACTUALIZARLOS, SEUGUN SI HAY CAMBIOS O NO
             DB::beginTransaction();

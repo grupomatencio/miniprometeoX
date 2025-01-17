@@ -18,9 +18,8 @@ class MoneySynchronization24hJob implements ShouldQueue
     /**
      * Create a new job instance.
      */
-    public function __construct($id)
+    public function __construct()
     {
-        $this->id = $id;
     }
 
     /**
@@ -29,6 +28,6 @@ class MoneySynchronization24hJob implements ShouldQueue
     public function handle(): void
     {
 
-        Artisan::call('miniprometeo:sync-money-synchronization24h' . $this->id);
+        Artisan::call('miniprometeo:sync-money-synchronization24h');
     }
 }

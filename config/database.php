@@ -113,12 +113,12 @@ return [
         ],
 
         'remote_prometeo_test' => [
-            'driver' => 'pgsql',
+            'driver' => 'mysql',
             'host' => '192.168.1.41',  // IP de tu servidor PostgreSQL remoto
-            'port' => '5432',           // Puerto de la base de datos (por defecto PostgreSQL usa 5432)
+            'port' => '3306',           // Puerto de la base de datos (por defecto PostgreSQL usa 5432)
             'database' => env('REMOTE_DB_DATABASE', 'prometeo'), // Nombre de la base de datos
-            'username' => env('REMOTE_DB_USERNAME', 'postgres'), // Usuario para la conexión
-            'password' => env('REMOTE_DB_PASSWORD', 'admin'), // Contraseña del usuario
+            'username' => env('REMOTE_DB_USERNAME', 'root'), // Usuario para la conexión
+            'password' => env('REMOTE_DB_PASSWORD', ''), // Contraseña del usuario
             'charset' => 'utf8',         // Codificación de la base de datos
             'prefix' => '',              // Prefijo para las tablas (si no quieres ninguno, déjalo vacío)
             'prefix_indexes' => true,    // Indices de las tablas

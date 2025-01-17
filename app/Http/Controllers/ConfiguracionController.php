@@ -22,9 +22,9 @@ class ConfiguracionController extends Controller
      */
     public function index()
     {
-        $user_prometeo = User::where('name','prometeo') -> first();
-        $user_cambio = User::where('name','ccm') -> first();
-        $user_comDataHost = User::where('name','admin') -> first();
+        $user_prometeo = User::where('name', 'prometeo')->first();
+        $user_cambio = User::where('name', 'ccm')->first();
+        $user_comDataHost = User::where('name', 'admin')->first();
 
         // Obtener datos de Local, zona, delegacion
         $disposicion = getDisposicion();
@@ -44,8 +44,8 @@ class ConfiguracionController extends Controller
 
         // Enviar IP Prometeo Principal
 
-        session() -> flash('PROMETEO_PRINCIPAL_IP',PROMETEO_PRINCIPAL_IP);
-        session() -> flash('PROMETEO_PRINCIPAL_PORT',PROMETEO_PRINCIPAL_PORT);
+        session()->flash('PROMETEO_PRINCIPAL_IP', PROMETEO_PRINCIPAL_IP);
+        session()->flash('PROMETEO_PRINCIPAL_PORT', PROMETEO_PRINCIPAL_PORT);
 
         return view('configuracion.index', compact('data'));
     }
@@ -103,46 +103,46 @@ class ConfiguracionController extends Controller
     public function update(Request $request, $id)
     {
 
-       $request->validate([
-        'ip_prometeo' => ['required', 'ipv4'],
-        'port_prometeo' => ['required', 'numeric', 'max:65535'],
-        'ip_cambio' => ['required', 'ipv4'],
-        'port_cambio' => ['required', 'numeric', 'max:65535'],
-        'ip_comdatahost' => ['required', 'ipv4'],
-        'port_comdatahost' => ['required', 'numeric', 'max:65535'],
-        'locales' => ['required']
-    ], [
-        'ip_prometeo.required' => 'Este campo es obligatorio.',
-        'port_prometeo.required' => 'Este campo es obligatorio.',
-        'ip_cambio.required' => 'Este campo es obligatorio.',
-        'port_cambio.required' => 'Este campo es obligatorio.',
-        'ip_comdatahost.required' => 'Este campo es obligatorio.',
-        'port_comdatahost.required' => 'Este campo es obligatorio.',
-        'ip_prometeo.ipv4' => 'En este campo solo IP',
-        'ip_cambio.ipv4' => 'En este campo solo IP',
-        'ip_comdatahost.ipv4' => 'En este campo solo IP',
-        'port_prometeo.numeric' => 'En este campo solo digitos',
-        'port_cambio.numeric' => 'En este campo solo digitos',
-        'port_cambio.min' => 'Numero de puerto muy grande',
-        'port_comdatahost.numeric' => 'En este campo solo digitos',
-        'port_comdatahost.min' => 'Numero de puerto muy grande',
-        'locales.required' => 'Este campo es obligatorio.'
-    ]);
+        $request->validate([
+            'ip_prometeo' => ['required', 'ipv4'],
+            'port_prometeo' => ['required', 'numeric', 'max:65535'],
+            'ip_cambio' => ['required', 'ipv4'],
+            'port_cambio' => ['required', 'numeric', 'max:65535'],
+            'ip_comdatahost' => ['required', 'ipv4'],
+            'port_comdatahost' => ['required', 'numeric', 'max:65535'],
+            'locales' => ['required']
+        ], [
+            'ip_prometeo.required' => 'Este campo es obligatorio.',
+            'port_prometeo.required' => 'Este campo es obligatorio.',
+            'ip_cambio.required' => 'Este campo es obligatorio.',
+            'port_cambio.required' => 'Este campo es obligatorio.',
+            'ip_comdatahost.required' => 'Este campo es obligatorio.',
+            'port_comdatahost.required' => 'Este campo es obligatorio.',
+            'ip_prometeo.ipv4' => 'En este campo solo IP',
+            'ip_cambio.ipv4' => 'En este campo solo IP',
+            'ip_comdatahost.ipv4' => 'En este campo solo IP',
+            'port_prometeo.numeric' => 'En este campo solo digitos',
+            'port_cambio.numeric' => 'En este campo solo digitos',
+            'port_cambio.min' => 'Numero de puerto muy grande',
+            'port_comdatahost.numeric' => 'En este campo solo digitos',
+            'port_comdatahost.min' => 'Numero de puerto muy grande',
+            'locales.required' => 'Este campo es obligatorio.'
+        ]);
 
         try {
 
-            $data = $request-> except ('_token');
+            $data = $request->except('_token');
 
             // Guardamos datos de servidores
-            User::where('name','prometeo') -> update ([
+            User::where('name', 'prometeo')->update([
                 'ip' => $data['ip_prometeo'],
                 'port' => $data['port_prometeo']
             ]);
-            User::where('name','ccm') -> update ([
+            User::where('name', 'ccm')->update([
                 'ip' => $data['ip_cambio'],
                 'port' => $data['port_cambio']
             ]);
-            User::where('name','admin') -> update ([
+            User::where('name', 'admin')->update([
                 'ip' => $data['ip_comdatahost'],
                 'port' => $data['port_comdatahost']
             ]);
@@ -158,44 +158,42 @@ class ConfiguracionController extends Controller
 
                     DB::beginTransaction();
                     $local = Local::find($data['locales']);
-                    $zone = Zone::find($local -> zone_id);
-                    $delegation = Delegation::find($zone -> delegation_id);
+                    $zone = Zone::find($local->zone_id);
+                    $delegation = Delegation::find($zone->delegation_id);
 
-                    $localesParaEliminar = Local::where('id', '!=', $local -> id) -> get();
-                    $zonesParaEliminar = Zone::where('id', '!=',$zone -> id )-> get();
-                    $delegationsParaEliminar = Delegation::where('id', '!=', $delegation -> id)-> get();
+                    $localesParaEliminar = Local::where('id', '!=', $local->id)->get();
+                    $zonesParaEliminar = Zone::where('id', '!=', $zone->id)->get();
+                    $delegationsParaEliminar = Delegation::where('id', '!=', $delegation->id)->get();
 
                     // dd ($localesParaEliminar);
 
                     DB::statement('SET FOREIGN_KEY_CHECKS=0');
                     foreach ($localesParaEliminar as $loc) {
-                        $loc ->delete();
+                        $loc->delete();
                     }
                     foreach ($zonesParaEliminar as $zon) {
-                        $zon ->delete();
+                        $zon->delete();
                     }
                     foreach ($delegationsParaEliminar as $del) {
-                        $del ->delete();
+                        $del->delete();
                     }
                     DB::statement('SET FOREIGN_KEY_CHECKS=1');
 
                     DB::commit();
-
-                } catch  (\Exception $exception) {
+                } catch (\Exception $exception) {
                     DB::rollBack();
                     Log::info($exception);
                 }
             } else {
                 return redirect()->back()->with("errorSerialNumber", "Error de configuración. Pongas en contacto con servicios técnicos");
             }
-
         } catch (\Exception $exception) {
             dd($exception);
             Log::info($exception);
         }
 
         // Value para preguntar - quieres reiniciar session?
-        session() -> flash('reiniciar',true);
+        session()->flash('reiniciar', true);
 
         return redirect()->route('configuracion.index');
     }
@@ -208,27 +206,28 @@ class ConfiguracionController extends Controller
      */
     public function destroy($id)
     {
-        $user_prometeo = User::where('name','prometeo') -> first();
-        $user_prometeo ->ip = null;
-        $user_prometeo ->port = null;
-        $user_prometeo -> save();
+        $user_prometeo = User::where('name', 'prometeo')->first();
+        $user_prometeo->ip = null;
+        $user_prometeo->port = null;
+        $user_prometeo->save();
 
-        $user_cambio = User::where('name','ccm') -> first();
-        $user_cambio ->ip = null;
-        $user_cambio ->port = null;
-        $user_cambio -> save();
+        $user_cambio = User::where('name', 'ccm')->first();
+        $user_cambio->ip = null;
+        $user_cambio->port = null;
+        $user_cambio->save();
 
-        $user_comDataHost = User::where('name','admin') -> first();
-        $user_comDataHost ->ip = null;
-        $user_comDataHost ->port = null;
-        $user_comDataHost -> save();
+        $user_comDataHost = User::where('name', 'admin')->first();
+        $user_comDataHost->ip = null;
+        $user_comDataHost->port = null;
+        $user_comDataHost->save();
 
         return redirect()->route('configuracion.index');
     }
 
     // Para obtener datos de servidores en modo automatico
-    public function buscar() {
-        $user_cambio = User::where('name','ccm') -> first();
+    public function buscar()
+    {
+        $user_cambio = User::where('name', 'ccm')->first();
 
         $filePath = 'C:\Gistra\SMI2000\Setup-TicketController\preferences.cfg';
 
@@ -237,26 +236,23 @@ class ConfiguracionController extends Controller
 
             $fileContent = file_get_contents($filePath);
 
-            if(preg_match('/<ServerIP>(.*?)<\/ServerIP>/', $fileContent, $matches)) {
-                $user_cambio ->ip = $matches[1];
+            if (preg_match('/<ServerIP>(.*?)<\/ServerIP>/', $fileContent, $matches)) {
+                $user_cambio->ip = $matches[1];
             } else {
-                $user_cambio ->ip = '0.0.0.0';
+                $user_cambio->ip = '0.0.0.0';
             }
 
-            if(preg_match('/<ServerPort>(.*?)<\/ServerPort>/', $fileContent, $matches)) {
-                $user_cambio ->port = $matches[1];
-            } else {
-                $user_cambio ->port = '';
-            }
+            $user_cambio->port = 3306;
+
         }
 
         $user_comDataHost = new User;
-        $user_comDataHost ->ip = $this -> getLocalIp ();
-        $user_comDataHost ->port = 3506;
+        $user_comDataHost->ip = $this->getLocalIp();
+        $user_comDataHost->port = 3506;
 
         $user_prometeo = new User;
-        $user_prometeo ->ip = "0.0.0.0";
-        $user_prometeo ->port = 0;
+        $user_prometeo->ip = "0.0.0.0";
+        $user_prometeo->port = 0;
 
         // Obtener datos de Local, zona, delegacion
         $disposicion = getDisposicion();
@@ -279,7 +275,9 @@ class ConfiguracionController extends Controller
 
     // function para obtener datos de local ip
     // @return $localIp
-    private function getLocalIp () {
+     private function getLocalIp () {
+
+        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
 
         $output = shell_exec('ipconfig');  // Para windows
 
@@ -287,90 +285,105 @@ class ConfiguracionController extends Controller
             $localIp = $matches[1];
         }
         return $localIp;
+        }
+        elseif (strtoupper(substr(PHP_OS, 0, 6)) === 'LINUX') {
+
+            // Ejecutar el comando 'ip addr show' y capturar la salida
+            $output = shell_exec('ip addr show');
+
+            // Usar preg_match para encontrar la dirección IP que no sea 127.0.0.1
+            if (preg_match('/inet\s+([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)\s/', $output, $matches)) {
+                $localIp = $matches[1]; // La dirección IP encontrada
+            }
+
+            dd($localIp);
+
+            return isset($localIp) ? $localIp : null; // Retorna la IP o null si no se encontró
+        }
     }
+
+
+
 
 
     // function para guardar nombre y IP compania
     // @return Response con estado de resultado operación
 
-    public function guardarCompania (Request $request) {
+    public function guardarCompania(Request $request)
+    {
 
         try {
 
-            $company = $request -> input ('$company');
+            $company = $request->input('$company');
 
             $companyNew = new Company();
-            $companyNew -> id = $request['id'];
-            $companyNew -> name = $request['name'];
-            $companyNew -> save();
+            $companyNew->id = $request['id'];
+            $companyNew->name = $request['name'];
+            $companyNew->save();
 
-            User::where('name','prometeo') -> update ([
+            User::where('name', 'prometeo')->update([
                 'ip' => $request['ip'],
                 'port' => $request['port']
             ]);
 
-            return response()-> json(['message' => 'success'], 200);
+            return response()->json(['message' => 'success'], 200);
         } catch (Exception $e) {
-            Log::info ($e);
-            return response()-> json(['message' => 'error'], 400);
+            Log::info($e);
+            return response()->json(['message' => 'error'], 400);
         }
-
     }
 
 
     // function para guardar datos de compania: delegaciones, zonas y locales
     // @return Response con estado de resultado operación
-    public function guardarDatosCompania (Request $request) {
+    public function guardarDatosCompania(Request $request)
+    {
 
         try {
 
             DB::beginTransaction();
 
-            $delegations = $request -> delegations;
+            $delegations = $request->delegations;
             // Log::info($delegations);
 
             foreach ($delegations as $delegation) {
                 $delegationNew = new Delegation();
-                $delegationNew -> id = $delegation['id'];
-                $delegationNew -> name = $delegation['name'];
-                $delegationNew -> company_id = $delegation['company_id'];
-                $delegationNew -> save ();
+                $delegationNew->id = $delegation['id'];
+                $delegationNew->name = $delegation['name'];
+                $delegationNew->company_id = $delegation['company_id'];
+                $delegationNew->save();
 
                 $zones = $delegation['zones'];
 
                 foreach ($zones as $zone) {
 
                     $zoneNew = new Zone();
-                    $zoneNew -> id = $zone['id'];
-                    $zoneNew -> name = $zone['name'];
-                    $zoneNew -> delegation_id = $zone['delegation_id'];
-                    $zoneNew -> save ();
+                    $zoneNew->id = $zone['id'];
+                    $zoneNew->name = $zone['name'];
+                    $zoneNew->delegation_id = $zone['delegation_id'];
+                    $zoneNew->save();
 
                     $locals = $zone['locals'];
 
                     foreach ($locals as $local) {
 
                         $localNew = new Local();
-                        $localNew -> id = $local['id'];
-                        $localNew -> name = $local['name'];
-                        $localNew -> zone_id = $local['zone_id'];
-                        $localNew -> dbconection = $local['dbconection'];
-                        $localNew -> idMachines = $local['idMachines'];
-                        $localNew -> save ();
-
+                        $localNew->id = $local['id'];
+                        $localNew->name = $local['name'];
+                        $localNew->zone_id = $local['zone_id'];
+                        $localNew->dbconection = $local['dbconection'];
+                        $localNew->idMachines = $local['idMachines'];
+                        $localNew->save();
                     }
-
                 }
                 // Log::info($zones);
             }
             DB::commit();
-            return response()-> json(['message' => 'success'], 200);
-
-        } catch ( Exception $e) {
+            return response()->json(['message' => 'success'], 200);
+        } catch (Exception $e) {
             DB::rollBack();
-            Log::info ($e);
-            return response()-> json(['message' => 'error'], 400);
-
+            Log::info($e);
+            return response()->json(['message' => 'error'], 400);
         }
     }
 }
