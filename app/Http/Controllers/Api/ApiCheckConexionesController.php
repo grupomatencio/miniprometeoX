@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Http;
 use App\Models\Local;
 use App\Models\User;
 use App\Models\Job;
+use Carbon\Carbon;
+
 
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -27,8 +29,13 @@ class ApiCheckConexionesController extends Controller
 
         $conexiones = getEstadoConexiones();   // resultados de ultimos prubos de conexiones
         $lastTimeConexiones = getTimeConexiones(); // tiempo de ultimos prubos de conexiones
-        $diferenciaTiempo = now()->diffInSeconds($lastTimeConexiones);
+        Log::info($lastTimeConexiones);
+        Log::info(now());
 
+        //$lastTimeCarbon = Carbon::createFromTimestamp($lastTimeConexiones); // Asegúrate de que esto sea correcto
+
+        // Calcular la diferencia en segundos
+        $diferenciaTiempo = now()->diffInSeconds($lastTimeConexiones);
 
 
         Log::Info($diferenciaTiempo);

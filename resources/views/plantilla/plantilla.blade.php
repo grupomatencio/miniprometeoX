@@ -62,7 +62,7 @@
                             <i class="bi bi-square-fill"></i> Configuración miniprometeo
                         </a>
                         <a class="nav-link" href="/welcome">
-                            <i class="bi bi-square-fill"></i> Asignar recargas auxilares
+                            <i class="bi bi-square-fill"></i> xxxxx
                         </a>
                         <a class="nav-link" href="/machines">
                             <i class="bi bi-square-fill"></i> Conexiones de dispositivos

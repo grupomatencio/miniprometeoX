@@ -37,7 +37,7 @@ return new class extends Migration
             $table->string('AvatarsCachePath', 1024)->default('e:/'); // Campo AvatarsCachePath de tipo varchar(1024) con valor por defecto 'e:/'
             $table->tinyInteger('AdvancedGUI')->default(1); // Campo AdvancedGUI de tipo tinyint(1) con valor por defecto 1
             $table->tinyInteger('ForceAllowExports')->default(1); // Campo ForceAllowExports de tipo tinyint(1) con valor por defecto 1
-            $table->dateTime('ExpirationDate')->default('0001-01-01 00:00:00'); // Campo ExpirationDate de tipo datetime con valor por defecto '0000-00-00 00:00:00'
+            $table->dateTime('ExpirationDate')->default('1970-01-01 01:01:01'); // Campo ExpirationDate de tipo datetime con valor por defecto '0000-00-00 00:00:00'
             $table->timestamp('LastAutoexpireTimestamp')->default(DB::raw('CURRENT_TIMESTAMP')); // Campo LastAutoexpireTimestamp de tipo timestamp con valor por defecto CURRENT_TIMESTAMP
             $table->string('TITOTitle', 64)->default(''); // Campo TITOTitle de tipo varchar(64) con valor por defecto ''
             $table->string('TITOTicketType', 32)->default(''); // Campo TITOTicketType de tipo varchar(32) con valor por defecto ''

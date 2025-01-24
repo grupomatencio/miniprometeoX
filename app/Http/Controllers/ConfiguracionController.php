@@ -11,6 +11,9 @@ use App\Models\Company;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Hash;
+use App\Models\Client;
+
 
 
 class ConfiguracionController extends Controller
@@ -26,6 +29,10 @@ class ConfiguracionController extends Controller
         $user_cambio = User::where('name', 'ccm')->first();
         $user_comDataHost = User::where('name', 'admin')->first();
 
+        $users = User::whereNotNull('email')
+        ->where('email', '!=', '')
+        ->with('clients') // Cargar la relación clients
+        ->get();
         // Obtener datos de Local, zona, delegacion
         $disposicion = getDisposicion();
 
@@ -36,17 +43,21 @@ class ConfiguracionController extends Controller
             'user_prometeo' => $user_prometeo,
             'user_cambio' => $user_cambio,
             'user_comDataHost' => $user_comDataHost,
+            'users' => $users,
             'locales' => $disposicion['locales'],
             'name_zona' =>  $disposicion['name_zona'],
             'name_delegation' => $disposicion['name_delegation'],
             'company' => $company
         ];
 
+       //dd($data['users']);
+
         // Enviar IP Prometeo Principal
 
         session()->flash('PROMETEO_PRINCIPAL_IP', PROMETEO_PRINCIPAL_IP);
         session()->flash('PROMETEO_PRINCIPAL_PORT', PROMETEO_PRINCIPAL_PORT);
 
+        // Pasar la variable $data a la vista
         return view('configuracion.index', compact('data'));
     }
 
@@ -243,7 +254,6 @@ class ConfiguracionController extends Controller
             }
 
             $user_cambio->port = 3306;
-
         }
 
         $user_comDataHost = new User;
@@ -275,18 +285,18 @@ class ConfiguracionController extends Controller
 
     // function para obtener datos de local ip
     // @return $localIp
-     private function getLocalIp () {
+    private function getLocalIp()
+    {
 
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
 
-        $output = shell_exec('ipconfig');  // Para windows
+            $output = shell_exec('ipconfig');  // Para windows
 
-        if (preg_match('/IPv4.*?:\s*([0-9.]+)/', $output, $matches)) {
-            $localIp = $matches[1];
-        }
-        return $localIp;
-        }
-        elseif (strtoupper(substr(PHP_OS, 0, 6)) === 'LINUX') {
+            if (preg_match('/IPv4.*?:\s*([0-9.]+)/', $output, $matches)) {
+                $localIp = $matches[1];
+            }
+            return $localIp;
+        } elseif (strtoupper(substr(PHP_OS, 0, 6)) === 'LINUX') {
 
             // Ejecutar el comando 'ip addr show' y capturar la salida
             $output = shell_exec('ip addr show');
@@ -384,6 +394,69 @@ class ConfiguracionController extends Controller
             DB::rollBack();
             Log::info($e);
             return response()->json(['message' => 'error'], 400);
+        }
+    }
+
+    // metodo para traer los datos de client y guardarlo en la base de datos metodo de pruebas
+    public function getDataClient(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|string',
+        ]);
+
+        // Buscar el usuario por su correo
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user) {
+            return response()->json(['error' => 'Usuario no encontrado'], 404);
+        }
+
+        // Validar la contraseña
+        if (!Hash::check($request->password, $user->password)) {
+            return response()->json(['error' => 'Contraseña incorrecta'], 401);
+        }
+
+        // Crear datos del cliente simulados
+        $client = [
+            'id' => 2,
+            'user_id' => $user->id,
+            'name' => "Cliente para {$user->name}",
+            'client_secret' => bcrypt($request->password),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ];
+
+        return response()->json(['client' => $client], 200);
+    }
+
+    // para guardar los datos de la petcion POST para obetener client y guardarlo en la base de datos
+    public function saveClientData(Request $request)
+    {
+        Log::info($request->all());
+
+        $request->validate([
+            'id' => 'required|integer',
+            'user_id' => 'required|integer',
+            'name' => 'required|string|max:255',
+            'client_secret' => 'required|string',
+        ]);
+
+        try {
+            // Crear un nuevo registro en la tabla oauth_clients
+            Client::create([
+                'id' => $request->id,
+                'user_id' => $request->user_id,
+                'name' => $request->name,
+                'secret' => $request->client_secret,
+                'personal_access_client' => false,
+                'password_client' => true,
+                'revoked' => false,
+            ]);
+
+            return response()->json(['message' => 'Cliente guardado correctamente.'], 201);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error al guardar el cliente: ' . $e->getMessage()], 500);
         }
     }
 }

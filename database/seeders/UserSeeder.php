@@ -17,20 +17,22 @@ class UserSeeder extends Seeder
     {
 
         User::create([
-            'name' => "miniprometeo",
-            'password' => bcrypt("qwert123"),
+            'name' => "Miniprometeo",
+            'email' => 'muchamiel@magarin.es',
+            'password' => Crypt::encryptString("Mini1234"),
         ]);
         User::create([
             'name' => "tecnico",
-            'password' => bcrypt("qwert123"),
+            'password' => bcrypt("Tecnico1234"),
         ]);
         User::create([
             'name' => "caja",
-            'password' => bcrypt("qwert123"),
+            'password' => bcrypt("Caja1234"),
         ]);
         User::create([
             'name' => "prometeo",
-            'password' => Crypt::encryptString("qwert123"),
+            'email' => 'prometeo@magarin.es',
+            'password' => Crypt::encryptString("Admin1234"),
         ]);
         User::create([
             'name' => "ccm",

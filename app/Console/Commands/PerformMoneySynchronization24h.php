@@ -39,10 +39,18 @@ class PerformMoneySynchronization24h extends Command
 
     protected function convertDateTime($datetime)
     {
-        if ($datetime == '0000-00-00 00:00:00') {
-            return '0001-01-01 00:00:00';
+        // Si el valor de datetime es nulo, vacío o una fecha no válida
+        if (empty($datetime) || $datetime === '0000-00-00 00:00:00' || $datetime === '0001-01-01 00:00:00') {
+            return '1970-01-01 01:01:01'; // Retorna una fecha válida en MySQL
         }
-        return $datetime;
+
+        // También puedes validar si el formato de fecha es correcto
+        $dateTimeObj = \DateTime::createFromFormat('Y-m-d H:i:s', $datetime);
+        if ($dateTimeObj === false) {
+            return '1970-01-01 01:01:01'; // Retorna una fecha válida si el formato no es válido
+        }
+
+        return $datetime; // Retorna el datetime original si es válido
     }
 
     protected function connectToTicketServer(Local $local): void
@@ -229,43 +237,42 @@ class PerformMoneySynchronization24h extends Command
 
                 // Manejar hcmoneystorage
                 foreach ($hcmoneystorage as $item) {
-                        // Verificar si ya existe un registro para este local_id y HCName
-                        $existingRecord = DB::table('hcmoneystorage')
-                            ->where('local_id', $local->id)
-                            ->where('HCName', $item->HCName)
-                            ->first();
+                    // Verificar si ya existe un registro para este local_id y HCName
+                    $existingRecord = DB::table('hcmoneystorage')
+                        ->where('local_id', $local->id)
+                        ->where('HCName', $item->HCName)
+                        ->first();
 
-                        if ($existingRecord) {
-                            // Actualizar el registro existente
-                            DB::table('hcmoneystorage')
-                                ->where('id', $existingRecord->id)
-                                ->update([
-                                    'TypeIsHC' => $item->TypeIsHC,
-                                    'Machine' => $local->idMachines, // Agregar el campo Machine
-                                    'MoneyIn' => $item->MoneyIn,
-                                    'MoneyOut' => $item->MoneyOut,
-                                    'State' => $item->State,
-                                    'updated_at' => now(),
-                                ]);
-
-                            Log::info('Registro actualizado: local_id=' . $local->id . ', HCName=' . $item->HCName);
-                        } else {
-                            // Insertar un nuevo registro
-                            DB::table('hcmoneystorage')->insert([
-                                'local_id' => $local->id,
-                                'Machine' => $local->idMachines, // Agregar el campo Machine
+                    if ($existingRecord) {
+                        // Actualizar el registro existente
+                        DB::table('hcmoneystorage')
+                            ->where('id', $existingRecord->id)
+                            ->update([
                                 'TypeIsHC' => $item->TypeIsHC,
-                                'HCName' => $item->HCName,
+                                'Machine' => $local->idMachines, // Agregar el campo Machine
                                 'MoneyIn' => $item->MoneyIn,
                                 'MoneyOut' => $item->MoneyOut,
                                 'State' => $item->State,
-                                'created_at' => now(),
                                 'updated_at' => now(),
                             ]);
 
-                            Log::info('Nuevo registro insertado: local_id=' . $local->id . ', HCName=' . $item->HCName);
-                        }
+                        Log::info('Registro actualizado: local_id=' . $local->id . ', HCName=' . $item->HCName);
+                    } else {
+                        // Insertar un nuevo registro
+                        DB::table('hcmoneystorage')->insert([
+                            'local_id' => $local->id,
+                            'Machine' => $local->idMachines, // Agregar el campo Machine
+                            'TypeIsHC' => $item->TypeIsHC,
+                            'HCName' => $item->HCName,
+                            'MoneyIn' => $item->MoneyIn,
+                            'MoneyOut' => $item->MoneyOut,
+                            'State' => $item->State,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
 
+                        Log::info('Nuevo registro insertado: local_id=' . $local->id . ', HCName=' . $item->HCName);
+                    }
                 }
 
                 // Manejar hcmoneystorageinfo
@@ -298,72 +305,54 @@ class PerformMoneySynchronization24h extends Command
                 // Manejar hiddentickets funcionando bien
                 foreach ($hiddentickets as $item) {
 
-                        // Verificar si ya existe un registro para este local_id y LinkedTicketId
-                        $existingRecord = DB::table('hiddentickets')
-                            ->where('local_id', $local->id)
-                            ->where('LinkedTicketId', $item->LinkedTicketId)
-                            ->first();
+                    // Verificar si ya existe un registro para este local_id y LinkedTicketId
+                    $existingRecord = DB::table('hiddentickets')
+                        ->where('local_id', $local->id)
+                        ->where('LinkedTicketId', $item->LinkedTicketId)
+                        ->first();
 
-                        if ($existingRecord) {
-                            // Actualizar el registro existente
-                            DB::table('hiddentickets')
-                                ->where('id', $existingRecord->id)
-                                ->update([
-                                    'DateTime' => $this->convertDateTime($item->DateTime),
-                                    'Value' => $item->Value,
-                                    'Comment' => $item->Comment,
-                                    'updated_at' => now(),
-                                ]);
-
-                            Log::info('Registro actualizado: local_id=' . $local->id . ', LinkedTicketId=' . $item->LinkedTicketId);
-                        } else {
-                            // Insertar un nuevo registro
-                            DB::table('hiddentickets')->insert([
-                                'local_id' => $local->id,
-                                'DateTime' => $item->DateTime,
+                    if ($existingRecord) {
+                        // Actualizar el registro existente
+                        DB::table('hiddentickets')
+                            ->where('id', $existingRecord->id)
+                            ->update([
+                                'DateTime' => $this->convertDateTime($item->DateTime),
                                 'Value' => $item->Value,
                                 'Comment' => $item->Comment,
-                                'LinkedTicketId' => $item->LinkedTicketId,
-                                'created_at' => now(),
                                 'updated_at' => now(),
                             ]);
 
-                            Log::info('Nuevo registro insertado: local_id=' . $local->id . ', LinkedTicketId=' . $item->LinkedTicketId);
-                        }
+                        Log::info('Registro actualizado: local_id=' . $local->id . ', LinkedTicketId=' . $item->LinkedTicketId);
+                    } else {
+                        // Insertar un nuevo registro
+                        DB::table('hiddentickets')->insert([
+                            'local_id' => $local->id,
+                            'DateTime' => $item->DateTime,
+                            'Value' => $item->Value,
+                            'Comment' => $item->Comment,
+                            'LinkedTicketId' => $item->LinkedTicketId,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
 
+                        Log::info('Nuevo registro insertado: local_id=' . $local->id . ', LinkedTicketId=' . $item->LinkedTicketId);
+                    }
                 }
 
                 // Manejar players funcionando bien
                 foreach ($players as $item) {
 
-                        // Verificar si ya existe un registro para este local_id y Player
-                        $existingRecord = DB::table('players')
-                            ->where('local_id', $local->id)
-                            ->where('Player', $item->Player)
-                            ->first();
+                    // Verificar si ya existe un registro para este local_id y Player
+                    $existingRecord = DB::table('players')
+                        ->where('local_id', $local->id)
+                        ->where('Player', $item->Player)
+                        ->first();
 
-                        if ($existingRecord) {
-                            // Actualizar el registro existente
-                            DB::table('players')
-                                ->where('id', $existingRecord->id)
-                                ->update([
-                                    'Password' => $item->Password,
-                                    'MoneyIn' => $item->MoneyIn,
-                                    'MoneyOut' => $item->MoneyOut,
-                                    'MoneyDrop' => $item->MoneyDrop,
-                                    'Points' => $item->Points,
-                                    'PID' => $item->PID,
-                                    'NickName' => $item->NickName,
-                                    'Avatar' => $item->Avatar,
-                                    'updated_at' => now(),
-                                ]);
-
-                            Log::info('Registro actualizado: local_id=' . $local->id . ', Player=' . $item->Player);
-                        } else {
-                            // Insertar un nuevo registro
-                            DB::table('players')->insert([
-                                'local_id' => $local->id,
-                                'Player' => $item->Player,
+                    if ($existingRecord) {
+                        // Actualizar el registro existente
+                        DB::table('players')
+                            ->where('id', $existingRecord->id)
+                            ->update([
                                 'Password' => $item->Password,
                                 'MoneyIn' => $item->MoneyIn,
                                 'MoneyOut' => $item->MoneyOut,
@@ -372,11 +361,28 @@ class PerformMoneySynchronization24h extends Command
                                 'PID' => $item->PID,
                                 'NickName' => $item->NickName,
                                 'Avatar' => $item->Avatar,
-                                'created_at' => now(),
                                 'updated_at' => now(),
                             ]);
-                            Log::info('Nuevo registro insertado: local_id=' . $local->id . ', Player=' . $item->Player);
-                         }
+
+                        Log::info('Registro actualizado: local_id=' . $local->id . ', Player=' . $item->Player);
+                    } else {
+                        // Insertar un nuevo registro
+                        DB::table('players')->insert([
+                            'local_id' => $local->id,
+                            'Player' => $item->Player,
+                            'Password' => $item->Password,
+                            'MoneyIn' => $item->MoneyIn,
+                            'MoneyOut' => $item->MoneyOut,
+                            'MoneyDrop' => $item->MoneyDrop,
+                            'Points' => $item->Points,
+                            'PID' => $item->PID,
+                            'NickName' => $item->NickName,
+                            'Avatar' => $item->Avatar,
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
+                        Log::info('Nuevo registro insertado: local_id=' . $local->id . ', Player=' . $item->Player);
+                    }
                 }
 
                 // Manejar sessions_ticketServer funcionando bien
@@ -426,8 +432,8 @@ class PerformMoneySynchronization24h extends Command
                 DB::commit();
                 echo "Datos sincronizados correctamente.";
             } catch (Exception $e) {
-            DB::rollBack();
-            echo "Error al insertar los datos: " . $e->getMessage();
+                DB::rollBack();
+                echo "Error al insertar los datos: " . $e->getMessage();
             }
         } catch (Exception $e) {
             echo "Error al conectar a la base de datos: " . $e->getMessage();

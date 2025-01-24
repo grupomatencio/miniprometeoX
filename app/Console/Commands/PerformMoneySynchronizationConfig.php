@@ -36,15 +36,22 @@ class PerformMoneySynchronizationConfig extends Command
         $local = Local::first();
 
         $this->connectToTicketServer($local);
-
     }
 
     protected function convertDateTime($datetime)
     {
-        if ($datetime == '0000-00-00 00:00:00') {
-            return '0001-01-01 00:00:00';
+        // Si el valor de datetime es nulo, vacío o una fecha no válida
+        if (empty($datetime) || $datetime === '0000-00-00 00:00:00' || $datetime === '0001-01-01 00:00:00') {
+            return '1970-01-01 01:01:01'; // Retorna una fecha válida en MySQL
         }
-        return $datetime;
+
+        // También puedes validar si el formato de fecha es correcto
+        $dateTimeObj = \DateTime::createFromFormat('Y-m-d H:i:s', $datetime);
+        if ($dateTimeObj === false) {
+            return '1970-01-01 01:01:01'; // Retorna una fecha válida si el formato no es válido
+        }
+
+        return $datetime; // Retorna el datetime original si es válido
     }
 
     protected function connectToTicketServer(Local $local): void

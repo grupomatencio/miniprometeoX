@@ -48,3 +48,9 @@ Route::post('/configuracion/company', [ConfiguracionController::class, 'guardarD
 Route::get('/configuracion/buscar', [ConfiguracionController::class, 'buscar'])->name('configuracion.buscar')->middleware(['auth']);
 Route::resource('configuracion', ConfiguracionController::class)->names('configuracion')->middleware(['auth']);
 
+// traer datos de CLIENT ruta de pruebas
+Route::post('/getDataClient', [ConfiguracionController::class, 'getDataClient']);
+
+// para guardar los datos que recibimos de la peticion
+Route::post('/saveClientData', [ConfiguracionController::class, 'saveClientData']);
+

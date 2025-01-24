@@ -43,7 +43,7 @@ class HomeController extends Controller
         $command = 'schedule:work';
         $this -> ensureTaskExists($taskName,$command);
         */
-        $conexionConComData = nuevaConexionLocal('admin');
+        //$conexionConComData = nuevaConexionLocal('admin');
 
         // Iniciamos Jobs para comprobar conexiones y datos de TicketServer
         TestConexionaes::dispatch();

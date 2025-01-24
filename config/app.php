@@ -123,4 +123,9 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'api_server_url' => env('API_SERVER_URL', 'http://localhost:8000'),
+    'passport_client_id' => env('PASSPORT_CLIENT_ID', ''),
+    'passport_client_secret' => env('PASSPORT_CLIENT_SECRET', ''),
+
+
 ];

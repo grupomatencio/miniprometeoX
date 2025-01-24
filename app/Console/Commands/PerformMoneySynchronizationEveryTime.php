@@ -171,218 +171,217 @@ class PerformMoneySynchronizationEveryTime extends Command
                 echo "Error al insertar los datos: " . $e->getMessage();
             }
 
-                // manejando los tickets, para ejecutarse cada 30sec o 1min
-                // solo se traera lo necesario para actualizar lo de la base de datos local
-                // y añadir lo que este pendiente en el servidor
+            // manejando los tickets, para ejecutarse cada 30sec o 1min
+            // solo se traera lo necesario para actualizar lo de la base de datos local
+            // y añadir lo que este pendiente en el servidor
 
-                // Obtener el último ticket local sin importar su estado
-                $ultimoTicketLocal = DB::table('tickets')
-                    ->where('local_id', $local->id)
-                    ->orderBy('DateTime', 'desc')
-                    ->first();
+            // Obtener el último ticket local sin importar su estado
+            $ultimoTicketLocal = DB::table('tickets')
+                ->where('local_id', $local->id)
+                ->orderBy('DateTime', 'desc')
+                ->first();
 
-                // Obtener la fecha y hora del último ticket local
-                $fechaLimite = $ultimoTicketLocal ? $ultimoTicketLocal->DateTime : now()->subDays(15); // Si no hay tickets, toma hace 15 días
+            // Obtener la fecha y hora del último ticket local
+            $fechaLimite = $ultimoTicketLocal ? $ultimoTicketLocal->DateTime : now()->subDays(15); // Si no hay tickets, toma hace 15 días
 
-                // Convertir $fechaLimite al formato Y-m-d H:i:s si no está en ese formato
-                $fechaLimite = $fechaLimite instanceof \DateTime ? $fechaLimite->format('Y-m-d H:i:s') : $fechaLimite;
+            // Convertir $fechaLimite al formato Y-m-d H:i:s si no está en ese formato
+            $fechaLimite = $fechaLimite instanceof \DateTime ? $fechaLimite->format('Y-m-d H:i:s') : $fechaLimite;
 
-                // Obtener tickets remotos que tengan una fecha mayor a la del último ticket local para insertar
-                $ticketsRemotosParaInsertar = DB::connection($connectionName)
-                    ->table('tickets')
-                    ->where('DateTime', '>', $fechaLimite)
-                    //->where('DateTime', '>', $fechaLimite) // Obtener tickets generados después de la fecha del último ticket local
-                    ->get();
+            // Obtener tickets remotos que tengan una fecha mayor a la del último ticket local para insertar
+            $ticketsRemotosParaInsertar = DB::connection($connectionName)
+                ->table('tickets')
+                ->where('DateTime', '>', $fechaLimite)
+                //->where('DateTime', '>', $fechaLimite) // Obtener tickets generados después de la fecha del último ticket local
+                ->get();
 
-                // Obtener tickets locales que no están marcados como 'EXTRACTED'
-                $ticketsLocalesParaActualizar = Ticket::where('local_id', $local->id)
-                    ->where('Status', 'NOT LIKE', 'EXTRACTED%')
-                    ->get();
+            // Obtener tickets locales que no están marcados como 'EXTRACTED'
+            $ticketsLocalesParaActualizar = Ticket::where('local_id', $local->id)
+                ->where('Status', 'NOT LIKE', 'EXTRACTED%')
+                ->get();
 
 
-                // Iniciar la transacción
-                DB::beginTransaction();
-                try {
-                    // Crear un array de TicketNumbers de los tickets locales para actualización
-                    $localTicketNumbers = $ticketsLocalesParaActualizar->pluck('TicketNumber')->toArray();
+            // Iniciar la transacción
+            DB::beginTransaction();
+            try {
+                // Crear un array de TicketNumbers de los tickets locales para actualización
+                $localTicketNumbers = $ticketsLocalesParaActualizar->pluck('TicketNumber')->toArray();
 
-                    // Contadores
-                    $contadorActualizados = 0;
-                    $contadorInsertados = 0;
+                // Contadores
+                $contadorActualizados = 0;
+                $contadorInsertados = 0;
 
-                    // Comparar y actualizar tickets locales en función de los remotos
-                    foreach ($ticketsLocalesParaActualizar as $ticketLocal) {
-                        $ticketRemoto = DB::connection($connectionName)
-                            ->table('tickets')
-                            ->where('TicketNumber', $ticketLocal->TicketNumber)
-                            ->first();
+                // Comparar y actualizar tickets locales en función de los remotos
+                foreach ($ticketsLocalesParaActualizar as $ticketLocal) {
+                    $ticketRemoto = DB::connection($connectionName)
+                        ->table('tickets')
+                        ->where('TicketNumber', $ticketLocal->TicketNumber)
+                        ->first();
 
-                        if ($ticketRemoto) {
-                            // Lista de campos a comparar, excluyendo los campos de fecha
-                            $fields = [
-                                'Command',
-                                'Mode',
-                                'LastIP',
-                                'LastUser',
-                                'Value',
-                                'Residual',
-                                'IP',
-                                'User',
-                                'Comment',
-                                'Type',
-                                'TypeIsBets',
-                                'TypeIsAux',
-                                'AuxConcept',
-                                'HideOnTC',
-                                'Used',
-                                'UsedFromIP',
-                                'UsedAmount',
-                                'MergedFromId',
-                                'Status',
-                                'TITOTitle',
-                                'TITOTicketType',
-                                'TITOStreet',
-                                'TITOPlace',
-                                'TITOCity',
-                                'TITOPostalCode',
-                                'TITODescription',
-                                'TITOExpirationType',
-                                'PersonalIdentifier',
-                                'PersonalPIN',
-                                'PersonalExtraData'
-                            ];
+                    if ($ticketRemoto) {
+                        // Lista de campos a comparar, excluyendo los campos de fecha
+                        $fields = [
+                            'Command',
+                            'Mode',
+                            'LastIP',
+                            'LastUser',
+                            'Value',
+                            'Residual',
+                            'IP',
+                            'User',
+                            'Comment',
+                            'Type',
+                            'TypeIsBets',
+                            'TypeIsAux',
+                            'AuxConcept',
+                            'HideOnTC',
+                            'Used',
+                            'UsedFromIP',
+                            'UsedAmount',
+                            'MergedFromId',
+                            'Status',
+                            'TITOTitle',
+                            'TITOTicketType',
+                            'TITOStreet',
+                            'TITOPlace',
+                            'TITOCity',
+                            'TITOPostalCode',
+                            'TITODescription',
+                            'TITOExpirationType',
+                            'PersonalIdentifier',
+                            'PersonalPIN',
+                            'PersonalExtraData'
+                        ];
 
-                            // Verificar si algún campo ha cambiado
-                            $fieldsToUpdate = [];
-                            foreach ($fields as $field) {
-                                // Comparar valores
-                                if ($ticketLocal->$field != $ticketRemoto->$field) {
-                                    $fieldsToUpdate[$field] = $ticketRemoto->$field;
-                                }
-                            }
-
-                            // Actualizar solo si hay campos diferentes
-                            if (!empty($fieldsToUpdate)) {
-                                // Convertir campos de fecha del ticket remoto antes de actualizar
-                                $fieldsToUpdate['DateTime'] = $this->convertDateTime($ticketRemoto->DateTime);
-                                $fieldsToUpdate['LastCommandChangeDateTime'] = $this->convertDateTime($ticketRemoto->LastCommandChangeDateTime);
-                                $fieldsToUpdate['UsedDateTime'] = $this->convertDateTime($ticketRemoto->UsedDateTime);
-                                $fieldsToUpdate['ExpirationDate'] = $this->convertDateTime($ticketRemoto->ExpirationDate);
-
-                                $fieldsToUpdate['updated_at'] = now();
-                                DB::table('tickets')->where('TicketNumber', $ticketRemoto->TicketNumber)
-                                    ->where('DateTime', $ticketRemoto->DateTime)
-                                    ->update($fieldsToUpdate);
-
-                                $contadorActualizados++; // Incrementar el contador de tickets actualizados
+                        // Verificar si algún campo ha cambiado
+                        $fieldsToUpdate = [];
+                        foreach ($fields as $field) {
+                            // Comparar valores
+                            if ($ticketLocal->$field != $ticketRemoto->$field) {
+                                $fieldsToUpdate[$field] = $ticketRemoto->$field;
                             }
                         }
-                    }
 
-                    // Insertar nuevos tickets
-                    foreach ($ticketsRemotosParaInsertar as $ticketRemoto) {
-                        if (!in_array($ticketRemoto->TicketNumber, $localTicketNumbers)) {
-                            // Convertir campos de fecha del ticket remoto antes de insertar
-                            DB::table('tickets')->insert([
-                                'local_id' => $local->id,
-                                'idMachine' => $local->idMachines,
-                                'Command' => $ticketRemoto->Command,
-                                'TicketNumber' => $ticketRemoto->TicketNumber,
-                                'Mode' => $ticketRemoto->Mode,
-                                'DateTime' => $this->convertDateTime($ticketRemoto->DateTime),
-                                'LastCommandChangeDateTime' => $this->convertDateTime($ticketRemoto->LastCommandChangeDateTime),
-                                'LastIP' => $ticketRemoto->LastIP,
-                                'LastUser' => $ticketRemoto->LastUser,
-                                'Value' => $ticketRemoto->Value,
-                                'Residual' => $ticketRemoto->Residual,
-                                'IP' => $ticketRemoto->IP,
-                                'User' => $ticketRemoto->User,
-                                'Comment' => $ticketRemoto->Comment,
-                                'Type' => $ticketRemoto->Type,
-                                'TypeIsBets' => $ticketRemoto->TypeIsBets,
-                                'TypeIsAux' => $ticketRemoto->TypeIsAux,
-                                'AuxConcept' => $ticketRemoto->AuxConcept,
-                                'HideOnTC' => $ticketRemoto->HideOnTC,
-                                'Used' => $ticketRemoto->Used,
-                                'UsedFromIP' => $ticketRemoto->UsedFromIP,
-                                'UsedAmount' => $ticketRemoto->UsedAmount,
-                                'UsedDateTime' => $this->convertDateTime($ticketRemoto->UsedDateTime),
-                                'MergedFromId' => $ticketRemoto->MergedFromId,
-                                'Status' => $ticketRemoto->Status,
-                                'ExpirationDate' => $this->convertDateTime($ticketRemoto->ExpirationDate),
-                                'TITOTitle' => $ticketRemoto->TITOTitle,
-                                'TITOTicketType' => $ticketRemoto->TITOTicketType,
-                                'TITOStreet' => $ticketRemoto->TITOStreet,
-                                'TITOPlace' => $ticketRemoto->TITOPlace,
-                                'TITOCity' => $ticketRemoto->TITOCity,
-                                'TITOPostalCode' => $ticketRemoto->TITOPostalCode,
-                                'TITODescription' => $ticketRemoto->TITODescription,
-                                'TITOExpirationType' => $ticketRemoto->TITOExpirationType,
-                                'PersonalIdentifier' => $ticketRemoto->PersonalIdentifier ?? '',
-                                'PersonalPIN' => $ticketRemoto->PersonalPIN ?? '',
-                                'PersonalExtraData' => $ticketRemoto->PersonalExtraData ?? '',
-                                'created_at' => now(),
-                                'updated_at' => now(),
-                            ]);
+                        // Actualizar solo si hay campos diferentes
+                        if (!empty($fieldsToUpdate)) {
+                            // Convertir campos de fecha del ticket remoto antes de actualizar
+                            $fieldsToUpdate['DateTime'] = $this->convertDateTime($ticketRemoto->DateTime);
+                            $fieldsToUpdate['LastCommandChangeDateTime'] = $this->convertDateTime($ticketRemoto->LastCommandChangeDateTime);
+                            $fieldsToUpdate['UsedDateTime'] = $this->convertDateTime($ticketRemoto->UsedDateTime);
+                            $fieldsToUpdate['ExpirationDate'] = $this->convertDateTime($ticketRemoto->ExpirationDate);
 
-                            $contadorInsertados++; // Incrementar el contador de tickets insertados
+                            $fieldsToUpdate['updated_at'] = now();
+                            DB::table('tickets')->where('TicketNumber', $ticketRemoto->TicketNumber)
+                                ->where('DateTime', $ticketRemoto->DateTime)
+                                ->update($fieldsToUpdate);
+
+                            $contadorActualizados++; // Incrementar el contador de tickets actualizados
                         }
                     }
-
-                    // Mostrar los contadores
-                    dump($local->name . ' Cantidad de tickets actualizados: ' . $contadorActualizados);
-                    dump($local->name . ' Cantidad de nuevos tickets insertados: ' . $contadorInsertados);
-
-                    DB::commit();
-                } catch (\Exception $e) {
-                    DB::rollBack();
-                    Log::error('Error al insertar los datos en tabla tickets'. $e->getMessage());
-                    dump($local->name . 'Error sincronizando tickets: ' . $e->getMessage());
                 }
 
-                // los LOGS traremos lo necesario para mostrarlo
-                // Manejar logs funcionando bien
+                // Insertar nuevos tickets
+                foreach ($ticketsRemotosParaInsertar as $ticketRemoto) {
+                    if (!in_array($ticketRemoto->TicketNumber, $localTicketNumbers)) {
+                        // Convertir campos de fecha del ticket remoto antes de insertar
+                        DB::table('tickets')->insert([
+                            'local_id' => $local->id,
+                            'idMachine' => $local->idMachines,
+                            'Command' => $ticketRemoto->Command,
+                            'TicketNumber' => $ticketRemoto->TicketNumber,
+                            'Mode' => $ticketRemoto->Mode,
+                            'DateTime' => $this->convertDateTime($ticketRemoto->DateTime),
+                            'LastCommandChangeDateTime' => $this->convertDateTime($ticketRemoto->LastCommandChangeDateTime),
+                            'LastIP' => $ticketRemoto->LastIP,
+                            'LastUser' => $ticketRemoto->LastUser,
+                            'Value' => $ticketRemoto->Value,
+                            'Residual' => $ticketRemoto->Residual,
+                            'IP' => $ticketRemoto->IP,
+                            'User' => $ticketRemoto->User,
+                            'Comment' => $ticketRemoto->Comment,
+                            'Type' => $ticketRemoto->Type,
+                            'TypeIsBets' => $ticketRemoto->TypeIsBets,
+                            'TypeIsAux' => $ticketRemoto->TypeIsAux,
+                            'AuxConcept' => $ticketRemoto->AuxConcept,
+                            'HideOnTC' => $ticketRemoto->HideOnTC,
+                            'Used' => $ticketRemoto->Used,
+                            'UsedFromIP' => $ticketRemoto->UsedFromIP,
+                            'UsedAmount' => $ticketRemoto->UsedAmount,
+                            'UsedDateTime' => $this->convertDateTime($ticketRemoto->UsedDateTime),
+                            'MergedFromId' => $ticketRemoto->MergedFromId,
+                            'Status' => $ticketRemoto->Status,
+                            'ExpirationDate' => $this->convertDateTime($ticketRemoto->ExpirationDate),
+                            'TITOTitle' => $ticketRemoto->TITOTitle,
+                            'TITOTicketType' => $ticketRemoto->TITOTicketType,
+                            'TITOStreet' => $ticketRemoto->TITOStreet,
+                            'TITOPlace' => $ticketRemoto->TITOPlace,
+                            'TITOCity' => $ticketRemoto->TITOCity,
+                            'TITOPostalCode' => $ticketRemoto->TITOPostalCode,
+                            'TITODescription' => $ticketRemoto->TITODescription,
+                            'TITOExpirationType' => $ticketRemoto->TITOExpirationType,
+                            'PersonalIdentifier' => $ticketRemoto->PersonalIdentifier ?? '',
+                            'PersonalPIN' => $ticketRemoto->PersonalPIN ?? '',
+                            'PersonalExtraData' => $ticketRemoto->PersonalExtraData ?? '',
+                            'created_at' => now(),
+                            'updated_at' => now(),
+                        ]);
 
-                // Obtener la última fecha de log en la base de datos local
-                $ultimaFechaLogLocal = DB::table('logs')
-                    ->where('local_id', $local->id)
-                    ->orderBy('DateTime', 'desc')
-                    ->value('DateTime');
-                // dd($ultimaFechaLogLocal);
+                        $contadorInsertados++; // Incrementar el contador de tickets insertados
+                    }
+                }
 
-                // Obtener los logs remotos con fecha superior a la última fecha de log local
-                $logsRemotos = DB::connection($connectionName)
-                    ->table('logs')
-                    ->where('DateTime', '>', $ultimaFechaLogLocal)
-                    ->get();
+                // Mostrar los contadores
+                dump($local->name . ' Cantidad de tickets actualizados: ' . $contadorActualizados);
+                dump($local->name . ' Cantidad de nuevos tickets insertados: ' . $contadorInsertados);
 
-                // Obtener la cantidad de logs a insertar
-                $cantidadLogsAInsertar = $logsRemotos->count();
-                dump('Cantidad de logs a insertar: ' . $cantidadLogsAInsertar);
+                DB::commit();
+            } catch (\Exception $e) {
+                DB::rollBack();
+                Log::error('Error al insertar los datos en tabla tickets' . $e->getMessage());
+                dump($local->name . 'Error sincronizando tickets: ' . $e->getMessage());
+            }
+
+            // los LOGS traremos lo necesario para mostrarlo
+            // Manejar logs funcionando bien
+
+            // Obtener la última fecha de log en la base de datos local
+            $ultimaFechaLogLocal = DB::table('logs')
+                ->where('local_id', $local->id)
+                ->orderBy('DateTime', 'desc')
+                ->value('DateTime');
+            // dd($ultimaFechaLogLocal);
+
+            // Obtener los logs remotos con fecha superior a la última fecha de log local
+            $logsRemotos = DB::connection($connectionName)
+                ->table('logs')
+                ->where('DateTime', '>', $ultimaFechaLogLocal)
+                ->get();
+
+            // Obtener la cantidad de logs a insertar
+            $cantidadLogsAInsertar = $logsRemotos->count();
+            dump('Cantidad de logs a insertar: ' . $cantidadLogsAInsertar);
 
 
             DB::beginTransaction();
             try {
                 foreach ($logsRemotos as $item) {
-                        // Insertar un nuevo registro
-                        DB::table('logs')->insert([
-                            'local_id' => $local->id,
-                            'Type' => $item->Type,
-                            'Text' => $item->Text,
-                            'Link' => $item->Link,
-                            'DateTime' => $item->DateTime,
-                            'DateTimeEx' => $item->DateTimeEx,
-                            'IP' => $item->IP,
-                            'User' => $item->User,
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ]);
-
-                    }
-                    DB::commit();
+                    // Insertar un nuevo registro
+                    DB::table('logs')->insert([
+                        'local_id' => $local->id,
+                        'Type' => $item->Type,
+                        'Text' => $item->Text,
+                        'Link' => $item->Link,
+                        'DateTime' => $item->DateTime,
+                        'DateTimeEx' => $item->DateTimeEx,
+                        'IP' => $item->IP,
+                        'User' => $item->User,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+                DB::commit();
             } catch (\Exception $e) {
                 DB::rollBack();
-                Log::error('Error al insertar los datos en tabla logs'. $e->getMessage());
+                Log::error('Error al insertar los datos en tabla logs' . $e->getMessage());
                 dump('Error sincronizando logs para local_id: ' . $local->id . ' - ' . $e->getMessage());
             }
 
@@ -390,7 +389,7 @@ class PerformMoneySynchronizationEveryTime extends Command
 
 
 
-                /*foreach ($logs as $item) {
+            /*foreach ($logs as $item) {
                     DB::beginTransaction();
                     try {
                         // Verificar si ya existe un registro para este local_id y DateTime (o cualquier otro campo único que necesites)
@@ -439,7 +438,7 @@ class PerformMoneySynchronizationEveryTime extends Command
                     }
                 }*/
 
-                // Manejar collectinfo funcionando bien
+            // Manejar collectinfo funcionando bien
 
             DB::beginTransaction();
             try {
@@ -499,13 +498,9 @@ class PerformMoneySynchronizationEveryTime extends Command
                 echo "Datos sincronizados correctamente.";
             } catch (Exception $e) {
                 DB::rollBack();
-                LOG::info('Error al insertar los datos en las tablas collectinfo y auxmoneystorageinfo'. $e->getMessage());
+                LOG::info('Error al insertar los datos en las tablas collectinfo y auxmoneystorageinfo' . $e->getMessage());
                 echo "Error al insertar los datos: " . $e->getMessage();
             }
-
-
-
-
         } catch (Exception $e) {
             Log::info('Error al conectar a la base de datos: ' . $e->getMessage());
             echo "Error al conectar a la base de datos: " . $e->getMessage();
@@ -514,20 +509,36 @@ class PerformMoneySynchronizationEveryTime extends Command
 
     protected function convertDateTime($datetime)
     {
-        if ($datetime == '0000-00-00 00:00:00') {
-            return '0001-01-01 00:00:00';
+        // Si el valor de datetime es nulo, vacío o una fecha no válida
+        if (empty($datetime) || $datetime === '0000-00-00 00:00:00' || $datetime === '0001-01-01 00:00:00') {
+            return '1970-01-01 01:01:01'; // Retorna una fecha válida en MySQL
         }
-        return $datetime;
+
+        // También puedes validar si el formato de fecha es correcto
+        $dateTimeObj = \DateTime::createFromFormat('Y-m-d H:i:s', $datetime);
+        if ($dateTimeObj === false) {
+            return '1970-01-01 01:01:01'; // Retorna una fecha válida si el formato no es válido
+        }
+
+        return $datetime; // Retorna el datetime original si es válido
     }
+
 
     protected function convertDateTimeServidor($datetime)
     {
-        if ($datetime == '0001-01-01 00:00:00') {
-            return '0000-00-00 00:00:00';
+        // Si la fecha es '1000-01-01 00:00:00', la convertimos a '1970-01-01 01:01:01' como valor válido
+        if ($datetime === '1000-01-01 00:00:00') {
+            return '1970-01-01 01:01:01'; // Para usar como valor "vacío" o inválido
         }
-        return $datetime;
-    }
 
+        // También puedes validar si el formato de fecha es correcto
+        $dateTimeObj = \DateTime::createFromFormat('Y-m-d H:i:s', $datetime);
+        if ($dateTimeObj === false) {
+            return '1970-01-01 01:01:01'; // Retorna una fecha válida si el formato no es válido
+        }
+
+        return $datetime; // Retorna el datetime original si es válido
+    }
 }
 
 

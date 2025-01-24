@@ -2,231 +2,329 @@
 @section('titulo', 'Delegations')
 @section('contenido')
 
-<div class="container">
-    <meta name= "csrf-token" content="{{csrf_token()}}">
+    <div class="container">
+        <meta name= "csrf-token" content="{{ csrf_token() }}">
 
 
-    <!-- Configuracion datos de disposicion -->
+        <!-- Configuracion datos de disposicion -->
 
-        @if(!$data['company'])
-
+        @if (!$data['company'])
             <div class="col-8 offset-2 isla-list p-4 mt-2 mb-2 border border-primary">
                 <h2 class="mb-3"> Configurar disposición</h2>
                 <div class="form-floating">
-                    <input type="text" name="company" class="form-control"
-                        id="input_company" placeholder="Compañía">
+                    <input type="text" name="company" class="form-control" id="input_company" placeholder="Compañía">
                     <label for="company">Compañía</label>
                     <div class = "invalid-feedback" id="company_error_message">
-                            TEXT ERROR
+                        TEXT ERROR
                     </div>
                 </div>
                 <div class="form-group mt-3 col-8 offset-2">
-                    <button type="button" class="btn btn-primary w-100" id="button_company">Pedir datos de compañía </button>
+                    <button type="button" class="btn btn-primary w-100" id="button_company">Pedir datos de compañía
+                    </button>
                 </div>
             </div>
         @endif
 
 
 
-    <!-- configuracion de datos de conexiones -->
+        <!-- configuracion de datos de conexiones -->
 
-    @if($data['company'])
-        <form action="{{ route('configuracion.update', $data['user_cambio']) }}" method="POST" autocomplete="off">
-            @csrf
-            @method('PUT')
+        @if ($data['company'])
+            <form action="{{ route('configuracion.update', $data['user_cambio']) }}" method="POST" autocomplete="off">
+                @csrf
+                @method('PUT')
 
 
-            <div class="col-8 offset-2 isla-list p-4 mt-2 mb-2 border border-primary">
-                <h2 class="mb-3"> Configurar disposición</h2>
-                <h1 class='mb-2'>{{$data['company']}}</h1>
+                <div class="col-8 offset-2 isla-list p-4 mt-2 mb-2 border border-primary">
+                    <h2 class="mb-3"> Configurar disposición</h2>
+                    <h1 class='mb-2'>{{ $data['company'] }}</h1>
 
-                <table class="table table-bordered text-center">
-                    <thead>
-                        <tr>
-                            <th scope="col">Delegación</th>
-                            <th scope="col">Zona</th>
-                            <th scope="col">Local</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>
-                                {{$data['name_delegation']}}
-                            </td>
-                            <td>
-                                {{$data['name_zona']}}
-                            </td>
-                            <td>
-                                @if (count($data['locales']) === 1 )
-                                    {{$data['locales'][0] -> name }}
-                                    <input type='hidden' name='locales' value = {{$data['locales'][0] -> id }}>
-                                @else
-                                    <select name="locales" class="form-control @error('locales') is-invalid @enderror">
-                                        <option value =""> == Elije un Local ==</option>
-                                        @foreach ($data['locales'] as $local)
-                                            <option value = "{{$local -> id}}">{{$local -> name}} </option>
-                                        @endforeach
-                                    </select>
-                                    @error('locales')
-                                        <div class="invalid-feedback"> {{ $message }} </div>
-                                    @enderror
-                                @endif
-                            </td>
-                        </tr>
+                    <table class="table table-bordered text-center">
+                        <thead>
+                            <tr>
+                                <th scope="col">Delegación</th>
+                                <th scope="col">Zona</th>
+                                <th scope="col">Local</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    {{ $data['name_delegation'] }}
+                                </td>
+                                <td>
+                                    {{ $data['name_zona'] }}
+                                </td>
+                                <td>
+                                    @if (count($data['locales']) === 1)
+                                        {{ $data['locales'][0]->name }}
+                                        <input type='hidden' name='locales' value={{ $data['locales'][0]->id }}>
+                                    @else
+                                        <select name="locales" class="form-control @error('locales') is-invalid @enderror">
+                                            <option value =""> == Elije un Local ==</option>
+                                            @foreach ($data['locales'] as $local)
+                                                <option value = "{{ $local->id }}">{{ $local->name }} </option>
+                                            @endforeach
+                                        </select>
+                                        @error('locales')
+                                            <div class="invalid-feedback"> {{ $message }} </div>
+                                        @enderror
+                                    @endif
+                                </td>
+                            </tr>
 
-                    </tbody>
-                </table>
-                    @if (session ('errorSerialNumber'))
-                        <div class="text-danger fw-semibold text-center">{{ session ('errorSerialNumber') }} </div>
+                        </tbody>
+                    </table>
+                    @if (session('errorSerialNumber'))
+                        <div class="text-danger fw-semibold text-center">{{ session('errorSerialNumber') }} </div>
                     @endif
-            </div>
+                </div>
 
 
 
 
-            <div class="col-8 offset-2 isla-list p-4 mt-2 mb-2 border border-primary">
-                <h2 class="mb-3"> Configurar conexión con servidor Prometeo</h2>
+                <div class="col-8 offset-2 isla-list p-4 mt-2 mb-2 border border-primary">
+                    <h2 class="mb-3"> Configurar conexión con servidor Prometeo</h2>
 
-                <!-- IP -->
-                <div class="form-floating pb-3">
-                    <input type="text" name="ip_prometeo" class="form-control @error('ip_prometeo') is-invalid @enderror"
-                        id="ip_prometeo" placeholder="IP"
-                        @if (old('ip_prometeo'))
-                            value="{{ old('ip_prometeo') }}"
+                    <!-- IP -->
+                    <div class="form-floating pb-3">
+                        <input type="text" name="ip_prometeo"
+                            class="form-control @error('ip_prometeo') is-invalid @enderror" id="ip_prometeo"
+                            placeholder="IP"
+                            @if (old('ip_prometeo')) value="{{ old('ip_prometeo') }}"
                         @elseif ($data['user_prometeo']->ip)
-                            value="{{$data['user_prometeo']->ip}}"
-                        @endif>
-                    <label for="ip_prometeo">IP</label>
-                    @if ($errors->has('ip_prometeo'))
-                        <div class="invalid-feedback"> {{ $errors->first('ip_prometeo') }} </div>
-                    @endif
-                </div>
+                            value="{{ $data['user_prometeo']->ip }}" @endif>
+                        <label for="ip_prometeo">IP</label>
+                        @if ($errors->has('ip_prometeo'))
+                            <div class="invalid-feedback"> {{ $errors->first('ip_prometeo') }} </div>
+                        @endif
+                    </div>
 
-                <!-- Puerto -->
-                <div class="form-floating">
-                    <input type="text" name="port_prometeo" class="form-control @error('port_prometeo') is-invalid @enderror"
-                        id="port_prometeo" placeholder="Puerto"
-                        @if (old('port_prometeo'))
-                            value="{{ old('port_prometeo') }}"
+                    <!-- Puerto -->
+                    <div class="form-floating">
+                        <input type="text" name="port_prometeo"
+                            class="form-control @error('port_prometeo') is-invalid @enderror" id="port_prometeo"
+                            placeholder="Puerto"
+                            @if (old('port_prometeo')) value="{{ old('port_prometeo') }}"
                         @elseif ($data['user_prometeo']->port !== null)
-                            value="{{$data['user_prometeo']->port}}"
-                        @endif>
-                    <label for="port_prometeo">Puerto</label>
-                    @error('port_prometeo')
-                        <div class="invalid-feedback"> {{ $message }} </div>
-                    @enderror
+                            value="{{ $data['user_prometeo']->port }}" @endif>
+                        <label for="port_prometeo">Puerto</label>
+                        @error('port_prometeo')
+                            <div class="invalid-feedback"> {{ $message }} </div>
+                        @enderror
+                    </div>
                 </div>
-            </div>
 
 
 
-            <div class="col-8 offset-2 isla-list p-4 mt-2 mb-2 border border-primary">
-                <h2 class="mb-3"> Configurar conexión con maquina cambio</h2>
-                <!-- IP -->
-                <div class="form-floating pb-3">
-                    <input type="text" name="ip_cambio" class="form-control @error('ip_cambio') is-invalid @enderror"
-                        id="ip_cambio" placeholder="IP"
-                        @if (old('ip_cambio'))
-                            value="{{ old('ip_cambio') }}"
-                        @elseif ($data['user_cambio']->ip)
-                            value="{{$data['user_cambio']->ip}}"
-                        @endif>
-                    <label for="ip_cambio">IP</label>
-                    @if ($errors->has('ip_cambio'))
-                        <div class="invalid-feedback"> {{ $errors->first('ip_cambio') }} </div>
+                <div class="col-8 offset-2 isla-list p-4 mt-2 mb-2 border border-success">
+                    <h2 class="mb-3">Obtener y Guardar Datos del Cliente</h2>
+
+                    @if (isset($data['users']) && $data['users']->isNotEmpty())
+                        <!-- Mostrar clientes asignados si existen -->
+                        @foreach ($data['users'] as $user)
+                            @if ($user->clients->isNotEmpty())
+                                <h3>Cliente Asignado para {{ $user->name }}:</h3>
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Cliente</th>
+                                            <th>Creado en</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($user->clients as $client)
+                                            <tr>
+                                                <td>{{ $user->name }}</td>
+                                                <td>{{ $client->name }}</td>
+                                                <td>{{ $client->created_at->format('Y-m-d H:i') }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            @endif
+                        @endforeach
+                    @else
+                        <!-- Mensaje si no hay usuarios -->
+                        <div class="alert alert-danger">
+                            No hay usuarios disponibles con un correo válido.
+                        </div>
                     @endif
+
+                    <!-- Seleccionar usuario con email válido si no hay clientes en ninguno -->
+                    @if (isset($data['users']) && $data['users']->every(fn($user) => $user->clients->isEmpty()))
+                        <div class="form-floating pb-3">
+                            <select name="user_id" class="form-control @error('user_id') is-invalid @enderror"
+                                id="user_id">
+                                <option value="" disabled selected>Seleccione un usuario</option>
+                                @foreach ($data['users'] as $user)
+                                    @if ($user->email)
+                                        <option value="{{ $user->id }}"
+                                            @if (old('user_id') == $user->id) selected @endif>
+                                            {{ $user->name }} ({{ $user->email }})
+                                        </option>
+                                    @endif
+                                @endforeach
+                            </select>
+                            <label for="user_id">Usuario</label>
+                            @error('user_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <!-- Contraseña -->
+                        <div class="form-floating pb-3">
+                            <input type="password" name="password"
+                                class="form-control @error('password') is-invalid @enderror" id="password"
+                                placeholder="Contraseña">
+                            <label for="password">Contraseña</label>
+                            @error('password')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <!-- Botón para enviar la petición -->
+                        <button type="button" class="btn btn-primary" id="getClientData">Obtener Cliente</button>
+                    @endif
+
+                    <!-- Mensaje de resultado -->
+                    <div id="resultMessage" class="mt-3"></div>
                 </div>
 
-                <!-- Puerto -->
-                <div class="form-floating">
-                    <input type="text" name="port_cambio" class="form-control @error('port_cambio') is-invalid @enderror"
-                        id="port_cambio" placeholder="Puerto"
-                        @if (old('port_cambio'))
-                            value="{{ old('port_cambio') }}"
+
+
+
+
+
+
+                <div class="col-8 offset-2 isla-list p-4 mt-2 mb-2 border border-primary">
+                    <h2 class="mb-3"> Configurar conexión con maquina cambio</h2>
+                    <!-- IP -->
+                    <div class="form-floating pb-3">
+                        <input type="text" name="ip_cambio" class="form-control @error('ip_cambio') is-invalid @enderror"
+                            id="ip_cambio" placeholder="IP"
+                            @if (old('ip_cambio')) value="{{ old('ip_cambio') }}"
+                        @elseif ($data['user_cambio']->ip)
+                            value="{{ $data['user_cambio']->ip }}" @endif>
+                        <label for="ip_cambio">IP</label>
+                        @if ($errors->has('ip_cambio'))
+                            <div class="invalid-feedback"> {{ $errors->first('ip_cambio') }} </div>
+                        @endif
+                    </div>
+
+                    <!-- Puerto -->
+                    <div class="form-floating">
+                        <input type="text" name="port_cambio"
+                            class="form-control @error('port_cambio') is-invalid @enderror" id="port_cambio"
+                            placeholder="Puerto"
+                            @if (old('port_cambio')) value="{{ old('port_cambio') }}"
                         @elseif ($data['user_cambio']->port)
-                            value="{{$data['user_cambio']->port}}"
-                        @endif>
-                    <label for="port_cambio">Puerto</label>
-                    @error('port_cambio')
-                        <div class="invalid-feedback"> {{ $message }} </div>
-                    @enderror
+                            value="{{ $data['user_cambio']->port }}" @endif>
+                        <label for="port_cambio">Puerto</label>
+                        @error('port_cambio')
+                            <div class="invalid-feedback"> {{ $message }} </div>
+                        @enderror
+                    </div>
                 </div>
-            </div>
 
-            <div class="col-8 offset-2 isla-list p-4 mt-2 mb-2 border border-primary">
-                <h2 class="mb-3"> Configurar ComDataHost</h2>
+                <div class="col-8 offset-2 isla-list p-4 mt-2 mb-2 border border-primary">
+                    <h2 class="mb-3"> Configurar ComDataHost</h2>
 
-                <!-- IP -->
-                <div class="form-floating pb-3">
-                    <input type="text" name="ip_comdatahost" class="form-control col-4 @error('ip_comdatahost') is-invalid @enderror"
-                        id="ip_comdatahost" placeholder="IP"
-                        @if (old('ip_comdatahost'))
-                            value="{{ old('ip_comdatahost') }}"
+                    <!-- IP -->
+                    <div class="form-floating pb-3">
+                        <input type="text" name="ip_comdatahost"
+                            class="form-control col-4 @error('ip_comdatahost') is-invalid @enderror" id="ip_comdatahost"
+                            placeholder="IP"
+                            @if (old('ip_comdatahost')) value="{{ old('ip_comdatahost') }}"
                         @elseif ($data['user_comDataHost']->ip)
-                            value="{{$data['user_comDataHost']->ip}}"
-                        @endif>
-                    <label for="ip_comdatahost">IP</label>
-                    @error('ip_comdatahost')
-                        <div class="invalid-feedback"> {{ $message }} </div>
-                    @enderror
-                </div>
+                            value="{{ $data['user_comDataHost']->ip }}" @endif>
+                        <label for="ip_comdatahost">IP</label>
+                        @error('ip_comdatahost')
+                            <div class="invalid-feedback"> {{ $message }} </div>
+                        @enderror
+                    </div>
 
-                <!-- Puerto -->
-                <div class="form-floating">
-                    <input type="text" name="port_comdatahost" class="form-control @error('port_comdatahost') is-invalid @enderror"
-                        id="port_comdatahost" placeholder="Puerto"
-                        @if (old('port_comdatahost'))
-                            value="{{ old('port_comdatahost') }}"
+                    <!-- Puerto -->
+                    <div class="form-floating">
+                        <input type="text" name="port_comdatahost"
+                            class="form-control @error('port_comdatahost') is-invalid @enderror" id="port_comdatahost"
+                            placeholder="Puerto"
+                            @if (old('port_comdatahost')) value="{{ old('port_comdatahost') }}"
                         @elseif ($data['user_comDataHost']->port)
-                            value="{{$data['user_comDataHost']->port}}"
-                        @endif>
-                    <label for="port_comdatahost">Puerto</label>
-                    @error('port_comdatahost')
-                        <div class="invalid-feedback"> {{ $message }} </div>
-                    @enderror
+                            value="{{ $data['user_comDataHost']->port }}" @endif>
+                        <label for="port_comdatahost">Puerto</label>
+                        @error('port_comdatahost')
+                            <div class="invalid-feedback"> {{ $message }} </div>
+                        @enderror
+                    </div>
+                </div>
+
+                <!-- Botón de Enviar -->
+                <div class="form-group mt-3 col-4 offset-4">
+                    <button type="submit" class="btn btn-primary w-100">Guardar configuración</button>
+                </div>
+            </form>
+
+            <!-- Bloque del botones -->
+            <div class="d-flex">
+                <a class="offset-4 col-4 pt-3 pb-3" href="{{ route('configuracion.buscar') }}">
+                    <button type="button" class="btn btn-primary w-100">Obtener IP automaticámente</button>
+                </a>
+            </div>
+            <div class="d-flex">
+                <a class="offset-4 col-4 pt-3 pb-3" data-bs-toggle="modal"
+                    data-bs-target="#modalAccionesLocal{{ $data['user_cambio']->id }}">
+                    <button class="btn btn-danger w-100">Borrar datos de configuración</button>
+                </a>
+            </div>
+
+        @endif
+
+
+        <!--MODAL ACCIONES-->
+        <div class="modal fade" id="modalAccionesLocal{{ $data['user_cambio']->id }}" data-bs-backdrop="static"
+            data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalAcciones" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="staticBackdropLabel">!Eliminar
+                            configuración!</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        ¿Estas seguro que quieres eliminar datos del configuración?
+                    </div>
+                    <div class="modal-footer">
+                        <form action="{{ route('configuracion.destroy', $data['user_cambio']) }}" method="POST">
+                            @csrf
+                            @method('DELETE')
+
+                            <button type="submitt" class="btn btn-danger">Eliminar</button>
+                        </form>
+                    </div>
                 </div>
             </div>
-
-            <!-- Botón de Enviar -->
-            <div class="form-group mt-3 col-4 offset-4">
-                <button type="submit" class="btn btn-primary w-100">Guardar configuración</button>
-            </div>
-        </form>
-
-        <!-- Bloque del botones -->
-        <div class="d-flex">
-            <a class="offset-4 col-4 pt-3 pb-3" href="{{ route('configuracion.buscar') }}">
-                <button type="button" class="btn btn-primary w-100" >Obtener IP automaticámente</button>
-            </a>
-        </div>
-        <div class="d-flex">
-            <a class="offset-4 col-4 pt-3 pb-3" data-bs-toggle="modal"
-                data-bs-target="#modalAccionesLocal{{ $data['user_cambio']->id }}">
-                <button class="btn btn-danger w-100" >Borrar datos de configuración</button>
-            </a>
         </div>
 
-    @endif
+    </div>
 
 
-    <!--MODAL ACCIONES-->
-    <div class="modal fade" id="modalAccionesLocal{{ $data['user_cambio']->id }}"
-        data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-        aria-labelledby="modalAcciones" aria-hidden="true">
+    <!--Modal eliminar-->
+    <div class="modal fade" id="eliminarModal1" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="eliminarModal1" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <h1 class="modal-title fs-5" id="staticBackdropLabel">!Eliminar
                         configuración!</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                        aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     ¿Estas seguro que quieres eliminar datos del configuración?
                 </div>
                 <div class="modal-footer">
-                    <form action="{{ route('configuracion.destroy', $data['user_cambio']) }}"
-                        method="POST">
+                    <form action="{{ route('configuracion.destroy', $data['user_cambio']) }}" method="POST">
                         @csrf
                         @method('DELETE')
 
@@ -237,175 +335,234 @@
         </div>
     </div>
 
-</div>
-
-
-                                        <!--Modal eliminar-->
-                                        <div class="modal fade" id="eliminarModal1"
-                                            data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-                                            aria-labelledby="eliminarModal1" aria-hidden="true">
-                                            <div class="modal-dialog">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h1 class="modal-title fs-5" id="staticBackdropLabel">!Eliminar
-                                                            configuración!</h1>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                            aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        ¿Estas seguro que quieres eliminar datos del configuración?
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <form action="{{ route('configuracion.destroy', $data['user_cambio']) }}"
-                                                            method="POST">
-                                                            @csrf
-                                                            @method('DELETE')
-
-                                                            <button type="submitt" class="btn btn-danger">Eliminar</button>
-                                                        </form>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
 
 
 
 
+    <!--Modal para reiniciar session-->
+    <div class="modal fade" id="reiniciarModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="eliminarModal1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">!Reiniciar session!</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Quieres reiniciar el sesión?
+                </div>
+                <div class="modal-footer">
+                    <form action="{{ route('logout') }}" method="POST">
+                        @csrf
 
-                                        <!--Modal para reiniciar session-->
-                                                <div class="modal fade" id="reiniciarModal"
-                                                data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-                                                aria-labelledby="eliminarModal1" aria-hidden="true">
-                                                <div class="modal-dialog">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h1 class="modal-title fs-5" id="staticBackdropLabel">!Reiniciar session!</h1>
-                                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                                aria-label="Close"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            ¿Quieres reiniciar el sesión?
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <form action="{{ route('logout') }}"
-                                                                method="POST">
-                                                                @csrf
-
-                                                                <button type="submitt" class="btn btn-danger">Reiniciarr</button>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
+                        <button type="submitt" class="btn btn-danger">Reiniciarr</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
 
-@if(session('reiniciar') === true)
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            var myModal = new bootstrap.Modal(document.getElementById('reiniciarModal'), {
-                keyboard: false
+    @if (session('reiniciar') === true)
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                var myModal = new bootstrap.Modal(document.getElementById('reiniciarModal'), {
+                    keyboard: false
+                });
+                myModal.show();
             });
-            myModal.show();
-        });
-    </script>
-@endif
+        </script>
+    @endif
 
 
 
 
-<script>
+    <script>
+        const buttonPedirCompany = document.getElementById('button_company');
+        const blockDeError = document.getElementById('company_error_message');
+        const PROMETEO_PRINCIPAL_IP = @json(session('PROMETEO_PRINCIPAL_IP'));
+        const PROMETEO_PRINCIPAL_PORT = @json(session('PROMETEO_PRINCIPAL_PORT'));
 
-    const buttonPedirCompany = document.getElementById('button_company');
-    const blockDeError = document.getElementById('company_error_message');
-    const PROMETEO_PRINCIPAL_IP = @json(session('PROMETEO_PRINCIPAL_IP'));
-    const PROMETEO_PRINCIPAL_PORT = @json(session('PROMETEO_PRINCIPAL_PORT'));
+        if (buttonPedirCompany !== null) {
+            buttonPedirCompany.addEventListener('click', async () => {
+                const companyName = document.getElementById('input_company').value;
+                const apiUrl = `http://${PROMETEO_PRINCIPAL_IP}:${PROMETEO_PRINCIPAL_PORT}/api/verify-company`;
 
-    if (buttonPedirCompany !== null) {
-        buttonPedirCompany.addEventListener('click', async () => {
-            const companyName = document.getElementById('input_company').value;
-            const apiUrl = `http://${PROMETEO_PRINCIPAL_IP}:${PROMETEO_PRINCIPAL_PORT}/api/verify-company`;
+                try {
+                    const companyResponse = await sendPostRequest(apiUrl, {
+                        company_name: companyName
+                    }); // Probamos nombre compania
 
-            try {
-                const companyResponse = await sendPostRequest(apiUrl, { company_name: companyName });   // Probamos nombre compania
+                    if (companyResponse.status === 'error') {
+                        showErrorMessage("Datos enviados son incorrectos");
+                        return;
+                    }
 
-                if (companyResponse.status === 'error') {
-                    showErrorMessage("Datos enviados son incorrectos");
-                    return;
+                    const company = companyResponse
+                        .company; // Obtenemos datos de compania, ip y  port de servidor de Prometeo de compania
+                    const ipPrometeoPropio = company.ip;
+                    const portPrometeoPropio = company.port;
+
+                    const saveCompanyResponse = await sendPostRequest(
+                        '{{ route('configuracion.save_company') }}', company
+                    ); //guardamos a BD datos de compania: nombre, ip, puerto
+
+                    console.log(saveCompanyResponse.message);
+
+                    if (saveCompanyResponse.message !== 'success') {
+                        showErrorMessage("Error al guardar datos");
+                        return;
+                    }
+
+                    const urlPrometeoPropio =
+                        `http://${ipPrometeoPropio}:${portPrometeoPropio}/api/send-data-company`; // obtenemos datos de compania: locales etc
+                    const dataResponse = await sendPostRequest(urlPrometeoPropio, {
+                        company_name: companyName
+                    });
+
+                    if (dataResponse.status === 'error') {
+                        showErrorMessage("No hay datos en servidor Prometeo");
+                        return;
+                    }
+
+                    const companyInfo = dataResponse.company;
+                    const saveCompanyInfoResponse = await sendPostRequest(
+                        '{{ route('configuracion.company') }}', companyInfo
+                    ); // si tenemos datos de servidor -guardamos a BD
+
+
+                    if (saveCompanyInfoResponse.message === 'success') {
+                        console.log("Proceso finalizado exitosamente!");
+                        window.location.href =
+                            '{{ route('configuracion.index') }}'; // si toto bien - reiniciamos pagina
+                    } else {
+                        showErrorMessage("Error al guardar datos en la BD");
+                    }
+                } catch (error) {
+                    showErrorMessage("Ocurrió un error inesperado.");
+                    console.error(error);
                 }
-
-                const company = companyResponse.company;        // Obtenemos datos de compania, ip y  port de servidor de Prometeo de compania
-                const ipPrometeoPropio = company.ip;
-                const portPrometeoPropio = company.port;
-
-                const saveCompanyResponse = await sendPostRequest('{{ route("configuracion.save_company") }}', company); //guardamos a BD datos de compania: nombre, ip, puerto
-
-                console.log(saveCompanyResponse.message);
-
-                if (saveCompanyResponse.message !== 'success') {
-                    showErrorMessage("Error al guardar datos");
-                    return;
-                }
-
-                const urlPrometeoPropio = `http://${ipPrometeoPropio}:${portPrometeoPropio}/api/send-data-company`;  // obtenemos datos de compania: locales etc
-                const dataResponse = await sendPostRequest(urlPrometeoPropio, { company_name: companyName });
-
-                if (dataResponse.status === 'error') {
-                    showErrorMessage("No hay datos en servidor Prometeo");
-                    return;
-                }
-
-                const companyInfo = dataResponse.company;
-                const saveCompanyInfoResponse = await sendPostRequest('{{ route("configuracion.company") }}', companyInfo); // si tenemos datos de servidor -guardamos a BD
-
-
-                if (saveCompanyInfoResponse.message === 'success') {
-                    console.log("Proceso finalizado exitosamente!");
-                    window.location.href = '{{ route ('configuracion.index')}}';   // si toto bien - reiniciamos pagina
-                } else {
-                    showErrorMessage("Error al guardar datos en la BD");
-                }
-            } catch (error) {
-                showErrorMessage("Ocurrió un error inesperado.");
-                console.error(error);
-            }
-        });
-    }
-
-    /**
-     * Realiza una solicitud POST.
-     * @param {string} url - URL a la que se enviará la solicitud.
-     * @param {object} data - Datos a enviar en el cuerpo de la solicitud.
-     * @returns {Promise<Response|object>} - Respuesta o error parseado como JSON.
-     */
-    async function sendPostRequest(url, data) {
-        const headers = {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-        };
-        console.log (document.querySelector('meta[name="csrf-token"]').content);
-
-        const response = await fetch(url, {
-            method: 'POST',
-            headers,
-            body: JSON.stringify(data),
-        });
-
-        if (!response.ok) {
-            throw new Error(`Error HTTP: ${response.status}`);
+            });
         }
 
-        return response.json();
-    }
+        /**
+         * Realiza una solicitud POST.
+         * @param {string} url - URL a la que se enviará la solicitud.
+         * @param {object} data - Datos a enviar en el cuerpo de la solicitud.
+         * @returns {Promise<Response|object>} - Respuesta o error parseado como JSON.
+         */
+        async function sendPostRequest(url, data) {
+            const headers = {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            };
+            console.log(document.querySelector('meta[name="csrf-token"]').content);
 
-    /**
-     * Muestra un mensaje de error en el bloque de errores.
-     * @param {string} message - Mensaje a mostrar.
-     */
-    function showErrorMessage(message) {
-        blockDeError.textContent = message;
-        blockDeError.classList.add('d-block');
-    }
-</script>
+            const response = await fetch(url, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify(data),
+            });
+
+            if (!response.ok) {
+                throw new Error(`Error HTTP: ${response.status}`);
+            }
+
+            return response.json();
+        }
+
+        /**
+         * Muestra un mensaje de error en el bloque de errores.
+         * @param {string} message - Mensaje a mostrar.
+         */
+        function showErrorMessage(message) {
+            blockDeError.textContent = message;
+            blockDeError.classList.add('d-block');
+        }
+
+        document.getElementById('getClientData').addEventListener('click', function() {
+            const userSelect = document.getElementById('user_id');
+            const selectedOption = userSelect.options[userSelect.selectedIndex];
+            const userText = selectedOption.text;
+            const match = userText.match(/\((.*?)\)/);
+
+            if (!match || !match[1]) {
+                document.getElementById('resultMessage').innerHTML =
+                    '<div class="alert alert-danger">No se pudo obtener el email del usuario seleccionado. Por favor, revise las opciones.</div>';
+                return;
+            }
+
+            const userEmail = match[1];
+            const password = document.getElementById('password').value;
+
+            if (!password) {
+                document.getElementById('resultMessage').innerHTML =
+                    '<div class="alert alert-danger">Por favor, complete la contraseña.</div>';
+                return;
+            }
+
+            const prometeIp = '{{ session()->get('PROMETEO_PRINCIPAL_IP') }}';
+            const prometePort = '{{ session()->get('PROMETEO_PRINCIPAL_PORT') }}';
+            const url = `http://${prometeIp}:${prometePort}/api/getDataClient`;
+
+            fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                            'content'),
+                    },
+                    body: JSON.stringify({
+                        email: userEmail,
+                        password: password,
+                    }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.client) {
+                        document.getElementById('resultMessage').innerHTML =
+                            `<div class="alert alert-success">
+                        Cliente obtenido correctamente: <br>
+                        <strong>Nombre:</strong> ${data.client.name}<br>
+                    </div>`;
+
+                        // Guardar los datos en la base de datos
+                        return fetch('/saveClientData', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                    .getAttribute('content'),
+                            },
+                            body: JSON.stringify({
+                                id: data.client.id,
+                                user_id: selectedOption.value,
+                                name: data.client.name,
+                                client_secret: data.client.client_secret,
+                            }),
+                        });
+                    } else {
+                        document.getElementById('resultMessage').innerHTML =
+                            '<div class="alert alert-danger">Error: No se pudo obtener el cliente.</div>';
+                        return Promise.reject('Cliente no encontrado.');
+                    }
+                })
+                .then(response => response.json())
+                .then(saveResponse => {
+                    if (saveResponse.message) {
+                        document.getElementById('resultMessage').innerHTML +=
+                            `<div class="alert alert-success">${saveResponse.message}</div>`;
+                    } else {
+                        document.getElementById('resultMessage').innerHTML +=
+                            `<div class="alert alert-danger">${saveResponse.error}</div>`;
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('resultMessage').innerHTML =
+                        '<div class="alert alert-danger">Error en la solicitud: ' + error.message + '</div>';
+                });
+        });
+    </script>
 
 @endsection

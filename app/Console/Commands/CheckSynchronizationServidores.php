@@ -49,17 +49,22 @@ class CheckSynchronizationServidores extends Command
 
             Log::info($e);
         }
-        $this-> changeDatosConexiones ($conexiones);
+        //$this-> changeDatosConexiones ($conexiones);
         // Probamos otro conexiones
         $conexionConComData = nuevaConexionLocal('admin');
         $conexiones [1] = $this -> checkConexion($conexionConComData);
-        $this-> changeDatosConexiones ($conexiones);
+        //$this-> changeDatosConexiones ($conexiones);
         $conexionConTicketServer = nuevaConexionLocal('ccm');
         $conexiones [2] = $this -> checkConexion($conexionConTicketServer);
-        log::info('3');
+        //log::info('3');
 
         // Guardamos información sobre resultados ultimos conexiones
-        $this-> changeDatosConexiones ($conexiones);
+        //$this-> changeDatosConexiones ($conexiones);
+
+         // Guardamos información sobre resultados ultimos conexiones
+         $lastTimeConnexiones = now ();
+         setTimeConexiones ($lastTimeConnexiones);
+         setEstadoConexiones($conexiones);
     }
 
 
