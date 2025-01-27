@@ -13,6 +13,7 @@ use App\Models\BetMoneyStorageInfo;
 use App\Models\Config;
 use App\Models\Session;
 use App\Models\SessionsTicketServer;
+use App\Models\User; // Necesario para obtener el usuario
 use App\Providers\ApiClient;
 
 class SendCasualDataCommand extends Command
@@ -39,29 +40,32 @@ class SendCasualDataCommand extends Command
         // Instanciar el ApiClient
         $apiClient = app(ApiClient::class); // Usar el contenedor de servicios para obtener la instancia
 
-        // Intentar obtener el token de acceso
-        $token = $apiClient->getAccessToken();
-        Log::info($token);
-        if (!$token) {
-            $this->error('No se pudo obtener el token de acceso. Verifica las credenciales.' . $token);
+        // Obtener el usuario y el password (esto es solo un ejemplo, ajusta según tu lógica)
+        $user = User::first(); // Aquí obtienes el primer usuario, pero puedes obtenerlo según necesites
+        $password = 'Mini1234'; // Aquí debes usar el password del usuario
+
+        // Verifica si el usuario existe
+        if (!$user) {
+            $this->error('Usuario no encontrado.');
             return;
         }
 
-        $this->sendCollectDetailsInfoData($apiClient);
-        $this->sendCollectInfoData($apiClient);
-        $this->sendHcMoneyStorageData($apiClient);
-        $this->sendHcMoneyStorageInfoData($apiClient);
-        $this->sendBetMoneyStorageData($apiClient);
-        $this->sendBetMoneyStorageInfoData($apiClient);
-        $this->sendConfigData($apiClient);
-        $this->sendSessionsData($apiClient);
+        $this->sendCollectDetailsInfoData($apiClient, $user, $password);
+        $this->sendCollectInfoData($apiClient, $user, $password);
+        $this->sendHcMoneyStorageData($apiClient, $user, $password);
+        $this->sendHcMoneyStorageInfoData($apiClient, $user, $password);
+        $this->sendBetMoneyStorageData($apiClient, $user, $password);
+        $this->sendBetMoneyStorageInfoData($apiClient, $user, $password);
+        $this->sendConfigData($apiClient, $user, $password);
+        $this->sendSessionsData($apiClient, $user, $password);
     }
 
-    private function sendCollectDetailsInfoData(ApiClient $apiClient)
+    private function sendCollectDetailsInfoData(ApiClient $apiClient, User $user, string $password)
     {
         $data = CollectDetailsInfo::all()->toArray(); // Convertir a array para enviar
-        $response = $apiClient->sendData('api/save-data', $data);
-
+        $response = $apiClient->sendData($user, $password, 'api/save-data', $data);
+        // Agregar más logging aquí para ver la respuesta completa
+        Log::info($response);
         if ($response) {
             $this->info('Datos de CollectDetailsInfo enviados con éxito.');
         } else {
@@ -69,10 +73,10 @@ class SendCasualDataCommand extends Command
         }
     }
 
-    private function sendCollectInfoData(ApiClient $apiClient)
+    private function sendCollectInfoData(ApiClient $apiClient, User $user, string $password)
     {
         $data = CollectInfo::all()->toArray(); // Convertir a array para enviar
-        $response = $apiClient->sendData('api/save-data', $data);
+        $response = $apiClient->sendData($user, $password, 'api/save-data', $data);
 
         if ($response) {
             $this->info('Datos de CollectInfo enviados con éxito.');
@@ -81,10 +85,10 @@ class SendCasualDataCommand extends Command
         }
     }
 
-    private function sendHcMoneyStorageData(ApiClient $apiClient)
+    private function sendHcMoneyStorageData(ApiClient $apiClient, User $user, string $password)
     {
         $data = HcMoneyStorage::all()->toArray(); // Convertir a array para enviar
-        $response = $apiClient->sendData('api/save-data', $data);
+        $response = $apiClient->sendData($user, $password, 'api/save-data', $data);
 
         if ($response) {
             $this->info('Datos de HcMoneyStorage enviados con éxito.');
@@ -93,10 +97,10 @@ class SendCasualDataCommand extends Command
         }
     }
 
-    private function sendHcMoneyStorageInfoData(ApiClient $apiClient)
+    private function sendHcMoneyStorageInfoData(ApiClient $apiClient, User $user, string $password)
     {
         $data = HcMoneyStorageInfo::all()->toArray(); // Convertir a array para enviar
-        $response = $apiClient->sendData('api/save-data', $data);
+        $response = $apiClient->sendData($user, $password, 'api/save-data', $data);
 
         if ($response) {
             $this->info('Datos de HcMoneyStorageInfo enviados con éxito.');
@@ -105,10 +109,10 @@ class SendCasualDataCommand extends Command
         }
     }
 
-    private function sendBetMoneyStorageData(ApiClient $apiClient)
+    private function sendBetMoneyStorageData(ApiClient $apiClient, User $user, string $password)
     {
         $data = BetMoneyStorage::all()->toArray(); // Convertir a array para enviar
-        $response = $apiClient->sendData('api/save-data', $data);
+        $response = $apiClient->sendData($user, $password, 'api/save-data', $data);
 
         if ($response) {
             $this->info('Datos de BetMoneyStorage enviados con éxito.');
@@ -117,10 +121,10 @@ class SendCasualDataCommand extends Command
         }
     }
 
-    private function sendBetMoneyStorageInfoData(ApiClient $apiClient)
+    private function sendBetMoneyStorageInfoData(ApiClient $apiClient, User $user, string $password)
     {
         $data = BetMoneyStorageInfo::all()->toArray(); // Convertir a array para enviar
-        $response = $apiClient->sendData('api/save-data', $data);
+        $response = $apiClient->sendData($user, $password, 'api/save-data', $data);
 
         if ($response) {
             $this->info('Datos de BetMoneyStorageInfo enviados con éxito.');
@@ -129,10 +133,10 @@ class SendCasualDataCommand extends Command
         }
     }
 
-    private function sendConfigData(ApiClient $apiClient)
+    private function sendConfigData(ApiClient $apiClient, User $user, string $password)
     {
         $data = Config::all()->toArray(); // Convertir a array para enviar
-        $response = $apiClient->sendData('api/save-data', $data);
+        $response = $apiClient->sendData($user, $password, 'api/save-data', $data);
 
         if ($response) {
             $this->info('Datos de Config enviados con éxito.');
@@ -141,10 +145,10 @@ class SendCasualDataCommand extends Command
         }
     }
 
-    private function sendSessionsData(ApiClient $apiClient)
+    private function sendSessionsData(ApiClient $apiClient, User $user, string $password)
     {
         $data = SessionsTicketServer::all()->toArray(); // Convertir a array para enviar
-        $response = $apiClient->sendData('api/save-data', $data);
+        $response = $apiClient->sendData($user, $password, 'api/save-data', $data);
 
         if ($response) {
             $this->info('Datos de Session Ticket Server enviados con éxito.');

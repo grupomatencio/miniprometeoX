@@ -19,7 +19,8 @@ class UserSeeder extends Seeder
         User::create([
             'name' => "Miniprometeo",
             'email' => 'muchamiel@magarin.es',
-            'password' => Crypt::encryptString("Mini1234"),
+            'password' => bcrypt("Mini1234"),
+            //'password' => Crypt::encryptString("Mini1234"),
         ]);
         User::create([
             'name' => "tecnico",
