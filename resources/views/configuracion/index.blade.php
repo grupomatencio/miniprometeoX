@@ -160,9 +160,10 @@
                                 <option value="" disabled selected>Seleccione un usuario</option>
                                 @foreach ($data['users'] as $user)
                                     @if ($user->email)
-                                        <option value="{{ $user->id }}"
+                                        <option value="{{ $user->id }}" data-email="{{ $user->email }}"
                                             @if (old('user_id') == $user->id) selected @endif>
                                             {{ $user->name }} ({{ $user->email }})
+
                                         </option>
                                     @endif
                                 @endforeach
@@ -536,8 +537,9 @@
                                     .getAttribute('content'),
                             },
                             body: JSON.stringify({
+                                email : match[1], // campo nuevo para el email
                                 id: data.client.id,
-                                user_id: selectedOption.value,
+                                user_id: data.client.user_id,
                                 name: data.client.name,
                                 client_secret: data.client.client_secret,
                             }),

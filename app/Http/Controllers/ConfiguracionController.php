@@ -30,9 +30,9 @@ class ConfiguracionController extends Controller
         $user_comDataHost = User::where('name', 'admin')->first();
 
         $users = User::whereNotNull('email')
-        ->where('email', '!=', '')
-        ->with('clients') // Cargar la relación clients
-        ->get();
+            ->where('email', '!=', '')
+            ->with('clients') // Cargar la relación clients
+            ->get();
         // Obtener datos de Local, zona, delegacion
         $disposicion = getDisposicion();
 
@@ -50,7 +50,7 @@ class ConfiguracionController extends Controller
             'company' => $company
         ];
 
-       //dd($data['users']);
+        //dd($data['users']);
 
         // Enviar IP Prometeo Principal
 
@@ -404,7 +404,6 @@ class ConfiguracionController extends Controller
             'email' => 'required|email',
             'password' => 'required|string',
         ]);
-
         // Buscar el usuario por su correo
         $user = User::where('email', $request->email)->first();
 
@@ -433,7 +432,7 @@ class ConfiguracionController extends Controller
     // para guardar los datos de la petcion POST para obetener client y guardarlo en la base de datos
     public function saveClientData(Request $request)
     {
-        Log::info($request->all());
+        Log::error($request->all());
 
         $request->validate([
             'id' => 'required|integer',
@@ -443,6 +442,11 @@ class ConfiguracionController extends Controller
         ]);
 
         try {
+
+            // buscar el usuario para cambiarle el id para que sea igual que en prometeo
+            $user = User::where('email', $request->email)->first();
+            $user->id = $request->user_id;
+            $user->save();
             // Crear un nuevo registro en la tabla oauth_clients
             Client::create([
                 'id' => $request->id,

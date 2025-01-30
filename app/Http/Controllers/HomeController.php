@@ -32,7 +32,7 @@ class HomeController extends Controller
     public function index()
 
     {
-
+dd(session()->all());
         // Bloque para iniciar tareas en modo automatico
         /*
         $taskName = 'LaravelQueueWork';
@@ -69,7 +69,7 @@ class HomeController extends Controller
             session() -> flash('configuracionCDH_IP',$configuracionCDH->ip);
             session() -> flash('configuracionCDH_Port',$configuracionCDH->port);
         }
-        dd(env('PASSPORT_CLIENT_ID'), env('PASSPORT_CLIENT_SECRET'), env('API_SERVER_URL'));
+        //dd(env('PASSPORT_CLIENT_ID'), env('PASSPORT_CLIENT_SECRET'), env('API_SERVER_URL'));
 
         return view("home");
     }
@@ -114,3 +114,8 @@ class HomeController extends Controller
     }
 
 }
+
+
+
+
+

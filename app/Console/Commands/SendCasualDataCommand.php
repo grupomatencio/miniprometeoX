@@ -39,9 +39,11 @@ class SendCasualDataCommand extends Command
     {
         // Instanciar el ApiClient
         $apiClient = app(ApiClient::class); // Usar el contenedor de servicios para obtener la instancia
+        //dd($apiClient);
 
-        // Obtener el usuario y el password (esto es solo un ejemplo, ajusta según tu lógica)
-        $user = User::first(); // Aquí obtienes el primer usuario, pero puedes obtenerlo según necesites
+        // Obtener el usuario específico por nombre
+        $user = User::where('name', 'Miniprometeo')->first(); // Cambia 'name' por el nombre de la columna adecuada si es diferente
+        //dd($user);
         $password = 'Mini1234'; // Aquí debes usar el password del usuario
 
         // Verifica si el usuario existe
@@ -51,21 +53,23 @@ class SendCasualDataCommand extends Command
         }
 
         $this->sendCollectDetailsInfoData($apiClient, $user, $password);
-        $this->sendCollectInfoData($apiClient, $user, $password);
+        /*$this->sendCollectInfoData($apiClient, $user, $password);
         $this->sendHcMoneyStorageData($apiClient, $user, $password);
         $this->sendHcMoneyStorageInfoData($apiClient, $user, $password);
         $this->sendBetMoneyStorageData($apiClient, $user, $password);
         $this->sendBetMoneyStorageInfoData($apiClient, $user, $password);
         $this->sendConfigData($apiClient, $user, $password);
-        $this->sendSessionsData($apiClient, $user, $password);
+        $this->sendSessionsData($apiClient, $user, $password);*/
     }
 
     private function sendCollectDetailsInfoData(ApiClient $apiClient, User $user, string $password)
     {
         $data = CollectDetailsInfo::all()->toArray(); // Convertir a array para enviar
+        //dd($data);
         $response = $apiClient->sendData($user, $password, 'api/save-data', $data);
         // Agregar más logging aquí para ver la respuesta completa
         Log::info($response);
+
         if ($response) {
             $this->info('Datos de CollectDetailsInfo enviados con éxito.');
         } else {
