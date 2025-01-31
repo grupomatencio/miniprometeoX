@@ -13,10 +13,7 @@ return new class extends Migration
     {
         Schema::create('oauth_personal_access_clients', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->foreignId('client_id')
-                ->constrained('oauth_clients', 'id')
-                ->cascadeOnDelete()
-                ->cascadeOnUpdate();
+            $table->unsignedBigInteger('client_id');
             $table->timestamps();
         });
     }

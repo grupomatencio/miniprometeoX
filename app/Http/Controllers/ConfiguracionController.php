@@ -159,10 +159,10 @@ class ConfiguracionController extends Controller
             ]);
 
             $serialNumberProcessor = getSerialNumber();
-
+            //dd($serialNumberProcessor);
             // Comprobar serial Number
             $checkSerialNumber = compartirSerialNumber($serialNumberProcessor, $data['locales']);
-
+            //dd($checkSerialNumber);
             // Si resultados de comprobación es bien - guardamos datos de local
             if ($checkSerialNumber !== null && $checkSerialNumber[0]) {
                 try {

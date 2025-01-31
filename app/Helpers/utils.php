@@ -192,7 +192,7 @@ function getSerialNumber() :string
     // function para conexion con prometeo y comprobar licencia
     // @return array [resultado de comprobación, error]
     function compartirSerialNumber($serialNumberProcessor, $local_id) {
-
+        Log::notice('Compartir serial number ' . $serialNumberProcessor . ' --- ' . $local_id);
         try {
 
                     // Probar conexiones con prometeo
@@ -201,7 +201,11 @@ function getSerialNumber() :string
                     $local = Local::find($local_id);
                     $url = 'http://'. PROMETEO_PRINCIPAL_IP . ':'. PROMETEO_PRINCIPAL_PORT .'/api/verify-licence-company';
 
-                    // dd ($local);
+                    Log::notice($local_id);
+                    Log::notice($serialNumberProcessor);
+                    Log::notice($company);
+                    Log::notice($local);
+
 
                     try {
                         $response = Http::post($url, [
@@ -210,7 +214,7 @@ function getSerialNumber() :string
                             'company' => $company -> name,
                             'local_name' => $local -> name
                         ]);
-                        // dd ($response-> json());
+                        Log::notice($response->body());
 
                     } catch (\Exception $e) {
 

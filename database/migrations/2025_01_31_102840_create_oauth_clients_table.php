@@ -13,16 +13,11 @@ return new class extends Migration
     {
         Schema::create('oauth_clients', function (Blueprint $table) {
             $table->bigIncrements('id');
-            //$table->unsignedBigInteger('user_id')->nullable()->index();
-            $table->foreignId('user_id')
-                ->nullable()
-                ->constrained('users')
-                ->cascadeOnDelete()
-                ->cascadeOnUpdate();
+            $table->unsignedBigInteger('user_id')->nullable()->index();
             $table->string('name');
             $table->string('secret', 100)->nullable();
             $table->string('provider')->nullable();
-            $table->text('redirect')->default('http://');
+            $table->text('redirect')->default('');
             $table->boolean('personal_access_client');
             $table->boolean('password_client');
             $table->boolean('revoked');

@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 use App\Models\User;
 
 class ApiClient
@@ -35,7 +36,9 @@ class ApiClient
         ]);
 
         $token = $this->getAccessToken($user, $password);
+        Log::info('FUERA DEL IF --------------- ' . $token);
         if ($token) {
+            Log::info('DENTRO DEL IF --------------- ' . $token);
             return $this->postRequest($endpoint, $data, $token);
         }
 
@@ -84,14 +87,22 @@ class ApiClient
             return $activeToken->id; // Se usa el ID porque el token en sí está hasheado
         }
 
+        // Si hay un token en caché, lo usamos
+        $cachedToken = Cache::get("access_token_{$user->id}");
+        if ($cachedToken) {
+            Log::info('Usando token de acceso desde caché.');
+            return $cachedToken;
+        }
+
         // Si no hay un token activo, intenta refrescarlo
         if ($user->refresh_token) {
-            return $this->refreshAccessToken($user->refresh_token);
+            return $this->refreshAccessToken($user, $user->refresh_token); // Corrección aquí
         }
 
         // Si no hay refresh_token o falla la renovación, solicita un nuevo token
         return $this->requestNewAccessToken($user, $password);
     }
+
 
     private function requestNewAccessToken(User $user, string $password)
     {
@@ -100,7 +111,7 @@ class ApiClient
                 'email' => $user->email,
             ]);
 
-            $response = Http::asForm()->post(config('app.api_server_url') . '/oauth/token', [
+            $response = Http::asForm()->post(config('app.api_server_url') . '/api/oauth/token', [
                 'grant_type' => 'password',
                 'client_id' => config('app.passport_client_id'),
                 'client_secret' => config('app.passport_client_secret'),
@@ -112,10 +123,13 @@ class ApiClient
                 $data = $response->json();
                 Log::info('Token de acceso obtenido correctamente.', $data);
 
-                // Almacenar en la sesión
-                session([
-                    'access_token' => $data['access_token'],
-                    'refresh_token' => $data['refresh_token'],
+                // Almacenar en caché
+                Cache::put("access_token_{$user->id}", $data['access_token'], now()->addSeconds($data['expires_in']));
+                Cache::put("refresh_token_{$user->id}", $data['refresh_token'], now()->addDays(30));
+
+                Log::info('TOKENS ALMACENADOS EN CACHÉ', [
+                    'access_token' => Cache::get("access_token_{$user->id}"),
+                    'refresh_token' => Cache::get("refresh_token_{$user->id}"),
                 ]);
 
                 $this->storeToken($user, $data);
@@ -136,20 +150,21 @@ class ApiClient
         }
     }
 
-    //para pruebas tinker
-    public function refreshTokenForUser(User $user) {
+    // Para pruebas tinker
+    /*public function refreshTokenForUser(User $user)
+    {
         if ($user->refresh_token) {
             return $this->refreshAccessToken($user->refresh_token);
         }
         return null;
-    }
+    }*/
 
-    private function refreshAccessToken(string $refreshToken)
+    private function refreshAccessToken(User $user, string $refreshToken)
     {
         try {
             Log::info('Intentando refrescar el token de acceso.');
 
-            $response = Http::asForm()->post(config('app.api_server_url') . '/oauth/token', [
+            $response = Http::asForm()->post(config('app.api_server_url') . '/api/oauth/token', [
                 'grant_type' => 'refresh_token',
                 'refresh_token' => $refreshToken,
                 'client_id' => config('app.passport_client_id'),
@@ -159,6 +174,14 @@ class ApiClient
             if ($response->successful()) {
                 $data = $response->json();
                 Log::info('Token refrescado correctamente.', $data);
+
+                Cache::put("access_token_{$user->id}", $data['access_token'], now()->addSeconds($data['expires_in']));
+                Cache::put("refresh_token_{$user->id}", $data['refresh_token'], now()->addDays(30));
+
+                Log::info('TOKENS ACTUALIZADOS EN CACHÉ', [
+                    'access_token' => Cache::get("access_token_{$user->id}"),
+                    'refresh_token' => Cache::get("refresh_token_{$user->id}"),
+                ]);
 
                 return $data['access_token'];
             }
@@ -176,6 +199,7 @@ class ApiClient
             return null;
         }
     }
+
 
     private function storeToken(User $user, array $data)
     {

@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use App\Jobs\TestConexionaes;
 use App\Jobs\ObtenerDatosTablaAcumulados;
+use Illuminate\Support\Facades\Cache;
 use Exception;
 use Illuminate\Http\Request;
 
@@ -32,7 +33,7 @@ class HomeController extends Controller
     public function index()
 
     {
-dd(session()->all());
+        dd(Cache::getStore());
         // Bloque para iniciar tareas en modo automatico
         /*
         $taskName = 'LaravelQueueWork';
