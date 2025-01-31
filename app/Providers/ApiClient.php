@@ -116,7 +116,7 @@ class ApiClient
                 'client_id' => config('app.passport_client_id'),
                 'client_secret' => config('app.passport_client_secret'),
                 'username' => $user->email,
-                'password' => $password,
+                'password' => 'Mini1234',
             ]);
 
             if ($response->successful()) {

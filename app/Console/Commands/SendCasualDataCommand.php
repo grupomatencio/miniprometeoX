@@ -68,8 +68,10 @@ class SendCasualDataCommand extends Command
         //dd($data);
         $response = $apiClient->sendData($user, $password, 'api/save-data', $data);
         // Agregar más logging aquí para ver la respuesta completa
-        Log::info($response);
-
+        //Log::notice($response);
+        //Log::notice($user);
+        //Log::notice($password);
+        //Log::info($data);
         if ($response) {
             $this->info('Datos de CollectDetailsInfo enviados con éxito.');
         } else {
