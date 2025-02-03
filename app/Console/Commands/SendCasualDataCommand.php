@@ -38,21 +38,21 @@ class SendCasualDataCommand extends Command
     public function handle()
     {
         // Instanciar el ApiClient
-        $apiClient = app(ApiClient::class); // Usar el contenedor de servicios para obtener la instancia
-        //dd($apiClient);
+        $apiClient = app(ApiClient::class);
+        Log::info('Instanciando ApiClient', ['apiClient' => json_encode($apiClient)]);
 
-        // Obtener el usuario específico por nombre
-        $user = User::where('name', 'Miniprometeo')->first(); // Cambia 'name' por el nombre de la columna adecuada si es diferente
-        //dd($user);
-        $password = 'Mini1234'; // Aquí debes usar el password del usuario
+        $user = User::where('name', 'Miniprometeo')->first();
+        $password = 'Mini1234';
 
-        // Verifica si el usuario existe
         if (!$user) {
             $this->error('Usuario no encontrado.');
             return;
         }
 
+        Log::info('Usuario encontrado', ['user' => $user]);
+        Log::info('Enviando datos de CollectDetailsInfo');
         $this->sendCollectDetailsInfoData($apiClient, $user, $password);
+
         /*$this->sendCollectInfoData($apiClient, $user, $password);
         $this->sendHcMoneyStorageData($apiClient, $user, $password);
         $this->sendHcMoneyStorageInfoData($apiClient, $user, $password);
@@ -64,18 +64,20 @@ class SendCasualDataCommand extends Command
 
     private function sendCollectDetailsInfoData(ApiClient $apiClient, User $user, string $password)
     {
-        $data = CollectDetailsInfo::all()->toArray(); // Convertir a array para enviar
-        //dd($data);
-        $response = $apiClient->sendData($user, $password, 'api/save-data', $data);
-        // Agregar más logging aquí para ver la respuesta completa
-        //Log::notice($response);
-        //Log::notice($user);
-        //Log::notice($password);
-        //Log::info($data);
-        if ($response) {
-            $this->info('Datos de CollectDetailsInfo enviados con éxito.');
-        } else {
-            $this->error('Error al enviar los datos de CollectDetailsInfo.');
+        $data = CollectDetailsInfo::all()->toArray();
+        Log::info('Datos a enviar', ['data' => $data]);
+
+        try {
+            $response = $apiClient->sendData($user, $password, 'api/save-data', $data);
+            Log::info('Respuesta del servidor', ['response' => $response]);
+
+            if ($response) {
+                $this->info('Datos de CollectDetailsInfo enviados con éxito.');
+            } else {
+                $this->error('Error al enviar los datos de CollectDetailsInfo.');
+            }
+        } catch (\Exception $e) {
+            Log::error('Error al enviar datos', ['error' => $e->getMessage()]);
         }
     }
 
