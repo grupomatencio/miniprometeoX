@@ -30,6 +30,9 @@ class Local extends Model
         return $this->hasMany(Acumulado::class);
     }
 
-
+    public function sessions()
+    {
+        return $this->hasMany(Session::class, 'local_id');
+    }
 
 }

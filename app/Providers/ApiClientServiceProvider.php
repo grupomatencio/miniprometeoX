@@ -5,6 +5,8 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use App\Providers\ApiClient;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
+
 
 class ApiClientServiceProvider extends ServiceProvider
 {
@@ -15,19 +17,19 @@ class ApiClientServiceProvider extends ServiceProvider
     {
         // Vincular ApiClient como un singleton
         $this->app->singleton(ApiClient::class, function ($app) {
-            logger()->info('Intentando obtener el usuario Miniprometeo.');
+            Log::info('Intentando obtener el usuario Miniprometeo.');
 
             // Obtener el usuario 'Miniprometeo'
             $user = User::where('name', 'Miniprometeo')->first();
 
             if ($user) {
-                logger()->info('Usuario Miniprometeo encontrado.', [
+                Log::info('Usuario Miniprometeo encontrado.', [
                     'user_id' => $user->id,
                     'name' => $user->name
                 ]);
 
                 // Crear la instancia de ApiClient
-                logger()->info('Creando instancia de ApiClient.', [
+                Log::info('Creando instancia de ApiClient.', [
                     'baseUrl' => config('app.api_server_url'),
                     'clientId' => config('app.passport_client_id'),
                     'clientSecret' => config('app.passport_client_secret')
@@ -42,7 +44,7 @@ class ApiClientServiceProvider extends ServiceProvider
             }
 
             // Manejar el caso en que el usuario no exista
-            logger()->error('Usuario Miniprometeo no encontrado.');
+            Log::error('Usuario Miniprometeo no encontrado.');
             throw new \Exception('Usuario Miniprometeo no encontrado.');
         });
     }
