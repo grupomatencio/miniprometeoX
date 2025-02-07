@@ -23,6 +23,6 @@ class SendFrequentDataJob implements ShouldQueue
      */
     public function handle(): void
     {
-        Artisan::call('miniprometeo:send-frequent-data-command');
+        //Artisan::call('miniprometeo:send-frequent-data-command');
     }
 }

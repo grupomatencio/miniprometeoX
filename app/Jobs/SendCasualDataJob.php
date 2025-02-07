@@ -24,6 +24,6 @@ class SendCasualDataJob implements ShouldQueue
      */
     public function handle(): void
     {
-        Artisan::call('miniprometeo:send-casual-data-command');
+        //Artisan::call('miniprometeo:send-casual-data-command');
     }
 }

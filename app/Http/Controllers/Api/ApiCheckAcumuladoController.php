@@ -32,7 +32,9 @@ class ApiCheckAcumuladoController extends Controller
         //$lastTimeCarbon = Carbon::createFromTimestamp($lastTimeConexiones); // Asegúrate de que esto sea correcto
 
         // Calcular la diferencia en segundos
-        $diferenciaTiempo = now()->diffInSeconds($lastTimeConexiones);
+        //$diferenciaTiempo = now()->diffInSeconds($lastTimeConexiones);
+        $diferenciaTiempo = now()->diffInSeconds(Carbon::createFromTimestamp($lastTimeConexiones));
+
         if ($diferenciaTiempo < -45) desconectMachines(); // si tiempo mas de 45 segundos - desconectamos machines en tabla acumulados
 
         // Comprobamos estado de conexion con TicketServer

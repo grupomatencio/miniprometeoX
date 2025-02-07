@@ -37,13 +37,13 @@ Schedule::job(new MoneySynchronizationConfigJob) -> everyThirtySeconds();
 // TRABAJOS QUE SE DEBEN HACER PARA SINCRONIZAR "MINIPROMETEO CON PROMETEO" ENVIO DE DATOS
 
 // se debe ejecutar cada 30 seg
-Schedule::job(new SendFrequentDataJob) -> everyThirtySeconds();
+//Schedule::job(new SendFrequentDataJob) -> everyThirtySeconds();
 
 // cada 24h o cuando hagan falta
-Schedule::job(new SendModerateDataJob) -> everyThirtySeconds();
+//Schedule::job(new SendModerateDataJob) -> everyThirtySeconds();
 
 // cada vez que se hagan cambios en la configuracion de la money
-Schedule::job(new SendCasualDataJob) -> everyThirtySeconds();
+//Schedule::job(new SendCasualDataJob) -> everyThirtySeconds();
 
 
 // faltaria configurarlo con los tiempos preciosos para cada job

@@ -33,6 +33,7 @@ class HomeController extends Controller
     public function index()
 
     {
+
         //dd(Cache::getStore());
         // Bloque para iniciar tareas en modo automatico
         /*

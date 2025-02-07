@@ -23,7 +23,7 @@ class SendModerateDataJob implements ShouldQueue
      */
     public function handle(): void
     {
-        Artisan::call('miniprometeo:send-moderate-data-command');
+        //Artisan::call('miniprometeo:send-moderate-data-command');
 
     }
 }

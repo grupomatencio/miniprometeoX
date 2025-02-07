@@ -35,15 +35,17 @@ class ApiCheckConexionesController extends Controller
         //$lastTimeCarbon = Carbon::createFromTimestamp($lastTimeConexiones); // Asegúrate de que esto sea correcto
 
         // Calcular la diferencia en segundos
-        $diferenciaTiempo = now()->diffInSeconds($lastTimeConexiones);
+        //$diferenciaTiempo = now()->diffInSeconds($lastTimeConexiones);
+        $diferenciaTiempo = now()->diffInSeconds(Carbon::createFromTimestamp($lastTimeConexiones));
 
 
-        Log::Info($diferenciaTiempo);
+        Log::info($diferenciaTiempo);
 
         if ($diferenciaTiempo < -45) return null;
         if (!$conexiones) return $conexiones = [false, false, false];
-
+        Log::info('conexiones'.$conexiones);
         return $conexiones;
+
 
     }
 
