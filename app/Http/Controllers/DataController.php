@@ -7,11 +7,6 @@ use Illuminate\Http\Request;
 
 class DataController extends Controller
 {
-    public function getAcumulados(){
 
-        $acumulados = Acumulado::all();
-
-        return $acumulados;
-    }
 
 }

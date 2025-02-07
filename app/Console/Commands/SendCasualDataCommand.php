@@ -58,6 +58,8 @@ class SendCasualDataCommand extends Command
         $this->sendBetMoneyStorageInfoData($apiClient, $user, $password);
         $this->sendConfigData($apiClient, $user, $password);
         //$this->sendSessionsData($apiClient, $user, $password);
+        //esta para enviar los datos y procesarlos en el servidor,
+        //falta parte del servidor, pero de momenso lo dejamos sin funcionar
 
         // hacemos un elif o case para cada command, para que dependiendo del coman que se use enviamos una tablas u otras
 
@@ -80,7 +82,7 @@ class SendCasualDataCommand extends Command
         ];
         Log::notice($prefixedData);
         try {
-            $response = $apiClient->sendData($user, $password, 'api/save-data', $prefixedData);
+            $response = $apiClient->sendData($user, $password, 'api/save-data-casual', $prefixedData);
             Log::info('Respuesta del servidor', ['response' => $response]);
 
             if ($response) {
@@ -107,7 +109,7 @@ class SendCasualDataCommand extends Command
         ];
         Log::notice($prefixedData);
         try {
-            $response = $apiClient->sendData($user, $password, 'api/save-data', $prefixedData);
+            $response = $apiClient->sendData($user, $password, 'api/save-data-casual', $prefixedData);
             Log::info('Respuesta del servidor', ['response' => $response]);
 
             if ($response) {
@@ -137,7 +139,7 @@ class SendCasualDataCommand extends Command
         Log::notice($prefixedData);
 
         try {
-            $response = $apiClient->sendData($user, $password, 'api/save-data', $prefixedData);
+            $response = $apiClient->sendData($user, $password, 'api/save-data-casual', $prefixedData);
             Log::info('Respuesta del servidor', ['response' => $response]);
 
             if ($response) {
@@ -165,7 +167,7 @@ class SendCasualDataCommand extends Command
         Log::notice($prefixedData);
 
         try {
-            $response = $apiClient->sendData($user, $password, 'api/save-data', $prefixedData);
+            $response = $apiClient->sendData($user, $password, 'api/save-data-casual', $prefixedData);
             Log::info('Respuesta del servidor', ['response' => $response]);
 
             if ($response) {
@@ -194,7 +196,7 @@ class SendCasualDataCommand extends Command
         Log::notice($prefixedData);
 
         try {
-            $response = $apiClient->sendData($user, $password, 'api/save-data', $prefixedData);
+            $response = $apiClient->sendData($user, $password, 'api/save-data-casual', $prefixedData);
             Log::info('Respuesta del servidor', ['response' => $response]);
 
             if ($response) {
@@ -222,7 +224,7 @@ class SendCasualDataCommand extends Command
         Log::notice($prefixedData);
 
         try {
-            $response = $apiClient->sendData($user, $password, 'api/save-data', $prefixedData);
+            $response = $apiClient->sendData($user, $password, 'api/save-data-casual', $prefixedData);
             Log::info('Respuesta del servidor', ['response' => $response]);
 
             if ($response) {
@@ -251,7 +253,7 @@ class SendCasualDataCommand extends Command
         Log::notice($prefixedData);
 
         try {
-            $response = $apiClient->sendData($user, $password, 'api/save-data', $prefixedData);
+            $response = $apiClient->sendData($user, $password, 'api/save-data-casual', $prefixedData);
             Log::info('Respuesta del servidor', ['response' => $response]);
 
             if ($response) {
@@ -279,7 +281,7 @@ class SendCasualDataCommand extends Command
         Log::notice($prefixedData);
 
         try {
-            $response = $apiClient->sendData($user, $password, 'api/save-data', $prefixedData);
+            $response = $apiClient->sendData($user, $password, 'api/save-data-casual', $prefixedData);
             Log::info('Respuesta del servidor', ['response' => $response]);
 
             if ($response) {

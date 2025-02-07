@@ -24,7 +24,6 @@ class PerformMoneySynchronization extends Command
         $local = Local::first();
 
         $this->connectToTicketServer($local);
-
     }
 
     protected function convertDateTime($datetime)
@@ -60,9 +59,33 @@ class PerformMoneySynchronization extends Command
             $collects = DB::connection($connectionName)->table('collect')->where('State', 'A')->get();
             $collectDetails = DB::connection($connectionName)->table('collectdetails')->get();
             $tickets = DB::connection($connectionName)->table('tickets')->where('DateTime', '>=', $fechaLimite)->get();
-            $logs = DB::connection($connectionName)->table('logs')->where('DateTime', '>=', $fechaLimite)->get();
+            //$logs = DB::connection($connectionName)->table('logs')->where('DateTime', '>=', $fechaLimite)->get();
             $collectinfo = DB::connection($connectionName)->table('collectinfo')->get();
             $auxmoneystorageinfo = DB::connection($connectionName)->table('auxmoneystorageinfo')->get();
+
+            // Obtener los logs remotos que tengan una fecha posterior a la última fecha de log local
+            $logs = DB::connection($connectionName)
+                ->table('logs')
+                ->where('DateTime', '>', $fechaLimite) // Traer solo logs posteriores
+                ->whereNotIn('Type', ['doorOpened', 'doorClosed', 'error', 'warning','powerOn', 'powerOff']) // Excluir estos tipos
+                ->where(function ($query) {
+                    // Excluir 'movementChange' con 'TRETA' en el texto
+                    $query->where('Type', '!=', 'movementChange')
+                        ->orWhere(function ($query) {
+                            $query->where('Type', '=', 'movementChange')
+                                ->where('Text', 'not like', '%TRETA%'); // Excluir solo ciertos 'movementChange'
+                        });
+                })
+                ->where(function ($query) {
+                    // Excluir los 'log' donde el 'Text' contenga "Estado ticket"
+                    $query->where('Type', '!=', 'log')
+                        ->orWhere(function ($query) {
+                            $query->where('Type', '=', 'log')
+                                ->where('Text', 'like', '%creado%') // Excluir "Estado ticket" en 'log'
+                                ->where('Text', 'not like', '%BETS%'); // Excluir "Ticket cerrado" en 'log'
+                        });
+                })
+                ->get();
 
             Log::info($tickets);
             Log::info($logs);

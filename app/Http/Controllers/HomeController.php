@@ -33,7 +33,7 @@ class HomeController extends Controller
     public function index()
 
     {
-        dd(Cache::getStore());
+        //dd(Cache::getStore());
         // Bloque para iniciar tareas en modo automatico
         /*
         $taskName = 'LaravelQueueWork';

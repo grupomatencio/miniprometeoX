@@ -31,4 +31,7 @@ Route::get('/checkAcumulados', [ApiCheckAcumuladoController::class, 'index'])->n
 
 Route::get('/get-data/{table}', [DataController::class, 'getData']); // Obtener datos
 Route::post('/save-data/{table}', [DataController::class, 'saveData']); // Guardar datos
-Route::post('/send-data/{table}', [DataController::class, 'sendData']); // Enviar datos
+Route::post('/send-data-frequent/{table}', [DataController::class, 'sendData']); // Enviar datos frecuentemente
+Route::post('/send-data-moderate/{table}', [DataController::class, 'sendData']); // Enviar datos moderadamente
+Route::post('/send-data-casual/{table}', [DataController::class, 'sendData']); // Enviar datos casualmente
+
