@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 
 use App\Models\Local;
 use App\Models\Acumulado;
+use App\Models\Machine;
 use Exception;
 use Carbon\Carbon;
 
@@ -33,16 +34,23 @@ class PerformAcumuladoSynchronization extends Command
 
     public function handle(): void
     {
-        $conexionConTicketServer = nuevaConexionLocal('admin');
+        $conexionComdata = nuevaConexionLocal('admin');
 
+        if (!$conexionComdata) {
+            Log::error('Error: la conexión con TicketServer es nula o inválida.');
+            return;
+        }
         // Obtener los datos de las tablas para traer los datos
         try {
-            $machines = DB::connection($conexionConTicketServer)->table('acumulado')->get();
+            $machines = DB::connection($conexionComdata)->table('acumulado')->get();
         } catch (\Exception $e) {
             Log::error('Error de leyendo la tabla Acumulados: ' . $e->getMessage());
         }
         $local = Local::first();
-
+        $machinesPrometeo = Machine::all();
+        //dd($machinesPrometeo);
+        Log::info('maquinas acumulados -----' .$machines);
+        Log::info($machines);
 
         // Si tenemos respuesta del servidor - comprobamos y guardamos
         if (isset($machines)) {
@@ -50,21 +58,24 @@ class PerformAcumuladoSynchronization extends Command
             // TABLAS PARA PARA INSERETAR DATOS O ACTUALIZARLOS, SEUGUN SI HAY CAMBIOS O NO
             DB::beginTransaction();
             try {
-
                 // INSERT OR UPDATE para la tabla collects
                 foreach ($machines as $machine) {
+
+                Log::info(json_encode($machine));
+
 
                     log::info($machine->nombre);
 
                     $existingRecord = Acumulado::where('NumPlaca', $machine -> NumPlaca)
-                                    ->where('nombre', $machine->nombre)
+                                    ->where('NumPlaca', $machine->NumPlaca)
                                     ->first();
 
                     if ($existingRecord) {
                         // Actualizar registro existente
                         $existingRecord
                             ->update([
-                                'local_id' => $local->id,
+                                'local_id' => $local->id, // insertar el local_id del local
+                                'machine_id' => $machinesPrometeo->id, // insertar el machine_id de la maquina
                                 'entradas'=> $machine->entradas,
                                 'salidas'=> $machine->salidas,
                                 'CEntradas'=> $machine->CEntradas,
@@ -123,8 +134,9 @@ class PerformAcumuladoSynchronization extends Command
                         // Insertar nuevo registro
                         log::info('No exist');
                         Acumulado::insert([
-                            'local_id' => $local->id,  // Insertar local_id
                             'NumPlaca'=> $machine -> NumPlaca,
+                            'local_id' => $local->id,  // Insertar local_id
+                            'machine_id' => $machinesPrometeo->id, // insertar el machine_id de la maquina
                             'nombre'=> $machine->nombre,
                             'entradas'=> $machine->entradas,
                             'salidas'=> $machine->salidas,
@@ -193,12 +205,11 @@ class PerformAcumuladoSynchronization extends Command
         } else {  // si NO tenemos respuesta del servidor - DESCONECTAMOS todos machines
             DB::beginTransaction();
             try {
-
-                 desconectMachines (); // function para hacer estado maquinas al "desconectar" en BD en util.php
-                 DB::commit();
+                $machines = DB::connection($conexionComdata)->table('acumulado')->get();
+                Log::info('Resultado de la consulta acumulado:', ['machines' => $machines]);
             } catch (\Exception $e) {
-                DB::rollBack();
-                Log::error('Error sincronizando acumulado para local_id: ' . $local->id . ' - ' . $e->getMessage());
+                Log::error('Error leyendo la tabla Acumulados: ' . $e->getMessage());
+                return; // Salir de la función si hay un error
             }
 
         }

@@ -67,7 +67,13 @@ class PerformMoneySynchronization extends Command
             $logs = DB::connection($connectionName)
                 ->table('logs')
                 ->where('DateTime', '>', $fechaLimite) // Traer solo logs posteriores
-                ->whereNotIn('Type', ['doorOpened', 'doorClosed', 'error', 'warning','powerOn', 'powerOff']) // Excluir estos tipos
+                //->whereNotIn('Type', ['doorOpened', 'doorClosed', 'error', 'warning','powerOn', 'powerOff']) // Excluir estos tipos
+                ->where('Type', '!=', 'doorOpened')
+                ->where('Type', '!=', 'doorClosed')
+                ->where('Type', '!=', 'error')
+                ->where('Type', '!=', 'warning')
+                ->where('Type', '!=', 'powerOn')
+                ->where('Type', '!=', 'powerOff')
                 ->where(function ($query) {
                     // Excluir 'movementChange' con 'TRETA' en el texto
                     $query->where('Type', '!=', 'movementChange')
@@ -86,7 +92,7 @@ class PerformMoneySynchronization extends Command
                         });
                 })
                 ->get();
-
+            // dd($logs);
             Log::info($tickets);
             Log::info($logs);
             Log::info($collectinfo);
@@ -296,9 +302,11 @@ class PerformMoneySynchronization extends Command
                         Log::error('Error sincronizando tickets para local_id: ' . $local->id . ' - ' . $e->getMessage());
                     }
                 }
+                //dd($logs);
 
                 // Manejar logs funcionando bien
                 foreach ($logs as $item) {
+
                     DB::beginTransaction();
                     try {
                         // Verificar si ya existe un registro para este local_id y DateTime (o cualquier otro campo único que necesites)
@@ -321,7 +329,7 @@ class PerformMoneySynchronization extends Command
                                     'updated_at' => now(),
                                 ]);
 
-                            Log::info('Registro actualizado: local_id=' . $local->id . ', DateTime=' . $item->DateTime);
+                            Log::info('Registro actualizado en logs: local_id=' . $local->id . ', DateTime=' . $item->DateTime);
                         } else {
                             // Insertar un nuevo registro
                             DB::table('logs')->insert([
@@ -337,7 +345,7 @@ class PerformMoneySynchronization extends Command
                                 'updated_at' => now(),
                             ]);
 
-                            Log::info('Nuevo registro insertado: local_id=' . $local->id . ', DateTime=' . $item->DateTime);
+                            Log::info('Nuevo registro en logs insertado: local_id=' . $local->id . ', DateTime=' . $item->DateTime);
                         }
 
                         DB::commit();

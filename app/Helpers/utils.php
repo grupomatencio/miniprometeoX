@@ -23,12 +23,12 @@ define('PROMETEO_PRINCIPAL_PORT', "8000");
 // Funciones para manejar el estado de las conexiones
 // variable $estadoConexiones - es array con estados
 function setEstadoConexiones($estadoConexiones) {
-    // Log::info ('utils:', $estadoConexiones);
+    Log::info ('utils:', $estadoConexiones);
     Cache::put('conexiones', $estadoConexiones);
 }
 
 function getEstadoConexiones() {
-    return Cache::get('conexiones', []); // Devuelve un array vacío si no existe
+    return Cache::get('conexiones') ?? []; // Garantiza un array, incluso si la caché es null
 }
 
 // functioes para controlar el tiempo de la ultima verificacón de conexiones

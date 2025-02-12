@@ -348,17 +348,41 @@ class PerformMoneySynchronizationEveryTime extends Command
                 ->where('local_id', $local->id)
                 ->orderBy('DateTime', 'desc')
                 ->value('DateTime');
-            // dd($ultimaFechaLogLocal);
+            //dd($ultimaFechaLogLocal);
 
             // Obtener los logs remotos con fecha superior a la última fecha de log local
             $logsRemotos = DB::connection($connectionName)
-                ->table('logs')
-                ->where('DateTime', '>', $ultimaFechaLogLocal)
-                ->get();
-
+            ->table('logs')
+            ->where('DateTime', '>', $ultimaFechaLogLocal) // Traer solo logs posteriores
+            //->whereNotIn('Type', ['doorOpened', 'doorClosed', 'error', 'warning','powerOn', 'powerOff']) // Excluir estos tipos
+            ->where('Type', '!=', 'doorOpened')
+            ->where('Type', '!=', 'doorClosed')
+            ->where('Type', '!=', 'error')
+            ->where('Type', '!=', 'warning')
+            ->where('Type', '!=', 'powerOn')
+            ->where('Type', '!=', 'powerOff')
+            ->where(function ($query) {
+                // Excluir 'movementChange' con 'TRETA' en el texto
+                $query->where('Type', '!=', 'movementChange')
+                    ->orWhere(function ($query) {
+                        $query->where('Type', '=', 'movementChange')
+                            ->where('Text', 'not like', '%TRETA%'); // Excluir solo ciertos 'movementChange'
+                    });
+            })
+            ->where(function ($query) {
+                // Excluir los 'log' donde el 'Text' contenga "Estado ticket"
+                $query->where('Type', '!=', 'log')
+                    ->orWhere(function ($query) {
+                        $query->where('Type', '=', 'log')
+                            ->where('Text', 'like', '%creado%') // Excluir "Estado ticket" en 'log'
+                            ->where('Text', 'not like', '%BETS%'); // Excluir "Ticket cerrado" en 'log'
+                    });
+            })
+            ->get();
+           // dd($logsRemotos);
             // Obtener la cantidad de logs a insertar
             $cantidadLogsAInsertar = $logsRemotos->count();
-            dump('Cantidad de logs a insertar: ' . $cantidadLogsAInsertar);
+            dd('Cantidad de logs a insertar: ' . $cantidadLogsAInsertar);
 
 
             DB::beginTransaction();

@@ -14,6 +14,7 @@ class Acumulado extends Model
     protected $fillable = [
         'name',
         'local_id',
+        'machine_id',
         'NumPlaca',
         'nombre',
         'entradas',
@@ -66,6 +67,11 @@ class Acumulado extends Model
         'c1e',
         'c2e',
     ];
+
+    public function machine()
+    {
+        return $this->belongsTo(Machine::class);
+    }
 
     public function local()
     {

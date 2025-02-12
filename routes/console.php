@@ -22,7 +22,7 @@ Artisan::command('inspire', function () {
 Schedule::job(new MoneySynchronizationJob) -> everyThirtySeconds();
 
 // se debe ejecutar al principio y cada vez que se cambien las auxiliares
-Schedule::job(new MoneySynchronizationAuxmoneystorageJob) -> everyThirtySeconds();
+Schedule::job(new MoneySynchronizationAuxMoneyStorageJob) -> everyThirtySeconds();
 
 // se debe ejecutar cada 30 seg
 Schedule::job(new MoneySynchronizationEveryTimeJob) -> everyThirtySeconds();
@@ -46,4 +46,4 @@ Schedule::job(new MoneySynchronizationConfigJob) -> everyThirtySeconds();
 //Schedule::job(new SendCasualDataJob) -> everyThirtySeconds();
 
 
-// faltaria configurarlo con los tiempos preciosos para cada job
+// faltaria configurarlo con los tiempos precisos para cada job

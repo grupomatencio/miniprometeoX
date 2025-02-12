@@ -4,49 +4,50 @@
     <div class="container">
         <div class="row justify-content-center">
 
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
 
             <!-- Versión "corta" -->
             @if (session('error'))
                 <div class="col-8 isla-list text-center p-2">
 
-                            <div>
-                                <div class="row p-2">
-                                    <div class="col-12">
-                                        <a class="btn btn-primary w-100 btn-ttl">Está autorizado en la versión "Corta"</a>
-                                    </div>
-                                </div>
-                                <p>Corrije los siguentes errores:</p>
+                    <div>
+                        <div class="row p-2">
+                            <div class="col-12">
+                                <a class="btn btn-primary w-100 btn-ttl">Está autorizado en la versión "Corta"</a>
                             </div>
+                        </div>
+                        <p>Corrije los siguentes errores:</p>
+                    </div>
 
-                            <div>
-                                <div class="alert alert-danger" id="mensage_error">
-                                    {{ session('error') }}
-                                </div>
-                                @if (session('error') == 'Serial numero de processador es incorrecto')
-                                    <button id="pedirAyuda" class="btn btn-primary">
-                                        Pedir ayuda online
-                                    </button>
-                                @endif
+                    <div>
+                        <div class="alert alert-danger" id="mensage_error">
+                            {{ session('error') }}
+                        </div>
+                        @if (session('error') == 'Serial numero de processador es incorrecto')
+                            <button id="pedirAyuda" class="btn btn-primary">
+                                Pedir ayuda online
+                            </button>
+                        @endif
 
-                                @if (session('error') == 'El servidor no está configurado. Configure el servidor.')
-                                    <a href ="{{ route('configuracion.index') }}">
-                                        <button id="pedirAyuda" class="btn btn-primary">
-                                            Configurar el servidor.
-                                        </button>
-                                    </a>
-                                @endif
+                        @if (session('error') == 'El servidor no está configurado. Configure el servidor.')
+                            <a href ="{{ route('configuracion.index') }}">
+                                <button id="pedirAyuda" class="btn btn-primary">
+                                    Configurar el servidor.
+                                </button>
+                            </a>
+                        @endif
 
-                                <div class="d-none" id="button_comprobar_serial_number">
-                                    <a href ="{{ route('home') }}">
-                                        <button class="btn btn-primary mt-3">Comprobar cambio</button>
-                                    </a>
-                                </div>
-                            </div>
+                        <div class="d-none" id="button_comprobar_serial_number">
+                            <a href ="{{ route('home') }}">
+                                <button class="btn btn-primary mt-3">Comprobar cambio</button>
+                            </a>
+                        </div>
+                    </div>
                 </div>
             @else
-
-
-            <!-- contenido principal -->
+                <!-- contenido principal -->
 
                 <div class="container d-none d-md-block text-center pt-5">
                     <div class="row">
@@ -107,60 +108,164 @@
                     </div>
 
                     <div class="mt-5 p-3 isla-list">
-                            <div class="row p-2 mb-4">
-                                <div class="col-12">
-                                    <a class="btn btn-primary w-100 btn-ttl">Dispositivos</a>
-                                </div>
+                        <div class="row p-2 mb-4">
+                            <div class="col-12">
+                                <a class="btn btn-primary w-100 btn-ttl">Dispositivos</a>
                             </div>
-                            <div class="overflow-auto">
-                                <table class="table table-bordered text-center overflow-auto">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">Num</th>
-                                            <th scope="col">Nombre</th>
-                                            <th scope="col">Tipo</th>
-                                            <th scope="col">Versión</th>
-                                            <th scope="col">Estado</th>
-                                            <th scope="col">Comentario</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id ="tbody_acumulado">
+                        </div>
+                        <div class="overflow-auto">
+                            <table class="table table-bordered text-center overflow-auto">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Num</th>
+                                        <th scope="col">Nombre</th>
+                                        <th scope="col">Tipo</th>
+                                        <th scope="col">Versión</th>
+                                        <th scope="col">Estado</th>
+                                        <th scope="col">Comentario</th>
+                                    </tr>
+                                </thead>
+                                <tbody id ="tbody_acumulado">
 
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="d-flex justify-content-center mt-4">
-                                Pagination <!--  { $machines->links('vendor.pagination.bootstrap-5') }} -->
-                            </div>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex justify-content-center mt-4">
+                            Pagination <!--  { $machines->links('vendor.pagination.bootstrap-5') }} -->
+                        </div>
                     </div>
 
 
                 </div>
             @endif
-    </div>
-
-    <script>
+        </div>
 
 
-        // funcion para comprobar conexiones
 
-        function checkConnect () {
+        <script>
+            // Función para comprobar conexiones
+            /*function checkConnect() {
+                const alertes = Array.from(document.querySelectorAll('.alertInfo'));
+                console.log("Lista de alertas encontradas:", alertes);
 
-            const alertes = Array.from(document.querySelectorAll('.alertInfo'));
-            console.log (alertes);
+                setInterval(async () => {
+                    const url = "/api/checkConexion";
+                    console.log("Consultando API:", url);
 
-            setInterval (async () => {
+                    try {
+                        const response = await fetch(url, { method: 'GET' });
+                        const data = await response.json();
 
-                const url = "/api/checkConexion"
+                        console.log("Respuesta recibida de /api/checkConexion:", data);
 
-                    fetch(url, {method: 'GET'})
-                        .then (response => response.json())
-                        .then (data => {   // devolvemos un array con boolean [false,true,true]
-                            console.log (data);
+                        if (!Array.isArray(data)) {
+                            console.error("Error: La API no devolvió un array válido:", data);
+                            return;
+                        }
+
+                        let contadorDeAlertes = 0;
+                        alertes.forEach((alert) => {
+                            if (data[contadorDeAlertes]) {
+                                console.error('poner color a los bases de datos alert-success' . data[contadorDeAlertes])
+                                alert.classList.remove('alert-warning', 'alert-danger');
+                                alert.classList.add('alert-success');
+                            } else {
+                                console.error('poner color a los bases de datos alert-danger' . data[contadorDeAlertes])
+                                alert.classList.remove('alert-success', 'alert-warning');
+                                alert.classList.add('alert-danger');
+                            }
+                            contadorDeAlertes++;
+                        });
+
+                    } catch (error) {
+                        console.error("Error en la petición a /api/checkConexion:", error);
+
+                        alertes.forEach(alert => {
+                            alert.classList.remove('alert-success', 'alert-danger');
+                            alert.classList.add('alert-warning');
+                        });
+                    }
+                }, 5000);
+            }*/
+
+            // Función para sincronizar tabla acumulados
+            /*function checkAcumulados() {
+                const tablaAcumulado = document.getElementById('tbody_acumulado');
+                console.log("Elemento tbody_acumulado encontrado:", tablaAcumulado);
+
+                setInterval(async () => {
+                    const url = "/api/checkAcumulados";
+                    console.log("Consultando API:", url);
+
+                    try {
+                        const response = await fetch(url, { method: 'GET' });
+                        const data = await response.json();
+
+                        console.log("Respuesta recibida de /api/checkAcumulados:", data);
+
+                        if (!Array.isArray(data)) {
+                            console.error("Error: La API no devolvió un array válido:", data);
+                            return;
+                        }
+
+                        tablaAcumulado.innerHTML = "";
+                        let rowColor;
+
+                        data.forEach((acumulado) => {
+                            switch (acumulado.EstadoMaquina) {
+                                case 'OK':
+                                    rowColor = 'bg-success-subtle';
+                                    break;
+                                case 'ARRANCANDO':
+                                case 'LEYENDO DATOS':
+                                    rowColor = 'bg-warning-subtle';
+                                    break;
+                                case 'DESCONECTADA':
+                                case 'SIN DATOS':
+                                default:
+                                    rowColor = 'bg-danger-subtle';
+                            }
+
+                            tablaAcumulado.innerHTML += `
+                        <tr class="${rowColor}">
+                            <td style="background-color:transparent"> ${acumulado.NumPlaca} </td>
+                            <td style="background-color:inherit"> ${acumulado.nombre} </td>
+                            <td style="background-color:inherit"> ${acumulado.EstadoMaquina} </td>
+                        </tr>`;
+                        });
+
+                    } catch (error) {
+                        console.error("Error en la petición a /api/checkAcumulados:", error);
+                    }
+                }, 5000);
+            }
+
+            // Ejecutar las funciones
+            checkConnect();
+            checkAcumulados();
+
+            */
+            // funcion para comprobar conexiones
+
+            function checkConnect() {
+
+                const alertes = Array.from(document.querySelectorAll('.alertInfo'));
+                console.log(alertes);
+
+                setInterval(async () => {
+
+                    const url = "/api/checkConexion"
+
+                    fetch(url, {
+                            method: 'GET'
+                        })
+                        .then(response => response.json())
+                        .then(data => { // devolvemos un array con boolean [false,true,true]
+                            console.log(data);
 
                             contadorDeAlertes = 0;
-                            alertes.forEach ((alert) => {    // comprobamos cada conexion
-                                if (data[contadorDeAlertes]) {
+                            alertes.forEach((alert) => { // comprobamos cada conexion
+                                if (data.conexiones[contadorDeAlertes]) {
                                     alert.classList.remove('alert-warning');
                                     alert.classList.remove('alert-danger');
                                     alert.classList.add('alert-success');
@@ -172,107 +277,111 @@
                                 contadorDeAlertes++;
                             })
                         })
-                        .catch (error => {  // si no hay data - todo rojo
-                            alertes.forEach (alert => {
+                        .catch(error => { // si no hay data - todo rojo
+                            alertes.forEach(alert => {
                                 alert.classList.remove('alert-success');
                                 alert.classList.remove('alert-danger');
                                 alert.classList.add('alert-warning');
-                        })
+                            })
                         })
                 }, 5000);
             }
 
 
 
-// funcion para sincronizar tabla acumulados
+            // funcion para sincronizar tabla acumulados
 
-function checkAcumulados () {
+            function checkAcumulados() {
 
-    const tablaAcumulado = document.getElementById('tbody_acumulado');
+                const tablaAcumulado = document.getElementById('tbody_acumulado');
 
-    setInterval (async () => {
+                setInterval(async () => {
 
-        const url = "/api/checkAcumulados"
+                    const url = "/api/checkAcumulados"
 
-            fetch(url, {method: 'GET'})
-                .then (response => response.json())
-                .then (data => {   // devolvemos un array con boolean [false,true,true]
-                    acumulados = data;
+                    fetch(url, {
+                            method: 'GET'
+                        })
+                        .then(response => response.json())
+                        .then(data => { // devolvemos un array con boolean [false,true,true]
+                            acumulados = data;
 
-                    console.log (tablaAcumulado);
-                    tablaAcumulado.innerHTML ="";
-                    let rowColor;
+                            console.log(tablaAcumulado);
+                            console.log(acumulados);
 
-                    acumulados.forEach ((acumulado) => {
+                            tablaAcumulado.innerHTML = "";
+                            let rowColor;
 
-                        switch (acumulado.EstadoMaquina) {
-                        case 'OK':
-                            rowColor = 'bg-success-subtle';
-                            break;
-                        case 'ARRANCANDO':
-                            rowColor = 'bg-warning-subtle';
-                            break;
-                        case 'LEYENDO DATOS':
-                            rowColor = 'bg-warning-subtle';
-                            break;
-                        case 'DESCONECTADA':
-                            rowColor = 'bg-danger-subtle';
-                            break;
-                        case 'SIN DATOS':
-                            rowColor = 'bg-danger-subtle';
-                            break;
-                        default:
-                            rowColor = 'bg-danger-subtle';
-                    }
+                            acumulados.forEach((acumulado) => {
 
-                        tablaAcumulado.innerHTML +=
+                                switch (acumulado.EstadoMaquina) {
+                                    case 'OK':
+                                        rowColor = 'bg-success-subtle';
+                                        break;
+                                    case 'ARRANCANDO':
+                                        rowColor = 'bg-warning-subtle';
+                                        break;
+                                    case 'LEYENDO DATOS':
+                                        rowColor = 'bg-warning-subtle';
+                                        break;
+                                    case 'DESCONECTADA':
+                                        rowColor = 'bg-danger-subtle';
+                                        break;
+                                    case 'SIN DATOS':
+                                        rowColor = 'bg-danger-subtle';
+                                        break;
+                                    default:
+                                        rowColor = 'bg-danger-subtle';
+                                }
+
+                                tablaAcumulado.innerHTML +=
                                     ` <tr class="${rowColor}">
                                         <td style="background-color:transparent"> ${acumulado.NumPlaca} </td>
                                         <td style="background-color:inherit"> ${acumulado.nombre} </td>
                                         <td style="background-color:inherit"> ${acumulado.EstadoMaquina} </td>
                                     </tr> `
 
-                    })
-                })
-                .catch (error => {  // si no hay data - todo rojo
-                        console.log ('error')
-                })
-        }, 5000);
-    }
+                            })
+                        })
+                        .catch(error => { // si no hay data - todo rojo
+                            console.log('error')
+                        })
+                }, 5000);
+            }
 
 
 
-checkConnect ();
-checkAcumulados ();
+            checkConnect();
+            checkAcumulados();
 
 
 
-        const buttonPedirAyuda = document.getElementById('pedirAyuda');
+            const buttonPedirAyuda = document.getElementById('pedirAyuda');
 
-        if (buttonPedirAyuda !== null) {
-            buttonPedirAyuda.addEventListener('click', function(event) {
-                var serialNumberProcessor = @json(session('serialNumberProcessor'));
-                var localId = @json(session('localId->id'));
-                var prometeo_ip = @json(session('prometeo_ip'));
-                var prometeo_port = @json(session('prometeo_port'));
+            if (buttonPedirAyuda !== null) {
+                buttonPedirAyuda.addEventListener('click', function(event) {
+                    var serialNumberProcessor = @json(session('serialNumberProcessor'));
+                    var localId = @json(session('localId->id'));
+                    var prometeo_ip = @json(session('prometeo_ip'));
+                    var prometeo_port = @json(session('prometeo_port'));
 
-                $error_message = document.getElementById('mensage_error'); // ventana de message de error
+                    $error_message = document.getElementById('mensage_error'); // ventana de message de error
 
-                $url = 'http://'+prometeo_ip+':' + prometeo_port + '/api/verify-serial-change';
+                    $url = 'http://' + prometeo_ip + ':' + prometeo_port + '/api/verify-serial-change';
 
-                fetch($url, {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            serialNumber: serialNumberProcessor,
-                            local_id: localId || 1 // Usar localId de la sesión o 1 como fallback
-                        }),
-                        headers: {
-                            'Content-Type': 'application/json'
-                        }
+                    fetch($url, {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                serialNumber: serialNumberProcessor,
+                                local_id: localId || 1 // Usar localId de la sesión o 1 como fallback
+                            }),
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
 
-                    })
-                    .then(response => response.json())
-                    .then(data => {
+                        })
+                        .then(response => response.json())
+                        .then(data => {
 
                             console.log(data);
 
@@ -280,71 +389,70 @@ checkAcumulados ();
                             $button.classList.remove('d-none');
                             $button.classList.add('d-block');
 
-                        if (data.status === 'pending') {
+                            if (data.status === 'pending') {
 
-                            $error_message.innerHTML = "Esperando confirmación del administrador";
-                            $error_message.classList.remove('alert-danger', 'alert-success') ;
-                            $error_message.classList.add('alert-warning');
+                                $error_message.innerHTML = "Esperando confirmación del administrador";
+                                $error_message.classList.remove('alert-danger', 'alert-success');
+                                $error_message.classList.add('alert-warning');
 
-                        } else if (data.status === 'ok') {
-                            $error_message.innerHTML = "Serial number correcto.";
-                            $error_message.classList.remove('alert-danger', 'alert-warning' );
-                            $error_message.classList.add('alert-success');
-                        }
-                    })
-                    .catch(error => {
-                        $error_message.innerHTML = "Ocurrió un error al intentar enviar la solicitud.";
-                        $error_message.classList.remove('alert-warning', 'alert-success');
-                        $error_message.classList.add('alert-danger');
-                    });
-            });
-        }
+                            } else if (data.status === 'ok') {
+                                $error_message.innerHTML = "Serial number correcto.";
+                                $error_message.classList.remove('alert-danger', 'alert-warning');
+                                $error_message.classList.add('alert-success');
+                            }
+                        })
+                        .catch(error => {
+                            $error_message.innerHTML = "Ocurrió un error al intentar enviar la solicitud.";
+                            $error_message.classList.remove('alert-warning', 'alert-success');
+                            $error_message.classList.add('alert-danger');
+                        });
+                });
+            }
 
-        /*
-        var configuracionTS_IP = @json(session('configuracionTS_IP'));
-        var configuracionTS_Port = @json(session('configuracionTS_Port'));
-        var configuracionCDH_IP = @json(session('configuracionCDH_IP'));
-        var configuracionCDH_Port = @json(session('configuracionCDH_Port'));
+            /*
+            var configuracionTS_IP = @json(session('configuracionTS_IP'));
+            var configuracionTS_Port = @json(session('configuracionTS_Port'));
+            var configuracionCDH_IP = @json(session('configuracionCDH_IP'));
+            var configuracionCDH_Port = @json(session('configuracionCDH_Port'));
 
-        const conexiones = [{ ip:'192.168.1.41', port: '8000', alert: 'estado_Prometeo'},
-                            { ip: configuracionTS_IP, port: configuracionTS_Port, alert: 'estado_TS'},
-                            { ip: configuracionCDH_IP, port: configuracionCDH_Port, alert: 'estado_CDH'},
-        ]
+            const conexiones = [{ ip:'192.168.1.41', port: '8000', alert: 'estado_Prometeo'},
+                                { ip: configuracionTS_IP, port: configuracionTS_Port, alert: 'estado_TS'},
+                                { ip: configuracionCDH_IP, port: configuracionCDH_Port, alert: 'estado_CDH'},
+            ]
 
-        function checkConnect () {
+            function checkConnect () {
 
 
 
-            conexiones.forEach ((conexion) => {
-                console.log(conexion);
-                const url = "http://" + conexion.ip + ':' + conexion.port;
+                conexiones.forEach ((conexion) => {
+                    console.log(conexion);
+                    const url = "http://" + conexion.ip + ':' + conexion.port;
 
-                console.log (url);
-                const alert = document.getElementById(conexion.alert);
+                    console.log (url);
+                    const alert = document.getElementById(conexion.alert);
 
-             setInterval (async () => {
-                  console.log ('k');
-                  try {
-                     const response = await fetch(utl, {method: 'GET'});
-                     console.log ('response');
-                        if (response.ok) {
-                          console.log ('ok');
-                          alert.classList.remove('alert-danger');
-                          alert.classList.add('alert-success');
-                     } else {
-                            console.log ('no');
-                            alert.classList.remove('alert-success');
-                            alert.classList.add('alert-danger');
+                 setInterval (async () => {
+                      console.log ('k');
+                      try {
+                         const response = await fetch(utl, {method: 'GET'});
+                         console.log ('response');
+                            if (response.ok) {
+                              console.log ('ok');
+                              alert.classList.remove('alert-danger');
+                              alert.classList.add('alert-success');
+                         } else {
+                                console.log ('no');
+                                alert.classList.remove('alert-success');
+                                alert.classList.add('alert-danger');
+                         }
+                     } catch (error) {
+                          alert.classList.remove('alert-success');
+                          alert.classList.add('alert-danger');
+                          console.log ('error');
                      }
-                 } catch (error) {
-                      alert.classList.remove('alert-success');
-                      alert.classList.add('alert-danger');
-                      console.log ('error');
-                 }
-                }, 10000);
-             })
-        }
-             */
-
-    </script>
-@endsection
+                    }, 10000);
+                 })
+            }
+                 */
+        </script>
+    @endsection

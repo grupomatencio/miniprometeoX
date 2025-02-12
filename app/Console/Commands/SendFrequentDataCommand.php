@@ -47,11 +47,11 @@ class SendFrequentDataCommand extends Command
         Log::notice('apiclient ---------------- ' . json_encode($apiClient));
         Log::info('Usuario encontrado', ['user' => $user]);
 
-        //$this->sendAcumuladoData($apiClient, $user, $password);
         //$this->sendCollectDetailsData($apiClient, $user, $password);
-        $this->sendCollectsData($apiClient, $user, $password);
-        $this->sendLogsData($apiClient, $user, $password);
+        //$this->sendCollectsData($apiClient, $user, $password);
+        //$this->sendLogsData($apiClient, $user, $password);
         //$this->sendTicketsData($apiClient, $user, $password);
+        $this->sendAcumuladoData($apiClient, $user, $password);
 
         // hacemos un elif o case para cada command, para que dependiendo del coman que se use enviamos una tablas u otras
 

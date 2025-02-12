@@ -170,9 +170,15 @@ class Machine extends Model
         return $orderedMachines;
     }
 
+    public function acumulado()
+    {
+        return $this->hasOne(Acumulado::class);
+    }
 
     public function plate()
     {
         return $this->hasOne(Plate::class);
     }
+
+
 }
