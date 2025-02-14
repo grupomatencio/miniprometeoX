@@ -6,8 +6,6 @@
 
             <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-
-
             <!-- Versión "corta" -->
             @if (session('error'))
                 <div class="col-8 isla-list text-center p-2">
@@ -131,7 +129,7 @@
                             </table>
                         </div>
                         <div class="d-flex justify-content-center mt-4">
-                            Pagination <!--  { $machines->links('vendor.pagination.bootstrap-5') }} -->
+                             <!-- Pagination { $machines->links('vendor.pagination.bootstrap-5') }} -->
                         </div>
                     </div>
 
@@ -143,108 +141,7 @@
 
 
         <script>
-            // Función para comprobar conexiones
-            /*function checkConnect() {
-                const alertes = Array.from(document.querySelectorAll('.alertInfo'));
-                console.log("Lista de alertas encontradas:", alertes);
 
-                setInterval(async () => {
-                    const url = "/api/checkConexion";
-                    console.log("Consultando API:", url);
-
-                    try {
-                        const response = await fetch(url, { method: 'GET' });
-                        const data = await response.json();
-
-                        console.log("Respuesta recibida de /api/checkConexion:", data);
-
-                        if (!Array.isArray(data)) {
-                            console.error("Error: La API no devolvió un array válido:", data);
-                            return;
-                        }
-
-                        let contadorDeAlertes = 0;
-                        alertes.forEach((alert) => {
-                            if (data[contadorDeAlertes]) {
-                                console.error('poner color a los bases de datos alert-success' . data[contadorDeAlertes])
-                                alert.classList.remove('alert-warning', 'alert-danger');
-                                alert.classList.add('alert-success');
-                            } else {
-                                console.error('poner color a los bases de datos alert-danger' . data[contadorDeAlertes])
-                                alert.classList.remove('alert-success', 'alert-warning');
-                                alert.classList.add('alert-danger');
-                            }
-                            contadorDeAlertes++;
-                        });
-
-                    } catch (error) {
-                        console.error("Error en la petición a /api/checkConexion:", error);
-
-                        alertes.forEach(alert => {
-                            alert.classList.remove('alert-success', 'alert-danger');
-                            alert.classList.add('alert-warning');
-                        });
-                    }
-                }, 5000);
-            }*/
-
-            // Función para sincronizar tabla acumulados
-            /*function checkAcumulados() {
-                const tablaAcumulado = document.getElementById('tbody_acumulado');
-                console.log("Elemento tbody_acumulado encontrado:", tablaAcumulado);
-
-                setInterval(async () => {
-                    const url = "/api/checkAcumulados";
-                    console.log("Consultando API:", url);
-
-                    try {
-                        const response = await fetch(url, { method: 'GET' });
-                        const data = await response.json();
-
-                        console.log("Respuesta recibida de /api/checkAcumulados:", data);
-
-                        if (!Array.isArray(data)) {
-                            console.error("Error: La API no devolvió un array válido:", data);
-                            return;
-                        }
-
-                        tablaAcumulado.innerHTML = "";
-                        let rowColor;
-
-                        data.forEach((acumulado) => {
-                            switch (acumulado.EstadoMaquina) {
-                                case 'OK':
-                                    rowColor = 'bg-success-subtle';
-                                    break;
-                                case 'ARRANCANDO':
-                                case 'LEYENDO DATOS':
-                                    rowColor = 'bg-warning-subtle';
-                                    break;
-                                case 'DESCONECTADA':
-                                case 'SIN DATOS':
-                                default:
-                                    rowColor = 'bg-danger-subtle';
-                            }
-
-                            tablaAcumulado.innerHTML += `
-                        <tr class="${rowColor}">
-                            <td style="background-color:transparent"> ${acumulado.NumPlaca} </td>
-                            <td style="background-color:inherit"> ${acumulado.nombre} </td>
-                            <td style="background-color:inherit"> ${acumulado.EstadoMaquina} </td>
-                        </tr>`;
-                        });
-
-                    } catch (error) {
-                        console.error("Error en la petición a /api/checkAcumulados:", error);
-                    }
-                }, 5000);
-            }
-
-            // Ejecutar las funciones
-            checkConnect();
-            checkAcumulados();
-
-            */
             // funcion para comprobar conexiones
 
             function checkConnect() {
@@ -409,50 +306,5 @@
                 });
             }
 
-            /*
-            var configuracionTS_IP = @json(session('configuracionTS_IP'));
-            var configuracionTS_Port = @json(session('configuracionTS_Port'));
-            var configuracionCDH_IP = @json(session('configuracionCDH_IP'));
-            var configuracionCDH_Port = @json(session('configuracionCDH_Port'));
-
-            const conexiones = [{ ip:'192.168.1.41', port: '8000', alert: 'estado_Prometeo'},
-                                { ip: configuracionTS_IP, port: configuracionTS_Port, alert: 'estado_TS'},
-                                { ip: configuracionCDH_IP, port: configuracionCDH_Port, alert: 'estado_CDH'},
-            ]
-
-            function checkConnect () {
-
-
-
-                conexiones.forEach ((conexion) => {
-                    console.log(conexion);
-                    const url = "http://" + conexion.ip + ':' + conexion.port;
-
-                    console.log (url);
-                    const alert = document.getElementById(conexion.alert);
-
-                 setInterval (async () => {
-                      console.log ('k');
-                      try {
-                         const response = await fetch(utl, {method: 'GET'});
-                         console.log ('response');
-                            if (response.ok) {
-                              console.log ('ok');
-                              alert.classList.remove('alert-danger');
-                              alert.classList.add('alert-success');
-                         } else {
-                                console.log ('no');
-                                alert.classList.remove('alert-success');
-                                alert.classList.add('alert-danger');
-                         }
-                     } catch (error) {
-                          alert.classList.remove('alert-success');
-                          alert.classList.add('alert-danger');
-                          console.log ('error');
-                     }
-                    }, 10000);
-                 })
-            }
-                 */
         </script>
     @endsection

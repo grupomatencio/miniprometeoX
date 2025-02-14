@@ -356,7 +356,7 @@ class PerformMoneySynchronization extends Command
                 }
 
 
-
+                // dejamos esto comentado por si hace falta algun dia transpasar user pero ya todo esto se hace desde prometeo
                 // tabla de usuarios de ticket server
                 // Manejar users funcionando bien
                 /*foreach ($users_ticket_server as $user) {

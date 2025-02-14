@@ -18,10 +18,10 @@ Artisan::command('inspire', function () {
 
 // TRABAJOS QUE SE DEBEN HACER PARA SINCRONIZAR "MONEY CON MINIPROMETEO"
 
-// se debe ejecutar al empezar con miniprometeo
+// se debe ejecutar al principio "la 1ª vez y luego EveryTime" con miniprometeo
 Schedule::job(new MoneySynchronizationJob) -> everyThirtySeconds();
 
-// se debe ejecutar al principio y cada vez que se cambien las auxiliares
+// se debe ejecutar al principio "la 1ª vez y luego EveryTime" y cada vez que se cambien las auxiliares
 Schedule::job(new MoneySynchronizationAuxMoneyStorageJob) -> everyThirtySeconds();
 
 // se debe ejecutar cada 30 seg

@@ -1,5 +1,5 @@
 @extends('plantilla.plantilla')
-@section('titulo', 'Delegations')
+@section('titulo', 'Configuración')
 @section('contenido')
 
     <div class="container">
@@ -19,7 +19,7 @@
                     </div>
                 </div>
                 <div class="form-group mt-3 col-8 offset-2">
-                    <button type="button" class="btn btn-primary w-100" id="button_company">Pedir datos de compañía
+                    <button type="button" class="btn btn-warning w-100" id="button_company">Pedir datos de compañía
                     </button>
                 </div>
             </div>
@@ -109,9 +109,9 @@
                         @elseif ($data['user_prometeo']->port !== null)
                             value="{{ $data['user_prometeo']->port }}" @endif>
                         <label for="port_prometeo">Puerto</label>
-                        @error('port_prometeo')
-                            <div class="invalid-feedback"> {{ $message }} </div>
-                        @enderror
+                        @if ($errors->has('port_prometeo'))
+                            <div class="invalid-feedback"> {{ $errors->first('port_prometeo') }} </div>
+                        @endif
                     </div>
                 </div>
 
@@ -169,9 +169,9 @@
                                 @endforeach
                             </select>
                             <label for="user_id">Usuario</label>
-                            @error('user_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            @if ($errors->has('user_id'))
+                                <div class="invalid-feedback"> {{ $errors->first('user_id') }} </div>
+                            @endif
                         </div>
 
                         <!-- Contraseña -->
@@ -180,24 +180,18 @@
                                 class="form-control @error('password') is-invalid @enderror" id="password"
                                 placeholder="Contraseña">
                             <label for="password">Contraseña</label>
-                            @error('password')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            @if ($errors->has('password'))
+                                <div class="invalid-feedback"> {{ $errors->first('password') }} </div>
+                            @endif
                         </div>
 
                         <!-- Botón para enviar la petición -->
-                        <button type="button" class="btn btn-primary" id="getClientData">Obtener Cliente</button>
+                        <button type="button" class="btn btn-warning" id="getClientData">Obtener Cliente</button>
                     @endif
 
                     <!-- Mensaje de resultado -->
                     <div id="resultMessage" class="mt-3"></div>
                 </div>
-
-
-
-
-
-
 
                 <div class="col-8 offset-2 isla-list p-4 mt-2 mb-2 border border-primary">
                     <h2 class="mb-3"> Configurar conexión con maquina cambio</h2>
@@ -223,9 +217,9 @@
                         @elseif ($data['user_cambio']->port)
                             value="{{ $data['user_cambio']->port }}" @endif>
                         <label for="port_cambio">Puerto</label>
-                        @error('port_cambio')
-                            <div class="invalid-feedback"> {{ $message }} </div>
-                        @enderror
+                        @if ($errors->has('port_cambio'))
+                            <div class="invalid-feedback"> {{ $errors->first('port_cambio') }} </div>
+                        @endif
                     </div>
                 </div>
 
@@ -241,9 +235,9 @@
                         @elseif ($data['user_comDataHost']->ip)
                             value="{{ $data['user_comDataHost']->ip }}" @endif>
                         <label for="ip_comdatahost">IP</label>
-                        @error('ip_comdatahost')
-                            <div class="invalid-feedback"> {{ $message }} </div>
-                        @enderror
+                        @if ($errors->has('ip_comdatahost'))
+                                <div class="invalid-feedback"> {{ $errors->first('ip_comdatahost') }} </div>
+                            @endif
                     </div>
 
                     <!-- Puerto -->
@@ -255,26 +249,26 @@
                         @elseif ($data['user_comDataHost']->port)
                             value="{{ $data['user_comDataHost']->port }}" @endif>
                         <label for="port_comdatahost">Puerto</label>
-                        @error('port_comdatahost')
-                            <div class="invalid-feedback"> {{ $message }} </div>
-                        @enderror
+                        @if ($errors->has('port_comdatahost'))
+                            <div class="invalid-feedback"> {{ $errors->first('port_comdatahost') }} </div>
+                        @endif
                     </div>
                 </div>
 
                 <!-- Botón de Enviar -->
                 <div class="form-group mt-3 col-4 offset-4">
-                    <button type="submit" class="btn btn-primary w-100">Guardar configuración</button>
+                    <button type="submit" class="btn btn-warning w-100">Guardar configuración</button>
                 </div>
             </form>
 
             <!-- Bloque del botones -->
             <div class="d-flex">
                 <a class="offset-4 col-4 pt-3 pb-3" href="{{ route('configuracion.buscar') }}">
-                    <button type="button" class="btn btn-primary w-100">Obtener IP automaticámente</button>
+                    <button type="button" class="btn btn-warning w-100">Obtener IP automaticámente</button>
                 </a>
             </div>
             <div class="d-flex">
-                <a class="offset-4 col-4 pt-3 pb-3" data-bs-toggle="modal"
+                <a class="offset-4 col-4 " data-bs-toggle="modal"
                     data-bs-target="#modalAccionesLocal{{ $data['user_cambio']->id }}">
                     <button class="btn btn-danger w-100">Borrar datos de configuración</button>
                 </a>
@@ -537,7 +531,7 @@
                                     .getAttribute('content'),
                             },
                             body: JSON.stringify({
-                                email : match[1], // campo nuevo para el email
+                                email: match[1], // campo nuevo para el email
                                 id: data.client.id,
                                 user_id: data.client.user_id,
                                 name: data.client.name,

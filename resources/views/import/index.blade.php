@@ -1,5 +1,5 @@
 @extends('plantilla.plantilla')
-@section('titulo', 'Delegations')
+@section('titulo', 'Importar')
 @section('contenido')
     <div class="container d-none d-md-block">
         <div class="row">

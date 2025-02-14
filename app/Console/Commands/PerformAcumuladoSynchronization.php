@@ -37,7 +37,7 @@ class PerformAcumuladoSynchronization extends Command
         $conexionComdata = nuevaConexionLocal('admin');
 
         if (!$conexionComdata) {
-            Log::error('Error: la conexión con TicketServer es nula o inválida.');
+            Log::error('Error: la conexión con ComData es nula o inválida.');
             return;
         }
 
@@ -150,23 +150,12 @@ class PerformAcumuladoSynchronization extends Command
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-
     /*public function handle(): void
     {
         $conexionComdata = nuevaConexionLocal('admin');
 
         if (!$conexionComdata) {
-            Log::error('Error: la conexión con TicketServer es nula o inválida.');
+            Log::error('Error: la conexión con ComData es nula o inválida.');
             return;
         }
         // Obtener los datos de las tablas para traer los datos

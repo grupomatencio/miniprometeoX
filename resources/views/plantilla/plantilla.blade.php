@@ -58,17 +58,17 @@
                 </div>
                 <ul class="navbar-nav flex-column w-100" id="sidebarMenu">
                     <li class="nav-item w-100">
-                         <a class="nav-link" href="/configuracion"s>
+                         <a class="nav-link" href="{{ route('configuracion.index') }}">
                             <i class="bi bi-square-fill"></i> Configuración miniprometeo
                         </a>
-                        <a class="nav-link" href="/welcome">
-                            <i class="bi bi-square-fill"></i> xxxxx
+                        <a class="nav-link" href="{{ route('configurationMoney.index') }}">
+                            <i class="bi bi-square-fill"></i> Sincronizar máquina de cambio
                         </a>
-                        <a class="nav-link" href="/machines">
-                            <i class="bi bi-square-fill"></i> Conexiones de dispositivos
+                        <a class="nav-link" href="{{ route('machines.index') }}">
+                            <i class="bi bi-square-fill"></i> Conexión de dispositivos
                         </a>
-                        <a class="nav-link" href="/syncmoney">
-                            <i class="bi bi-square-fill"></i> Sincronización de máquina de cambio
+                        <a class="nav-link" href="">
+                            <i class="bi bi-square-fill"></i> xxxxxx
                         </a>
                     </li>
                 </ul>
@@ -150,7 +150,6 @@
     <footer class="d-md-none fixed-bottom">
         <div class="container-fluid py-3">
             <div class="d-flex justify-content-between">
-                TEXT
                 <form action="{{ route('logout') }}" method="POST" style="d-inline-block">
                     @csrf
                     <button type="submit" class="border-0 text-primary text-decoration-underline"

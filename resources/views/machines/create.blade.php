@@ -1,5 +1,5 @@
 @extends('plantilla.plantilla')
-
+@section('titulo', 'Máquinas')
 @section('contenido')
     <div class="container">
         <div class="col-8 offset-2 isla-list p-4 mt-5">

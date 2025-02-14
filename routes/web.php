@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ConfigMoneyController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PedirAyudaController;
 use App\Http\Controllers\MachineController;
@@ -47,6 +48,12 @@ Route::post('/configuracion/save_company', [ConfiguracionController::class, 'gua
 Route::post('/configuracion/company', [ConfiguracionController::class, 'guardarDatosCompania'])->name('configuracion.company')->middleware(['auth']);
 Route::get('/configuracion/buscar', [ConfiguracionController::class, 'buscar'])->name('configuracion.buscar')->middleware(['auth']);
 Route::resource('configuracion', ConfiguracionController::class)->names('configuracion')->middleware(['auth']);
+
+// configuraciones y cambios de la money
+Route::resource('/configurationMoney', ConfigMoneyController::class);
+Route::get('/sync-auxiliares', [ConfigMoneyController::class, 'syncAuxiliares'])->name('sync.auxiliares');
+Route::get('/sync-config', [ConfigMoneyController::class, 'syncConfig'])->name('sync.config');
+Route::get('/sync-hcinfo', [ConfigMoneyController::class, 'syncHcInfo'])->name('sync.hcinfo');
 
 // traer datos de CLIENT ruta de pruebas
 Route::post('/getDataClient', [ConfiguracionController::class, 'getDataClient']);

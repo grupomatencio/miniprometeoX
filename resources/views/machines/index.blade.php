@@ -1,5 +1,5 @@
 @extends('plantilla.plantilla')
-@section('titulo', 'Delegations')
+@section('titulo', 'Máquinas')
 @section('contenido')
     <div class="container d-none d-md-block">
         <div class="row">
@@ -18,8 +18,7 @@
                                     <a class="btn btn-primary w-100 btn-ttl">Máquinas</a>
                                 </div>
                             </div>
-                            <form action="{{ route('machines.search')}}" method="GET" class="mb-4"
-                                autocomplete="off">
+                            <form action="{{ route('machines.search') }}" method="GET" class="mb-4" autocomplete="off">
                                 <div class="input-group">
                                     <input type="text" name="search" class="form-control"
                                         placeholder="Buscar máquinas...">
@@ -35,45 +34,54 @@
                                         <th scope="col">Identificador</th>
                                         <th scope="col">Auxiliar</th>
                                         <th scope="col"><a class="btn btn-primary w-100 btn-ttl"
-                                            href="{{ route('machines.create') }}">+</a></th>
+                                                href="{{ route('machines.create') }}">+</a></th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach ($machines as $machine)
                                         <tr class="user-row">
-                                            <form action="{{ route('machines.update', $machine->id) }}" method="POST" autocomplete="off">
+                                            <form action="{{ route('machines.update', $machine->id) }}" method="POST"
+                                                autocomplete="off">
                                                 @csrf
                                                 @method('PUT')
-                                                    <td>
-                                                        <input type="text" class="form-control w-100 @error('alias.' .$machine->id) is-invalid @enderror"
-                                                            name = "alias[{{$machine -> id}}]"
-                                                            id="{{$machine -> id}}"
-                                                            value = "{{ $machine->alias}}"
-                                                            disabled>
-                                                        @error('alias.' .$machine->id)
-                                                            <div class="invalid-feedback text-start"> {{ $message }} </div>
-                                                        @enderror
-                                                    </td>
-                                                    <td>{{ $machine->identificador }}</td>
-                                                    <td>
-                                                        <input type="text" class="form-control w-100 @error('r_auxiliar.' .$machine->id) is-invalid @enderror"
-                                                            id="{{ $machine -> id}}"
-                                                            name ="r_auxiliar[{{ $machine->id}}]"
-                                                            value = "{{ $machine->r_auxiliar}}"
-                                                            disabled>
-                                                        @error('r_auxiliar.' .$machine->id)
-                                                            <div class="invalid-feedback text-start"> {{ $message }} </div>
-                                                        @enderror
-                                                    </td>
-                                                    <td>
-                                                        <div class="d-flex">
-                                                            <button type="button" class="btn btn-primary w-100 btn-in edit" id="{{ $machine -> id}}"><i class="bi bi-pencil-square" id="{{ $machine -> id}}"></i></button>
-                                                            <button type="submit" class="btn btn-success w-100 btn-in d-none guardar" id="{{ $machine -> id}}"><i class="bi bi-check-lg"></i></button>
-                                                            <button type="button" class="btn btn-primary w-100 btn-in ms-2 d-none volver" id="{{ $machine -> id}}"><i class="bi bi-x-circle"></i></button>
-                                                            <a class="btn btn-danger w-100 btn-in ms-2 eliminar" id="{{ $machine -> id}}" data-bs-toggle="modal"
-                                                                data-bs-target="#modalAccionesLocal{{ $machine->id }}"><i class="bi bi-trash3"></i></a>
-                                                        </div>
-                                                    </td>
+                                                <td>
+                                                    <input type="text"
+                                                        class="form-control w-100 @error('alias.' . $machine->id) is-invalid @enderror"
+                                                        name = "alias[{{ $machine->id }}]" id="{{ $machine->id }}"
+                                                        value = "{{ $machine->alias }}" disabled>
+                                                    @error('alias.' . $machine->id)
+                                                        <div class="invalid-feedback text-start"> {{ $message }} </div>
+                                                    @enderror
+                                                </td>
+                                                <td>{{ $machine->identificador }}</td>
+                                                <td>
+                                                    <input type="text"
+                                                        class="form-control w-100 @error('r_auxiliar.' . $machine->id) is-invalid @enderror"
+                                                        id="{{ $machine->id }}" name ="r_auxiliar[{{ $machine->id }}]"
+                                                        value = "{{ $machine->r_auxiliar }}" disabled>
+                                                    @error('r_auxiliar.' . $machine->id)
+                                                        <div class="invalid-feedback text-start"> {{ $message }} </div>
+                                                    @enderror
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex">
+                                                        <button type="button" class="btn btn-warning w-100 btn-in edit"
+                                                            id="{{ $machine->id }}"><i class="bi bi-pencil-square"
+                                                                id="{{ $machine->id }}"></i></button>
+                                                        <button type="submit"
+                                                            class="btn btn-success w-100 btn-in d-none guardar"
+                                                            id="{{ $machine->id }}"><i
+                                                                class="bi bi-check-lg"></i></button>
+                                                        <button type="button"
+                                                            class="btn btn-secondary w-100 btn-in ms-2 d-none volver"
+                                                            id="{{ $machine->id }}"><i
+                                                                class="bi bi-x-circle"></i></button>
+                                                        <a class="btn btn-danger w-100 btn-in ms-2 eliminar"
+                                                            id="{{ $machine->id }}" data-bs-toggle="modal"
+                                                            data-bs-target="#modalAccionesLocal{{ $machine->id }}"><i
+                                                                class="bi bi-trash3"></i></a>
+                                                    </div>
+                                                </td>
 
                                             </form>
                                         </tr>
@@ -124,7 +132,8 @@
                                                             @csrf
                                                             @method('DELETE')
 
-                                                            <button type="submit" class="btn btn-danger">Eliminar</button>
+                                                            <button type="submit"
+                                                                class="btn btn-danger">Eliminar</button>
                                                         </form>
                                                     </div>
                                                 </div>
@@ -133,45 +142,45 @@
                                     @endforeach
                                 </tbody>
                             </table>
-                            <div class="col-4 offset-8 pb-1">
-                                <a class="btn btn-danger w-100" data-bs-toggle="modal"
-                                    data-bs-target="#modalPdf">Exportar <i class="bi bi-filetype-pdf"></i></a>
+                            <div class="col-4 offset-4 pb-1">
+                                <div class="d-flex justify-content-center gap-3">
+                                    <a class="btn btn-warning px-4" href="{{ route('import.index') }}">
+                                        Importar <i class="bi bi-box-arrow-in-right"></i>
+                                    </a>
+                                    <a class="btn btn-success px-4" data-bs-toggle="modal" data-bs-target="#modalPdf">
+                                        Exportar <i class="bi bi-filetype-pdf"></i>
+                                    </a>
+                                </div>
+                            </div>
 
-                                <!-- MODAL EXPORTAR PDF -->
-                                <div class="modal fade" id="modalPdf" data-bs-backdrop="static" data-bs-keyboard="false"
-                                    tabindex="-1" aria-labelledby="modalPdfLabel" aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h1 class="modal-title fs-5" id="modalPdfLabel">¿Qué máquinas quieres
-                                                    exportar?</h1>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                    aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <div class="text-center">
-                                                    <a class="btn btn-warning w-100 mb-2"
-                                                        href="#}">Máquinas
-                                                        Salones</a>
-                                                    <a class="btn btn-warning w-100"
-                                                        href="#">Máquinas
-                                                        Bares</a>
-                                                </div>
+                            <!-- MODAL EXPORTAR PDF -->
+                            <div class="modal fade" id="modalPdf" data-bs-backdrop="static" data-bs-keyboard="false"
+                                tabindex="-1" aria-labelledby="modalPdfLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="modalPdfLabel">¿Qué máquinas quieres
+                                                exportar?</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="text-center">
+                                                <a class="btn btn-warning w-100 mb-2" href="#">Máquinas Salones</a>
+                                                <a class="btn btn-warning w-100" href="#">Máquinas Bares</a>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-
                             </div>
 
 
                             <div class="col-4 offset-8 pb-4">
-                                <a class="btn btn-success w-100" href="{{ route('import.index')}}"> Importar <i class="bi bi-box-arrow-in-right"></i>
-                                </a>
 
                                 <div class="d-flex justify-content-center mt-4">
-                                    @if (session ('errorConfiguracion'))
-                                        <div class="text-danger fw-semibold text-center">{{ session ('errorConfiguracion') }} </div>
+                                    @if (session('errorConfiguracion'))
+                                        <div class="text-danger fw-semibold text-center">
+                                            {{ session('errorConfiguracion') }} </div>
                                     @endif
                                 </div>
                             </div>
@@ -179,12 +188,12 @@
 
 
 
-                            </div>
+                        </div>
 
 
 
-                            <div class="d-flex justify-content-center mt-4">
-                               pagination
+                        <div class="d-flex justify-content-center mt-4">
+                            <!-- pagination -->
                         </div>
                     </div>
                 </div>
@@ -211,8 +220,7 @@
                         <a class="btn btn-primary w-100 btn-ttl">Máquinas</a>
                     </div>
                 </div>
-                <form action="#" method="GET" class="mb-4"
-                    autocomplete="off">
+                <form action="#" method="GET" class="mb-4" autocomplete="off">
                     <div class="input-group">
                         <input type="text" name="search" class="form-control" placeholder="Buscar máquinas...">
                         <div class="input-group-append">
@@ -237,7 +245,8 @@
                     </tbody>
                 </table>
                 <div class="col-4 offset-8 pb-4">
-                    <a class="btn btn-primary w-100 btn-inf" data-bs-toggle="modal" data-bs-target="#modalPdfTlf"><i class="bi bi-filetype-pdf"></i> Exportar</a>
+                    <a class="btn btn-primary w-100 btn-inf" data-bs-toggle="modal" data-bs-target="#modalPdfTlf"><i
+                            class="bi bi-filetype-pdf"></i> Exportar</a>
 
                     <!-- MODAL EXPORTAR PDF -->
                     <div class="modal fade" id="modalPdfTlf" data-bs-backdrop="static" data-bs-keyboard="false"
@@ -252,11 +261,9 @@
                                 </div>
                                 <div class="modal-body">
                                     <div class="text-center">
-                                        <a class="btn btn-warning w-100 mb-2"
-                                            href="#">Máquinas
+                                        <a class="btn btn-warning w-100 mb-2" href="#">Máquinas
                                             Salones</a>
-                                        <a class="btn btn-warning w-100"
-                                            href="#">Máquinas
+                                        <a class="btn btn-warning w-100" href="#">Máquinas
                                             Bares</a>
                                     </div>
                                 </div>
@@ -266,15 +273,14 @@
 
                 </div>
                 <div class="d-flex justify-content-center mt-4">
-                      Pagination <!--  { $machines->links('vendor.pagination.bootstrap-5') }} -->
+                    Pagination <!--  { $machines->links('vendor.pagination.bootstrap-5') }} -->
                 </div>
             @else
                 <p>No existen máquinas!</p>
             @endif
         </div>
     </div>
-<script>
-
+    <script>
         const editButtons = document.querySelectorAll('.edit');
         const guardarButtons = document.querySelectorAll('.guardar');
         const volverButtons = document.querySelectorAll('.volver');
@@ -283,13 +289,13 @@
 
         editButtons.forEach(button => {
             button.addEventListener('click', function() {
-                const buttonId = Number (event.target.id);
+                const buttonId = Number(event.target.id);
 
-                console.log ('check', buttonId);
+                console.log('check', buttonId);
                 editButtons.forEach(but => {
                     if (Number(but.id) == buttonId) {
                         but.classList.add('d-none');
-                        console.log ('yyy');
+                        console.log('yyy');
                     } else {
                         but.classList.remove('d-none');
                     }
@@ -350,9 +356,7 @@
                 })
             })
         })
-
-
-</script>
+    </script>
 
 
 
