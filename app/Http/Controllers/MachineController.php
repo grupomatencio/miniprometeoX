@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Machine;
+use Illuminate\Support\Facades\Artisan;
 
 class MachineController extends Controller
 {
@@ -17,8 +18,8 @@ class MachineController extends Controller
         try {
 
             $machines = Machine::where('type', 'single')
-                                -> orWhere('type',null)
-                                -> get();
+                ->orWhere('type', null)
+                ->get();
 
             return view("machines.index", compact("machines"));
         } catch (\Exception $e) {
@@ -138,7 +139,7 @@ class MachineController extends Controller
         ]);
 
 
-        Machine::find($id) -> update ([
+        Machine::find($id)->update([
             'alias' => $request->alias[$id],
             'r_auxiliar' => $request->r_auxiliar[$id]
         ]);
@@ -168,10 +169,25 @@ class MachineController extends Controller
 
         // Busca máquinas que coinciden con el término de búsqueda
         $machines = Machine::whereRaw('LOWER(name) LIKE ?',  $searchTerm)
-                    ->orWhereRaw('LOWER(identificador) LIKE ?', $searchTerm) ->get();
+            ->orWhereRaw('LOWER(identificador) LIKE ?', $searchTerm)->get();
 
         // Retorna la vista con los resultados de la búsqueda
         return view("machines.index", compact("machines"));
     }
 
+
+    public function syncTypesTickets()
+    {
+
+        $exitCode = Artisan::call('miniprometeo:perform-sync-types-tickets');
+
+        if ($exitCode === 0) {
+            session()->flash('success', 'Sincronización completada exitosamente.');
+        } else {
+            session()->flash('error', 'Error en la sincronización.');
+        }
+
+        return redirect()->back(); // Redirige a la misma página para mostrar los mensajes en la vista
+
+    }
 }

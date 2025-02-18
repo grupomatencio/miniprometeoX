@@ -11,6 +11,10 @@
 
             <div class="col-10 offset-1 mt-5">
                 <div class="row">
+
+                    @include('plantilla.messages')
+
+
                     <div class="col-10 offset-1 isla-list">
                         <div class="p-4 pb-0">
                             <div class="row p-2">
@@ -146,6 +150,9 @@
                                 <div class="d-flex justify-content-center gap-3">
                                     <a class="btn btn-warning px-4" href="{{ route('import.index') }}">
                                         Importar <i class="bi bi-box-arrow-in-right"></i>
+                                    </a>
+                                    <a class="btn btn-warning px-4" href="{{ route('syncTypesTickets') }}">
+                                        Syncronizar tipos <i class="bi bi-ticket-perforated"></i>
                                     </a>
                                     <a class="btn btn-success px-4" data-bs-toggle="modal" data-bs-target="#modalPdf">
                                         Exportar <i class="bi bi-filetype-pdf"></i>

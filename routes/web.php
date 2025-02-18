@@ -61,3 +61,7 @@ Route::post('/getDataClient', [ConfiguracionController::class, 'getDataClient'])
 // para guardar los datos que recibimos de la peticion
 Route::post('/saveClientData', [ConfiguracionController::class, 'saveClientData']);
 
+Route::get('syncTypesTickets', [MachineController::class, 'syncTypesTickets'])->name('syncTypesTickets');
+
+
+

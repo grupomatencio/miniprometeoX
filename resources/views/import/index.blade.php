@@ -34,6 +34,7 @@
                                     </td>
                                 </tr>
                             @endforeach
+
                         </tbody>
                     </table>
 
@@ -67,31 +68,37 @@
                 </div>
             </div>
             <div class="d-flex justify-content-around">
-                @if ($importBD === false && $machines_prometeo && $machines_prometeo->isNotEmpty() && (!empty($diferencia) || $machines->isEmpty()))
+                @if (
+                    $importBD === false &&
+                        $machines_prometeo &&
+                        $machines_prometeo->isNotEmpty() &&
+                        (!empty($diferencia) || !empty($faltantes) || $machines->isEmpty()))
                     <div class="row mt-5 p-5 col-6 border border-primary">
                         <h2 class="pt-3 pb-3 text-center">Quiere sincronizar?</h2>
                         <div class="col-6">
-                            <a class="btn btn-primary w-100 btn-ttl me-2" href="{{ route('import.store')}}">SI</a>
+                            <a class="btn btn-warning w-100 btn-ttl me-2" href="{{ route('import.store') }}">SI</a>
                         </div>
                         <div class="col-6">
-                            <a class="btn btn-warning w-100 btn-ttl ms-2">NO</a>
+                            <a class="btn btn-danger w-100 btn-ttl ms-2">NO</a>
                         </div>
                     </div>
                 @elseif ($importBD === false && $machines->isNotEmpty() && $machines_prometeo->isNotEmpty() && empty($diferencia))
                     <div>
-                        <div  class="p-5 fs-1 fw-bolder text-success">Las listas de maquinas coinciden</div>
+                        <div class="p-5 fs-1 fw-bolder text-success">Las listas de maquinas coinciden</div>
                         <div class="d-flex justify-content-around">
                             <div class="col-6">
-                                <a class="btn btn-primary w-100 btn-ttl me-2" href="{{ route('machines.index')}}">Volver</a>
+                                <a class="btn btn-secondary w-100 btn-ttl me-2"
+                                    href="{{ route('machines.index') }}">Volver</a>
                             </div>
                         </div>
                     </div>
                 @elseif ($importBD === true)
                     <div>
-                        <div  class="p-5 fs-1 fw-bolder text-success">{{$message}}</div>
+                        <div class="p-5 fs-1 fw-bolder text-success">{{ $message }}</div>
                         <div class="d-flex justify-content-around">
                             <div class="col-6">
-                                <a class="btn btn-primary w-100 btn-ttl me-2" href="{{ route('machines.index')}}">Volver</a>
+                                <a class="btn btn-secondary w-100 btn-ttl me-2"
+                                    href="{{ route('machines.index') }}">Volver</a>
                             </div>
                         </div>
                     </div>
@@ -99,5 +106,16 @@
             </div>
 
         </div>
+
+        @if (!empty($faltantes))
+            <div class="alert alert-warning text-center mt-4">
+                <h4>Máquinas en Prometeo que no están en MiniPrometeo:</h4>
+                <ul class="list-unstyled">
+                    @foreach ($faltantes as $faltante)
+                        <li class="fw-bold text-danger">{{ $faltante }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
     </div>
 @endsection
