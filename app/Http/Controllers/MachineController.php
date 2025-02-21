@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AuxMoneyStorage;
+use App\Models\Delegation;
 use Illuminate\Http\Request;
 use App\Models\Machine;
 use Illuminate\Support\Facades\Artisan;
@@ -37,7 +38,10 @@ class MachineController extends Controller
      */
     public function create()
     {
-        return view("machines.create");
+        $delegation = Delegation::with('zones.locals')->first();
+        // para obtener el primer y unico local de miniprometeo una vez se configura todo
+        $firstLocal = $delegation->zones->flatMap->locals->first();
+        return view("machines.create", compact('delegation', 'firstLocal'));
     }
 
     /**
@@ -48,7 +52,7 @@ class MachineController extends Controller
      */
     public function store(Request $request)
     {
-        dd($request->all());
+        //dd($request->all());
 
         $request->validate([
             'name' => ['required'],
@@ -79,8 +83,9 @@ class MachineController extends Controller
         $machine->name = $request->name;
         $machine->alias = $request->alias;
 
-        $machine->local_id = 1;
-        $machine->bar_id = 1;
+        /// mirar lo ID para arreglarlo
+        $machine->local_id = $request->local_id;
+        //$machine->bar_id = null;
         $machine->delegation_id = $request->delegation_id;
 
         $machine->timestamps = false;
@@ -135,12 +140,10 @@ class MachineController extends Controller
 
         $request->validate([
             'alias.*' => ['required'],
-            'r_auxiliar.*' => ['required', 'numeric']
+            'r_auxiliar.*' => ['numeric']
         ], [
             'alias.*.required' => 'El alias de la máquina es obligatorio.',
-            'r_auxiliar.*.required' => 'El número de la máquina es obligatorio.',
             'r_auxiliar.*.numeric' => 'En este campo solo deben ir dígitos.',
-           // 'r_auxiliar.*.unique' => "Este número ya está en uso."
         ]);
 
 

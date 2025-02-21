@@ -10,7 +10,11 @@
                 @csrf
 
                 <!-- Delegation ID (hidden) -->
-                <input type="hidden" name="delegation_id" value="1">
+                <input type="hidden" name="delegation_id" value="{{ old('delegation_id', $delegation->id) }}">
+
+                <!-- Local ID (hidden) -->
+                <input type="hidden" name="local_id" value="{{ old('local_id', $firstLocal->id) }}">
+
 
                 <!-- Nombre -->
                 <div class="form-floating mb-3">

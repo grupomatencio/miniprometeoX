@@ -59,16 +59,16 @@
                 <ul class="navbar-nav flex-column w-100" id="sidebarMenu">
                     <li class="nav-item w-100">
                          <a class="nav-link" href="{{ route('configuration.index') }}">
-                            <i class="bi bi-square-fill"></i> Configuración miniprometeo
+                            <i class="bi bi-square-fill"></i> Configuración de miniprometeo
                         </a>
                         <a class="nav-link" href="{{ route('configurationMoney.index') }}">
                             <i class="bi bi-square-fill"></i> Sincronizar máquina de cambio
                         </a>
                         <a class="nav-link" href="{{ route('machines.index') }}">
-                            <i class="bi bi-square-fill"></i> Conexión de dispositivos
+                            <i class="bi bi-square-fill"></i> Configuración de máquinas
                         </a>
                         <a class="nav-link" href="{{ route('configurationAccountants.index') }}">
-                            <i class="bi bi-square-fill"></i> Configuración contadores
+                            <i class="bi bi-square-fill"></i> Configuración de contadores
                         </a>
                     </li>
                 </ul>

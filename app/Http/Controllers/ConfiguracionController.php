@@ -113,7 +113,6 @@ class ConfiguracionController extends Controller
      */
     public function update(Request $request, $id)
     {
-
         $request->validate([
             'ip_prometeo' => ['required', 'ipv4'],
             'port_prometeo' => ['required', 'numeric', 'max:65535'],
@@ -132,16 +131,15 @@ class ConfiguracionController extends Controller
             'ip_prometeo.ipv4' => 'En este campo solo IP',
             'ip_cambio.ipv4' => 'En este campo solo IP',
             'ip_comdatahost.ipv4' => 'En este campo solo IP',
-            'port_prometeo.numeric' => 'En este campo solo digitos',
-            'port_cambio.numeric' => 'En este campo solo digitos',
-            'port_cambio.min' => 'Numero de puerto muy grande',
-            'port_comdatahost.numeric' => 'En este campo solo digitos',
-            'port_comdatahost.min' => 'Numero de puerto muy grande',
+            'port_prometeo.numeric' => 'En este campo solo dígitos',
+            'port_cambio.numeric' => 'En este campo solo dígitos',
+            'port_cambio.min' => 'Número de puerto muy grande',
+            'port_comdatahost.numeric' => 'En este campo solo dígitos',
+            'port_comdatahost.min' => 'Número de puerto muy grande',
             'locales.required' => 'Este campo es obligatorio.'
         ]);
 
         try {
-
             $data = $request->except('_token');
 
             // Guardamos datos de servidores
@@ -159,14 +157,12 @@ class ConfiguracionController extends Controller
             ]);
 
             $serialNumberProcessor = getSerialNumber();
-            //dd($serialNumberProcessor);
+
             // Comprobar serial Number
             $checkSerialNumber = compartirSerialNumber($serialNumberProcessor, $data['locales']);
-            //dd($checkSerialNumber);
-            // Si resultados de comprobación es bien - guardamos datos de local
+
             if ($checkSerialNumber !== null && $checkSerialNumber[0]) {
                 try {
-
                     DB::beginTransaction();
                     $local = Local::find($data['locales']);
                     $zone = Zone::find($local->zone_id);
@@ -175,8 +171,6 @@ class ConfiguracionController extends Controller
                     $localesParaEliminar = Local::where('id', '!=', $local->id)->get();
                     $zonesParaEliminar = Zone::where('id', '!=', $zone->id)->get();
                     $delegationsParaEliminar = Delegation::where('id', '!=', $delegation->id)->get();
-
-                    // dd ($localesParaEliminar);
 
                     DB::statement('SET FOREIGN_KEY_CHECKS=0');
                     foreach ($localesParaEliminar as $loc) {
@@ -191,23 +185,35 @@ class ConfiguracionController extends Controller
                     DB::statement('SET FOREIGN_KEY_CHECKS=1');
 
                     DB::commit();
+
+                    // Mensaje de éxito
+                    session()->flash('success', 'Configuración actualizada exitosamente.');
                 } catch (\Exception $exception) {
                     DB::rollBack();
-                    Log::info($exception);
+                    Log::error('Error en la transacción de base de datos: ' . $exception->getMessage());
+
+                    // Mensaje de error
+                    session()->flash('error', 'Error al actualizar la configuración. Inténtelo nuevamente.');
+                    return redirect()->back();
                 }
             } else {
-                return redirect()->back()->with("errorSerialNumber", "Error de configuración. Pongas en contacto con servicios técnicos");
+                session()->flash('error', 'Error de configuración. Póngase en contacto con servicios técnicos.');
+                return redirect()->back();
             }
         } catch (\Exception $exception) {
-            dd($exception);
-            Log::info($exception);
+            Log::error('Error general en la actualización: ' . $exception->getMessage());
+
+            // Mensaje de error general
+            session()->flash('error', 'Ocurrió un error inesperado. Inténtelo de nuevo más tarde.');
+            return redirect()->back();
         }
 
-        // Value para preguntar - quieres reiniciar session?
+        // Mensaje para reiniciar sesión
         session()->flash('reiniciar', true);
 
         return redirect()->route('configuration.index');
     }
+
 
     /**
      * Remove the specified resource from storage.
@@ -322,7 +328,7 @@ class ConfiguracionController extends Controller
                 $localIp = $matches[1]; // La dirección IP encontrada
             }
 
-            dd($localIp);
+            //dd($localIp);
 
             return isset($localIp) ? $localIp : null; // Retorna la IP o null si no se encontró
         }

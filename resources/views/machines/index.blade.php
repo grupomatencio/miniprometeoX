@@ -11,8 +11,6 @@
 
             @include('plantilla.messages')
 
-
-
             <div class="row d-flex justify-content-center">
                 <div class="col-12 isla-list">
                     <!--<div class="row p-3">
@@ -70,7 +68,7 @@
                                                 </td>
                                                 <td>{{ $machine->identificador }}</td>
                                                 <td>
-                                                    <input type="text"
+                                                    <input type="number" min="0"
                                                         class="form-control w-100 @error('r_auxiliar.' . $machine->id) is-invalid @enderror"
                                                         id="{{ $machine->id }}" name="r_auxiliar[{{ $machine->id }}]"
                                                         value="{{ $machine->r_auxiliar }}" disabled>

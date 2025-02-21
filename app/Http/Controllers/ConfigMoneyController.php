@@ -19,24 +19,18 @@ class ConfigMoneyController extends Controller
 
     public function syncAuxiliares()
     {
-
-        $local = Local::first();
         Artisan::call('miniprometeo:sync-money-auxmoneystorage');
         return response()->json('Comando ejecutado y envio de datos a prometeo');
     }
 
     public function syncConfig()
     {
-
-        $local = Local::first();
         Artisan::call('miniprometeo:sync-money-config');
         return response()->json('Comando ejecutado y envio de datos a prometeo');
     }
 
     public function syncHcInfo()
     {
-
-        $local = Local::first();
         Artisan::call('miniprometeo:sync-money-synchronization24h');
         return response()->json('Comando ejecutado y envio de datos a prometeo');
     }
