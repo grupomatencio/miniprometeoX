@@ -16,7 +16,7 @@ return new class extends Migration
     {
         Schema::create('acumulado', function (Blueprint $table) {
             $table->id();
-            $table->integer('NumPlaca')->default(0);
+            $table->integer('NumPlaca')->nullable()->default(null);
             $table->foreignId('local_id')
                 ->constrained()
                 ->cascadeOnDelete()

@@ -82,7 +82,7 @@
 
                 <!-- Botón de Enviar -->
                 <div class="form-group mt-3">
-                    <button type="submit" class="btn btn-primary">Crear máquina</button>
+                    <button type="submit" class="btn btn-warning">Crear máquina</button>
                     <button type="reset" class="btn btn-danger">Limpiar</button>
                 </div>
             </form>

@@ -30,7 +30,7 @@
         <!-- configuracion de datos de conexiones -->
 
         @if ($data['company'])
-            <form action="{{ route('configuracion.update', $data['user_cambio']) }}" method="POST" autocomplete="off">
+            <form action="{{ route('configuration.update', $data['user_cambio']) }}" method="POST" autocomplete="off">
                 @csrf
                 @method('PUT')
 
@@ -194,7 +194,7 @@
                 </div>
 
                 <div class="col-8 offset-2 isla-list p-4 mt-2 mb-2 border border-primary">
-                    <h2 class="mb-3"> Configurar conexión con maquina cambio</h2>
+                    <h2 class="mb-3"> Configurar conexión con servidor principal</h2>
                     <!-- IP -->
                     <div class="form-floating pb-3">
                         <input type="text" name="ip_cambio" class="form-control @error('ip_cambio') is-invalid @enderror"
@@ -224,7 +224,7 @@
                 </div>
 
                 <div class="col-8 offset-2 isla-list p-4 mt-2 mb-2 border border-primary">
-                    <h2 class="mb-3"> Configurar ComDataHost</h2>
+                    <h2 class="mb-3 text-center"> Configurar contadores</h2>
 
                     <!-- IP -->
                     <div class="form-floating pb-3">
@@ -236,8 +236,8 @@
                             value="{{ $data['user_comDataHost']->ip }}" @endif>
                         <label for="ip_comdatahost">IP</label>
                         @if ($errors->has('ip_comdatahost'))
-                                <div class="invalid-feedback"> {{ $errors->first('ip_comdatahost') }} </div>
-                            @endif
+                            <div class="invalid-feedback"> {{ $errors->first('ip_comdatahost') }} </div>
+                        @endif
                     </div>
 
                     <!-- Puerto -->
@@ -263,8 +263,8 @@
 
             <!-- Bloque del botones -->
             <div class="d-flex">
-                <a class="offset-4 col-4 pt-3 pb-3" href="{{ route('configuracion.buscar') }}">
-                    <button type="button" class="btn btn-warning w-100">Obtener IP automaticámente</button>
+                <a class="offset-4 col-4 pt-3 pb-3" href="{{ route('configuration.buscar') }}">
+                    <button type="button" class="btn btn-warning w-100">Obtener IP de contadores</button>
                 </a>
             </div>
             <div class="d-flex">
@@ -291,7 +291,7 @@
                         ¿Estas seguro que quieres eliminar datos del configuración?
                     </div>
                     <div class="modal-footer">
-                        <form action="{{ route('configuracion.destroy', $data['user_cambio']) }}" method="POST">
+                        <form action="{{ route('configuration.destroy', $data['user_cambio']) }}" method="POST">
                             @csrf
                             @method('DELETE')
 
@@ -319,7 +319,7 @@
                     ¿Estas seguro que quieres eliminar datos del configuración?
                 </div>
                 <div class="modal-footer">
-                    <form action="{{ route('configuracion.destroy', $data['user_cambio']) }}" method="POST">
+                    <form action="{{ route('configuration.destroy', $data['user_cambio']) }}" method="POST">
                         @csrf
                         @method('DELETE')
 
@@ -400,7 +400,7 @@
                     const portPrometeoPropio = company.port;
 
                     const saveCompanyResponse = await sendPostRequest(
-                        '{{ route('configuracion.save_company') }}', company
+                        '{{ route('configuration.save_company') }}', company
                     ); //guardamos a BD datos de compania: nombre, ip, puerto
 
                     console.log(saveCompanyResponse.message);
@@ -423,14 +423,14 @@
 
                     const companyInfo = dataResponse.company;
                     const saveCompanyInfoResponse = await sendPostRequest(
-                        '{{ route('configuracion.company') }}', companyInfo
+                        '{{ route('configuration.company') }}', companyInfo
                     ); // si tenemos datos de servidor -guardamos a BD
 
 
                     if (saveCompanyInfoResponse.message === 'success') {
                         console.log("Proceso finalizado exitosamente!");
                         window.location.href =
-                            '{{ route('configuracion.index') }}'; // si toto bien - reiniciamos pagina
+                            '{{ route('configuration.index') }}'; // si toto bien - reiniciamos pagina
                     } else {
                         showErrorMessage("Error al guardar datos en la BD");
                     }

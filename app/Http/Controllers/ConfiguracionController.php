@@ -58,7 +58,7 @@ class ConfiguracionController extends Controller
         session()->flash('PROMETEO_PRINCIPAL_PORT', PROMETEO_PRINCIPAL_PORT);
 
         // Pasar la variable $data a la vista
-        return view('configuracion.index', compact('data'));
+        return view('configuration.index', compact('data'));
     }
 
     /**
@@ -206,7 +206,7 @@ class ConfiguracionController extends Controller
         // Value para preguntar - quieres reiniciar session?
         session()->flash('reiniciar', true);
 
-        return redirect()->route('configuracion.index');
+        return redirect()->route('configuration.index');
     }
 
     /**
@@ -232,7 +232,7 @@ class ConfiguracionController extends Controller
         $user_comDataHost->port = null;
         $user_comDataHost->save();
 
-        return redirect()->route('configuracion.index');
+        return redirect()->route('configuration.index');
     }
 
     // Para obtener datos de servidores en modo automatico
@@ -256,21 +256,37 @@ class ConfiguracionController extends Controller
             $user_cambio->port = 3306;
         }
 
-        $user_comDataHost = new User;
-        $user_comDataHost->ip = $this->getLocalIp();
-        $user_comDataHost->port = 3506;
+        $user_comDataHost = User::where('name', 'admin')->first();
+        if ($user_comDataHost) {
+            $user_comDataHost->ip = $this->getLocalIp();
+            $user_comDataHost->port = 3506;
+        } else {
+            // Si no se encuentra, se crea un usuario por defecto
+            $user_comDataHost = new User;
+            $user_comDataHost->ip = $this->getLocalIp();
+            $user_comDataHost->port = 3506;
+        }
 
-        $user_prometeo = new User;
-        $user_prometeo->ip = "0.0.0.0";
-        $user_prometeo->port = 0;
-
+        $user_prometeo = User::where('name', 'prometeo')->first();
+        if (!$user_prometeo) {
+            // Si no se encuentra en la BD, se asignan valores por defecto
+            $user_prometeo = new User;
+            $user_prometeo->ip = "0.0.0.0";
+            $user_prometeo->port = 0;
+        }
         // Obtener datos de Local, zona, delegacion
         $disposicion = getDisposicion();
 
         // Obtener nombre de compania
         $company = getCompany();
 
+        $users = User::whereNotNull('email')
+            ->where('email', '!=', '')
+            ->with('clients') // Cargar la relación clients
+            ->get();
+
         $data = [
+            'users' => $users,
             'user_prometeo' => $user_prometeo,
             'user_cambio' => $user_cambio,
             'user_comDataHost' => $user_comDataHost,
@@ -280,7 +296,7 @@ class ConfiguracionController extends Controller
             'company' => $company
         ];
 
-        return view('configuracion.index', compact('data'));
+        return view('configuration.index', compact('data'));
     }
 
     // function para obtener datos de local ip

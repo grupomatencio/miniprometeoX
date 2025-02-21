@@ -51,7 +51,7 @@
                     <div class="row">
                         <div class="col-12 text-center d-flex justify-content-center mt-4 mb-3">
                             <div class="w-50 ttl">
-                                <h1>Conexión dispositivos</h1>
+                                <h1>Conexión de dispositivos</h1>
                             </div>
                         </div>
 

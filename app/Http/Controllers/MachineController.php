@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuxMoneyStorage;
 use Illuminate\Http\Request;
 use App\Models\Machine;
 use Illuminate\Support\Facades\Artisan;
@@ -17,11 +18,13 @@ class MachineController extends Controller
     {
         try {
 
+            $auxmoneys = AuxMoneyStorage::orderByRaw('CAST(TypeIsAux AS UNSIGNED) ASC')->get();
+            //dd($auxmoneys);
             $machines = Machine::where('type', 'single')
                 ->orWhere('type', null)
                 ->get();
 
-            return view("machines.index", compact("machines"));
+            return view("machines.index", compact("machines","auxmoneys"));
         } catch (\Exception $e) {
             return redirect()->back()->with("error", $e->getMessage());
         }
@@ -45,6 +48,8 @@ class MachineController extends Controller
      */
     public function store(Request $request)
     {
+        dd($request->all());
+
         $request->validate([
             'name' => ['required'],
             'alias' => ['required'],
@@ -130,12 +135,12 @@ class MachineController extends Controller
 
         $request->validate([
             'alias.*' => ['required'],
-            'r_auxiliar.*' => ['required', 'numeric', 'unique:machines,r_auxiliar,' . $id]
+            'r_auxiliar.*' => ['required', 'numeric']
         ], [
             'alias.*.required' => 'El alias de la máquina es obligatorio.',
             'r_auxiliar.*.required' => 'El número de la máquina es obligatorio.',
             'r_auxiliar.*.numeric' => 'En este campo solo deben ir dígitos.',
-            'r_auxiliar.*.unique' => "Este número ya está en uso."
+           // 'r_auxiliar.*.unique' => "Este número ya está en uso."
         ]);
 
 

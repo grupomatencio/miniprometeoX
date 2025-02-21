@@ -182,6 +182,30 @@
   --bs-form-invalid-border-color: rgb(234, 133.8, 143.4);
 }
 
+.titleMoneys {
+    background-color: #dd5746; /* Color de fondo */
+    color: white; /* Texto en blanco */
+    border-radius: 10px; /* Bordes redondeados */
+    padding: 5px 10px; /* Espaciado interno */
+    width: 50%; /* Ocupa el 50% del ancho */
+    max-width: 300px; /* Evita que sea demasiado grande */
+    min-width: 100px; /* Evita que sea demasiado pequeño */
+    text-align: center; /* Centra el texto dentro del h4 */
+    margin: 0 auto; /* Centra el h4 horizontalmente */
+    margin-bottom: 3%;
+}
+
+.titleSecondaryMoney {
+    background-color: #ffc37082; /* Color de fondo */
+    color: black; /* Texto en blanco */
+    border-radius: 10px; /* Bordes redondeados */
+    padding: 5px 10px; /* Espaciado interno */
+    display: inline-block; /* Ajusta el tamaño al contenido */
+    text-align: center; /* Centra el texto dentro del h4 */
+    margin-bottom: 3%;
+
+}
+
 *,
 *::before,
 *::after {

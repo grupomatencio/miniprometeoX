@@ -58,7 +58,7 @@
                 </div>
                 <ul class="navbar-nav flex-column w-100" id="sidebarMenu">
                     <li class="nav-item w-100">
-                         <a class="nav-link" href="{{ route('configuracion.index') }}">
+                         <a class="nav-link" href="{{ route('configuration.index') }}">
                             <i class="bi bi-square-fill"></i> Configuración miniprometeo
                         </a>
                         <a class="nav-link" href="{{ route('configurationMoney.index') }}">
@@ -67,8 +67,8 @@
                         <a class="nav-link" href="{{ route('machines.index') }}">
                             <i class="bi bi-square-fill"></i> Conexión de dispositivos
                         </a>
-                        <a class="nav-link" href="">
-                            <i class="bi bi-square-fill"></i> xxxxxx
+                        <a class="nav-link" href="{{ route('configurationAccountants.index') }}">
+                            <i class="bi bi-square-fill"></i> Configuración contadores
                         </a>
                     </li>
                 </ul>

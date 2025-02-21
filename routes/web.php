@@ -7,6 +7,7 @@ use App\Http\Controllers\MachineController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\ConfiguracionController;
+use App\Http\Controllers\ConfigurationAccountantsController;
 use App\Http\Controllers\SyncMoneyController;
 use App\Http\Middleware\Authenticate;
 use App\Http\Middleware\CheckProcessorSerial;
@@ -44,16 +45,22 @@ Route::get('/import/store', [ImportController::class, 'store'])->name('import.st
 Route::get('/syncmoney', SyncMoneyController::class);
 
 // Configurationes
-Route::post('/configuracion/save_company', [ConfiguracionController::class, 'guardarCompania'])->name('configuracion.save_company')->middleware(['auth']);
-Route::post('/configuracion/company', [ConfiguracionController::class, 'guardarDatosCompania'])->name('configuracion.company')->middleware(['auth']);
-Route::get('/configuracion/buscar', [ConfiguracionController::class, 'buscar'])->name('configuracion.buscar')->middleware(['auth']);
-Route::resource('configuracion', ConfiguracionController::class)->names('configuracion')->middleware(['auth']);
+Route::post('/configuration/save_company', [ConfiguracionController::class, 'guardarCompania'])->name('configuration.save_company')->middleware(['auth']);
+Route::post('/configuration/company', [ConfiguracionController::class, 'guardarDatosCompania'])->name('configuration.company')->middleware(['auth']);
+Route::get('/configuration/buscar', [ConfiguracionController::class, 'buscar'])->name('configuration.buscar')->middleware(['auth']);
+Route::resource('configuration', ConfiguracionController::class)->names('configuration')->middleware(['auth']);
 
 // configuraciones y cambios de la money
 Route::resource('/configurationMoney', ConfigMoneyController::class);
 Route::get('/sync-auxiliares', [ConfigMoneyController::class, 'syncAuxiliares'])->name('sync.auxiliares');
 Route::get('/sync-config', [ConfigMoneyController::class, 'syncConfig'])->name('sync.config');
 Route::get('/sync-hcinfo', [ConfigMoneyController::class, 'syncHcInfo'])->name('sync.hcinfo');
+
+// configuraciones ComData
+Route::resource('/configurationAccountants', ConfigurationAccountantsController::class);
+Route::post('/configurationAccountants/storeAll', [ConfigurationAccountantsController::class, 'storeAll'])->name('configurationAccountants.storeAll');
+Route::post('/configurationAccountants/clearAll', [ConfigurationAccountantsController::class, 'clearAll']);
+
 
 // traer datos de CLIENT ruta de pruebas
 Route::post('/getDataClient', [ConfiguracionController::class, 'getDataClient']);

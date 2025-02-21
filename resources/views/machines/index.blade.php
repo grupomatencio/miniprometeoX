@@ -9,19 +9,19 @@
                 </div>
             </div>
 
-            <div class="col-10 offset-1 mt-5">
-                <div class="row">
-
-                    @include('plantilla.messages')
+            @include('plantilla.messages')
 
 
-                    <div class="col-10 offset-1 isla-list">
-                        <div class="p-4 pb-0">
-                            <div class="row p-2">
-                                <div class="col-12">
-                                    <a class="btn btn-primary w-100 btn-ttl">Máquinas</a>
-                                </div>
-                            </div>
+
+            <div class="row d-flex justify-content-center">
+                <div class="col-12 isla-list">
+                    <!--<div class="row p-3">
+                                        <div class="col-12">
+                                            <a class="btn btn-primary w-100 btn-ttl">Máquinas</a>
+                                        </div>
+                                    </div>-->
+                    <div class="row p-3">
+                        <div class="col-12">
                             <form action="{{ route('machines.search') }}" method="GET" class="mb-4" autocomplete="off">
                                 <div class="input-group">
                                     <input type="text" name="search" class="form-control"
@@ -31,6 +31,17 @@
                                     </div>
                                 </div>
                             </form>
+                        </div>
+                    </div>
+
+
+                    <div class="d-flex justify-content-center gap-3 flex-wrap">
+                        <div class="mx-auto">
+                            <div class="row p-1">
+                                <div class="col-12">
+                                    <a class="btn btn-primary w-100 btn-ttl">Máquinas</a>
+                                </div>
+                            </div>
                             <table class="table table-bordered text-center">
                                 <thead>
                                     <tr>
@@ -51,8 +62,8 @@
                                                 <td>
                                                     <input type="text"
                                                         class="form-control w-100 @error('alias.' . $machine->id) is-invalid @enderror"
-                                                        name = "alias[{{ $machine->id }}]" id="{{ $machine->id }}"
-                                                        value = "{{ $machine->alias }}" disabled>
+                                                        name="alias[{{ $machine->id }}]" id="{{ $machine->id }}"
+                                                        value="{{ $machine->alias }}" disabled>
                                                     @error('alias.' . $machine->id)
                                                         <div class="invalid-feedback text-start"> {{ $message }} </div>
                                                     @enderror
@@ -61,8 +72,8 @@
                                                 <td>
                                                     <input type="text"
                                                         class="form-control w-100 @error('r_auxiliar.' . $machine->id) is-invalid @enderror"
-                                                        id="{{ $machine->id }}" name ="r_auxiliar[{{ $machine->id }}]"
-                                                        value = "{{ $machine->r_auxiliar }}" disabled>
+                                                        id="{{ $machine->id }}" name="r_auxiliar[{{ $machine->id }}]"
+                                                        value="{{ $machine->r_auxiliar }}" disabled>
                                                     @error('r_auxiliar.' . $machine->id)
                                                         <div class="invalid-feedback text-start"> {{ $message }} </div>
                                                     @enderror
@@ -82,11 +93,10 @@
                                                                 class="bi bi-x-circle"></i></button>
                                                         <a class="btn btn-danger w-100 btn-in ms-2 eliminar"
                                                             id="{{ $machine->id }}" data-bs-toggle="modal"
-                                                            data-bs-target="#modalAccionesLocal{{ $machine->id }}"><i
+                                                            data-bs-target="#eliminarModal{{ $machine->id }}"><i
                                                                 class="bi bi-trash3"></i></a>
                                                     </div>
                                                 </td>
-
                                             </form>
                                         </tr>
 
@@ -97,9 +107,10 @@
                                             <div class="modal-dialog">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
-                                                        <h1 class="modal-title fs-5" id="modalAccionesLabel">Acciones para
+                                                        <h1 class="modal-title fs-5" id="modalAccionesLabel">Acciones
+                                                            para
                                                             la
-                                                            máquina {{ $machine->name }}</h1>
+                                                            máquina {{ $machine->alias }}</h1>
                                                         <button type="button" class="btn-close" data-bs-dismiss="modal"
                                                             aria-label="Close"></button>
                                                     </div>
@@ -123,12 +134,13 @@
                                                 <div class="modal-content">
                                                     <div class="modal-header">
                                                         <h1 class="modal-title fs-5" id="staticBackdropLabel">!Eliminar
-                                                            {{ $machine->name }}!</h1>
+                                                            {{ $machine->alias }}!</h1>
                                                         <button type="button" class="btn-close" data-bs-dismiss="modal"
                                                             aria-label="Close"></button>
                                                     </div>
                                                     <div class="modal-body">
-                                                        ¿Estas seguro que quieres eliminar la máquina {{ $machine->name }}?
+                                                        ¿Estas seguro que quieres eliminar la máquina
+                                                        {{ $machine->alias }}?
                                                     </div>
                                                     <div class="modal-footer">
                                                         <form action="{{ route('machines.destroy', $machine->id) }}"
@@ -146,67 +158,97 @@
                                     @endforeach
                                 </tbody>
                             </table>
-                            <div class="col-4 offset-4 pb-1">
-                                <div class="d-flex justify-content-center gap-3">
-                                    <a class="btn btn-warning px-4" href="{{ route('import.index') }}">
-                                        Importar <i class="bi bi-box-arrow-in-right"></i>
-                                    </a>
-                                    <a class="btn btn-warning px-4" href="{{ route('syncTypesTickets') }}">
-                                        Syncronizar tipos <i class="bi bi-ticket-perforated"></i>
-                                    </a>
-                                    <a class="btn btn-success px-4" data-bs-toggle="modal" data-bs-target="#modalPdf">
-                                        Exportar <i class="bi bi-filetype-pdf"></i>
-                                    </a>
+                        </div>
+
+                        <div class="mx-auto">
+                            <div class="row p-1">
+                                <div class="col-12">
+                                    <a class="btn btn-primary w-100 btn-ttl">Auxiliares</a>
                                 </div>
                             </div>
+                            <table class="table table-bordered text-center">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Número de la auxiliar</th>
+                                        <th scope="col">Nombre de la máquina</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($auxmoneys as $auxmoney)
+                                        <tr>
+                                            <td>{{ $auxmoney->TypeIsAux }}</td>
+                                            <td>{{ $auxmoney->AuxName }}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
 
-                            <!-- MODAL EXPORTAR PDF -->
-                            <div class="modal fade" id="modalPdf" data-bs-backdrop="static" data-bs-keyboard="false"
-                                tabindex="-1" aria-labelledby="modalPdfLabel" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h1 class="modal-title fs-5" id="modalPdfLabel">¿Qué máquinas quieres
-                                                exportar?</h1>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <div class="text-center">
-                                                <a class="btn btn-warning w-100 mb-2" href="#">Máquinas Salones</a>
-                                                <a class="btn btn-warning w-100" href="#">Máquinas Bares</a>
-                                            </div>
-                                        </div>
+
+
+                    <div class="col-4 offset-4 pb-1 mt-3">
+                        <div class="d-flex justify-content-center gap-3">
+                            <a class="btn btn-warning px-4" href="{{ route('import.index') }}">
+                                Importar <i class="bi bi-box-arrow-in-right"></i>
+                            </a>
+                            <a class="btn btn-warning px-4" href="{{ route('syncTypesTickets') }}">
+                                Syncronizar tipos <i class="bi bi-ticket-perforated"></i>
+                            </a>
+                            <a class="btn btn-success px-4" data-bs-toggle="modal" data-bs-target="#modalPdf">
+                                Exportar <i class="bi bi-filetype-pdf"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- MODAL EXPORTAR PDF -->
+                    <div class="modal fade" id="modalPdf" data-bs-backdrop="static" data-bs-keyboard="false"
+                        tabindex="-1" aria-labelledby="modalPdfLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="modalPdfLabel">¿Qué máquinas quieres
+                                        exportar?</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="text-center">
+                                        <a class="btn btn-warning w-100 mb-2" href="#">Máquinas
+                                            Salones</a>
+                                        <a class="btn btn-warning w-100" href="#">Máquinas Bares</a>
                                     </div>
                                 </div>
                             </div>
-
-
-                            <div class="col-4 offset-8 pb-4">
-
-                                <div class="d-flex justify-content-center mt-4">
-                                    @if (session('errorConfiguracion'))
-                                        <div class="text-danger fw-semibold text-center">
-                                            {{ session('errorConfiguracion') }} </div>
-                                    @endif
-                                </div>
-                            </div>
-
-
-
-
                         </div>
+                    </div>
 
 
+                    <div class="col-4 offset-8 pb-4">
 
                         <div class="d-flex justify-content-center mt-4">
-                            <!-- pagination -->
+                            @if (session('errorConfiguracion'))
+                                <div class="text-danger fw-semibold text-center">
+                                    {{ session('errorConfiguracion') }} </div>
+                            @endif
                         </div>
                     </div>
                 </div>
+
+
+                <div class="d-flex justify-content-center mt-4">
+                    <!-- pagination -->
+                </div>
             </div>
+
+
         </div>
     </div>
+
+
+
+
+
 
     <div class="container d-block d-md-none text-center pt-5">
         <div class="ttl d-flex align-items-center p-2">

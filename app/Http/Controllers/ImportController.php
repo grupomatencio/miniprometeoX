@@ -14,52 +14,48 @@ class ImportController extends Controller
 
     public function index()
     {
-
         try {
+            // Obtener todas las máquinas de MiniPrometeo (sin filtrar aún)
+            $machines_all = Machine::all();
 
-            $machines = Machine::where('type', 'single')
-                ->orWhere('type', null)
-                ->get();
-            $machines_prometeo = collect();
-            $importBD = false;        // Variables para resultado de importacón
-            $message = "";              // Mensaje de informacion de servicio
+            // Filtrar solo type 'single' o null para la vista
+            $machines = $machines_all->whereIn('type', ['single', null]);
+
+            $importBD = false;
+            $message = "";
             $local = Local::all();
 
-            // Si no hay locales - volveremos un error
             if (count($local) !== 1) {
                 return redirect()->back()->with("errorConfiguracion", "No hay configuración del sistema");
             }
 
-            // Obtener datos de machines de prometeo
+            // Obtener todas las máquinas de Prometeo (sin filtrar)
+            $machines_prometeo = collect();
             try {
                 $connection = DB::connection('remote_prometeo_test');
-
                 $machines_prometeo = $connection->table('machines')
                     ->where('local_id', $local[0]->id)
-                    //-> where('parent',)
                     ->get();
             } catch (\Exception $exception) {
                 Log::info($exception);
-                $message = "No hay connexión";
+                $message = "No hay conexión";
             }
 
-
-            $diferencia = []; // Deferncia entre $machines & $machines_prometeo
+            // Comparar todas las máquinas
+            $diferencia = [];
             $faltantes = [];
-
             if ($machines_prometeo->isNotEmpty()) {
-                $diferencias = $this->comparar($machines, $machines_prometeo);
-                $diferencia = $diferencias['diferencia']; // Máquinas en MiniPrometeo que no están en Prometeo
-                $faltantes = $diferencias['faltantes'];  // Máquinas en Prometeo que no están en MiniPrometeo
+                $diferencias = $this->comparar($machines_all, $machines_prometeo);
+                $diferencia = $diferencias['diferencia'];
+
+                // Guardamos la máquina completa en faltantes
+                $faltantes = $machines_prometeo->whereNotIn('id', $machines_all->pluck('id')->toArray());
             }
 
-
-            // Filtramos machines para excluir 'roulette y parent'
-
-            $machines_prometeo_filtered = collect($machines_prometeo)->filter(function ($item) {
-                return $item->type == 'single' || $item->type === null;
+            // Filtrar las máquinas de la vista (solo type 'single' o null)
+            $machines_prometeo_filtered = $machines_prometeo->filter(function ($machine) {
+                return in_array($machine->type, ['single', null]);
             });
-            //dd($faltantes);
 
             return view("import.index", [
                 "machines" => $machines,
@@ -67,13 +63,13 @@ class ImportController extends Controller
                 "importBD" => $importBD,
                 "message" => $message,
                 "diferencia" => $diferencia,
-                "faltantes" => $faltantes
+                "faltantes" => $faltantes // Contiene las máquinas completas
             ]);
         } catch (\Exception $e) {
-            //dd($e->getMessage());
             return redirect()->back()->with("error", $e->getMessage());
         }
     }
+
 
     /*public function store()
     {
@@ -224,18 +220,19 @@ class ImportController extends Controller
 
             // Insertar o actualizar máquinas de Prometeo
             foreach ($machines_prometeo as $machine) {
+
                 Machine::updateOrCreate(
-                    ['identificador' => $machine->identificador],  // Clave única para encontrar la máquina
+                    ['identificador' => $machine->identificador], // Clave única para encontrar la máquina
                     [
                         'id' => $machine->id,
                         'name' => $machine->name,
-                        'alias' => $machine->alias,
                         'local_id' => $machine->local_id,
-                        'bar_id' => $machine->bar_id,
+                        'bar_id' => $machine->bar_id ?? null, // Si el valor es 0 o no válido, lo pone en NULL
                         'delegation_id' => $machine->delegation_id,
                         'type' => $machine->type,
                         'parent_id' => $machine->parent_id,
-                        'r_auxiliar' => $machine->r_auxiliar
+                        'r_auxiliar' => $machine->r_auxiliar,
+                        'alias' => Machine::where('identificador', $machine->identificador)->value('alias') ?? $machine->alias
                     ]
                 );
             }
