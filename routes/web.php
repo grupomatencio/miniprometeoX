@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ConfigMoneyController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PedirAyudaController;
@@ -64,6 +65,8 @@ Route::post('/configurationAccountants/clearAll', [ConfigurationAccountantsContr
 
 // traer datos de CLIENT ruta de pruebas
 Route::post('/getDataClient', [ConfiguracionController::class, 'getDataClient']);
+Route::delete('/clients/{id}', action: [ClientController::class, 'destroy'])->name('clients.destroy');
+//Route::delete('/clients/{id}', [ConfiguracionController::class, 'destroyClient'])->name('clients.destroy');
 
 // para guardar los datos que recibimos de la peticion
 Route::post('/saveClientData', [ConfiguracionController::class, 'saveClientData']);

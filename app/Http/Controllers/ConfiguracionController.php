@@ -223,23 +223,44 @@ class ConfiguracionController extends Controller
      */
     public function destroy($id)
     {
-        $user_prometeo = User::where('name', 'prometeo')->first();
-        $user_prometeo->ip = null;
-        $user_prometeo->port = null;
-        $user_prometeo->save();
+        dd('configuration.destroy');
+        try {
+            $user_prometeo = User::where('name', 'prometeo')->first();
+            if ($user_prometeo) {
+                $user_prometeo->ip = null;
+                $user_prometeo->port = null;
+                $user_prometeo->save();
+            }
 
-        $user_cambio = User::where('name', 'ccm')->first();
-        $user_cambio->ip = null;
-        $user_cambio->port = null;
-        $user_cambio->save();
+            $user_cambio = User::where('name', 'ccm')->first();
+            if ($user_cambio) {
+                $user_cambio->ip = null;
+                $user_cambio->port = null;
+                $user_cambio->save();
+            }
 
-        $user_comDataHost = User::where('name', 'admin')->first();
-        $user_comDataHost->ip = null;
-        $user_comDataHost->port = null;
-        $user_comDataHost->save();
+            $user_comDataHost = User::where('name', 'admin')->first();
+            if ($user_comDataHost) {
+                $user_comDataHost->ip = null;
+                $user_comDataHost->port = null;
+                $user_comDataHost->save();
+            }
+
+            session()->flash('success', 'Datos eliminados correctamente.');
+        } catch (\Exception $exception) {
+            Log::error($exception);
+            session()->flash('error', 'Error al eliminar los datos. Inténtelo de nuevo.');
+        }
 
         return redirect()->route('configuration.index');
     }
+
+    //aliminar cliente
+    public function destroyClient($id)
+    {
+        dd('Método destroy ejecutado en ClientController con ID: ' . $id);
+    }
+
 
     // Para obtener datos de servidores en modo automatico
     public function buscar()
@@ -422,6 +443,7 @@ class ConfiguracionController extends Controller
     // metodo para traer los datos de client y guardarlo en la base de datos metodo de pruebas
     public function getDataClient(Request $request)
     {
+        //dd($request->all());
         $request->validate([
             'email' => 'required|email',
             'password' => 'required|string',

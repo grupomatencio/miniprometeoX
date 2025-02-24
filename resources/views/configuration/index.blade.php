@@ -3,6 +3,7 @@
 @section('contenido')
 
     <div class="container">
+
         <meta name= "csrf-token" content="{{ csrf_token() }}">
 
         <div class="row">
@@ -120,22 +121,34 @@
                             <!-- Mostrar clientes asignados si existen -->
                             @foreach ($data['users'] as $user)
                                 @if ($user->clients->isNotEmpty())
-                                    <table class="table">
+                                    <table class="table text-center">
                                         <thead>
                                             <tr>
                                                 <th>Nombre</th>
                                                 <th>Cliente</th>
                                                 <th>Creado en</th>
+                                                <th>Acciones</th>
                                             </tr>
                                         </thead>
                                         <tbody>
+
                                             @foreach ($user->clients as $client)
+
                                                 <tr>
                                                     <td>{{ $user->name }}</td>
                                                     <td>{{ $client->name }}</td>
                                                     <td>{{ $client->created_at->format('Y-m-d H:i') }}</td>
+                                                    <td>
+                                                        <!-- Botón para abrir el modal -->
+                                                        <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                                                            data-bs-target="#eliminarClienteModal{{ $client->id }}">
+                                                            <i class="bi bi-trash3"></i>
+                                                        </button>
+
+                                                    </td>
                                                 </tr>
                                             @endforeach
+
                                         </tbody>
                                     </table>
                                 @endif
@@ -149,39 +162,50 @@
 
                         <!-- Seleccionar usuario con email válido si no hay clientes en ninguno -->
                         @if (isset($data['users']) && $data['users']->every(fn($user) => $user->clients->isEmpty()))
-                            <div class="form-floating pb-3">
-                                <select name="user_id" class="form-control @error('user_id') is-invalid @enderror"
-                                    id="user_id">
-                                    <option value="" disabled selected>Seleccione un usuario</option>
-                                    @foreach ($data['users'] as $user)
-                                        @if ($user->email)
-                                            <option value="{{ $user->id }}" data-email="{{ $user->email }}"
-                                                @if (old('user_id') == $user->id) selected @endif>
-                                                {{ $user->name }} ({{ $user->email }})
 
-                                            </option>
+                            <div class="row">
+                                <!-- IP -->
+                                <div class="col-12 col-md-6">
+                                    <div class="form-floating pb-3">
+                                        <select name="user_id" class="form-control @error('user_id') is-invalid @enderror"
+                                            id="user_id">
+                                            <option value="" disabled selected>Seleccione un usuario</option>
+                                            @foreach ($data['users'] as $user)
+                                                @if ($user->email)
+                                                    <option value="{{ $user->id }}" data-email="{{ $user->email }}"
+                                                        @if (old('user_id') == $user->id) selected @endif>
+                                                        {{ $user->name }} ({{ $user->email }})
+
+                                                    </option>
+                                                @endif
+                                            @endforeach
+                                        </select>
+                                        <label for="user_id">Usuario</label>
+                                        @if ($errors->has('user_id'))
+                                            <div class="invalid-feedback"> {{ $errors->first('user_id') }} </div>
                                         @endif
-                                    @endforeach
-                                </select>
-                                <label for="user_id">Usuario</label>
-                                @if ($errors->has('user_id'))
-                                    <div class="invalid-feedback"> {{ $errors->first('user_id') }} </div>
-                                @endif
-                            </div>
+                                    </div>
+                                </div>
 
-                            <!-- Contraseña -->
-                            <div class="form-floating pb-3">
-                                <input type="password" name="password"
-                                    class="form-control @error('password') is-invalid @enderror" id="password"
-                                    placeholder="Contraseña">
-                                <label for="password">Contraseña</label>
-                                @if ($errors->has('password'))
-                                    <div class="invalid-feedback"> {{ $errors->first('password') }} </div>
-                                @endif
-                            </div>
+                                <!-- Puerto -->
+                                <div class="col-12 col-md-6">
+                                    <!-- Contraseña -->
+                                    <div class="form-floating pb-3">
+                                        <input type="password" name="password"
+                                            class="form-control @error('password') is-invalid @enderror" id="password"
+                                            placeholder="Contraseña">
+                                        <label for="password">Contraseña</label>
+                                        @if ($errors->has('password'))
+                                            <div class="invalid-feedback"> {{ $errors->first('password') }} </div>
+                                        @endif
+                                    </div>
 
-                            <!-- Botón para enviar la petición -->
-                            <button type="button" class="btn btn-warning" id="getClientData">Obtener Cliente</button>
+                                </div>
+                            </div>
+                            <!-- Botón centrado en una línea debajo -->
+                            <div class="text-center mt-2">
+                                <button type="button" class="btn btn-warning" id="getClientData">Obtener Cliente</button>
+                            </div>
                         @endif
 
                         <!-- Mensaje de resultado -->
@@ -215,8 +239,8 @@
                             <div class="col-12 col-md-6">
                                 <div class="form-floating">
                                     <input type="text" name="port_prometeo"
-                                        class="form-control @error('port_prometeo') is-invalid @enderror" id="port_prometeo"
-                                        placeholder="Puerto"
+                                        class="form-control @error('port_prometeo') is-invalid @enderror"
+                                        id="port_prometeo" placeholder="Puerto"
                                         @if (old('port_prometeo')) value="{{ old('port_prometeo') }}"
                                         @elseif ($data['user_prometeo']->port !== null)
                                         value="{{ $data['user_prometeo']->port }}" @endif>
@@ -330,82 +354,41 @@
                         </a>
                     </div>
 
-                </form>
 
-                <!-- Bloque del botones
-                            <div class="d-flex">
-                                <a class="offset-4 col-4 pt-3 pb-3" href="{{ route('configuration.buscar') }}">
-                                    <button type="button" class="btn btn-warning w-100">Obtener datos contadores</button>
-                                </a>
+
+                    <!--MODAL ACCIONES-->
+                    <div class="modal fade" id="modalAccionesLocal{{ $data['user_cambio']->id }}"
+                        data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+                        aria-labelledby="modalAcciones" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="staticBackdropLabel">!Eliminar
+                                        configuración!</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    ¿Estas seguro que quieres eliminar datos del configuración?
+                                </div>
+                                <div class="modal-footer">
+                                    <form action="{{ route('configuration.destroy', $data['user_cambio']) }}"
+                                        method="POST">
+                                        @csrf
+                                        @method('DELETE')
+
+                                        <button type="submitt" class="btn btn-danger">Eliminar</button>
+                                    </form>
+                                </div>
                             </div>
-                            <div class="d-flex">
-                                <a class="offset-4 col-4 " data-bs-toggle="modal"
-                                    data-bs-target="#modalAccionesLocal{{ $data['user_cambio']->id }}">
-                                    <button class="btn btn-danger w-100">Borrar datos</button>
-                                </a>
-                            </div>-->
-
-            @endif
-
-
-            <!--MODAL ACCIONES-->
-            <div class="modal fade" id="modalAccionesLocal{{ $data['user_cambio']->id }}" data-bs-backdrop="static"
-                data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalAcciones" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h1 class="modal-title fs-5" id="staticBackdropLabel">!Eliminar
-                                configuración!</h1>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            ¿Estas seguro que quieres eliminar datos del configuración?
-                        </div>
-                        <div class="modal-footer">
-                            <form action="{{ route('configuration.destroy', $data['user_cambio']) }}" method="POST">
-                                @csrf
-                                @method('DELETE')
-
-                                <button type="submitt" class="btn btn-danger">Eliminar</button>
-                            </form>
                         </div>
                     </div>
-                </div>
-            </div>
+
+                </form>
+            @endif
         </div>
 
     </div>
-
-
-    <!--Modal eliminar-->
-    <div class="modal fade" id="eliminarModal1" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-        aria-labelledby="eliminarModal1" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="staticBackdropLabel">!Eliminar
-                        configuración!</h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    ¿Estas seguro que quieres eliminar datos del configuración?
-                </div>
-                <div class="modal-footer">
-                    <form action="{{ route('configuration.destroy', $data['user_cambio']) }}" method="POST">
-                        @csrf
-                        @method('DELETE')
-
-                        <button type="submitt" class="btn btn-danger">Eliminar</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-
-
 
     <!--Modal para reiniciar session-->
     <div class="modal fade" id="reiniciarModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
@@ -549,88 +532,108 @@
             blockDeError.classList.add('d-block');
         }
 
-        document.getElementById('getClientData').addEventListener('click', function() {
-            const userSelect = document.getElementById('user_id');
-            const selectedOption = userSelect.options[userSelect.selectedIndex];
-            const userText = selectedOption.text;
-            const match = userText.match(/\((.*?)\)/);
+        async function fetchApiServerUrl() {
+            try {
+                const response = await fetch('/api/getApiServerUrl');
+                const data = await response.json();
+                return data.api_server_url || null;
+            } catch (error) {
+                console.error("Error al obtener la URL del servidor:", error);
+                return null;
+            }
+        }
 
-            if (!match || !match[1]) {
-                document.getElementById('resultMessage').innerHTML =
-                    '<div class="alert alert-danger">No se pudo obtener el email del usuario seleccionado. Por favor, revise las opciones.</div>';
+        fetchApiServerUrl().then(apiUrl => {
+            if (!apiUrl) {
+                console.error("No se pudo obtener la URL del servidor.");
                 return;
             }
 
-            const userEmail = match[1];
-            const password = document.getElementById('password').value;
+            const getClientDataButton = document.getElementById("getClientData");
 
-            if (!password) {
-                document.getElementById('resultMessage').innerHTML =
-                    '<div class="alert alert-danger">Por favor, complete la contraseña.</div>';
-                return;
-            }
+            if (getClientDataButton) {
+                getClientDataButton.addEventListener("click", function() {
+                    const userSelect = document.getElementById("user_id");
+                    const selectedOption = userSelect.options[userSelect.selectedIndex];
+                    const userText = selectedOption.text;
+                    const match = userText.match(/\((.*?)\)/);
 
-            const prometeIp = '{{ session()->get('PROMETEO_PRINCIPAL_IP') }}';
-            const prometePort = '{{ session()->get('PROMETEO_PRINCIPAL_PORT') }}';
-            const url = `http://${prometeIp}:${prometePort}/api/getDataClient`;
+                    if (!match || !match[1]) {
+                        document.getElementById("resultMessage").innerHTML =
+                            '<div class="alert alert-danger">No se pudo obtener el email del usuario seleccionado.</div>';
+                        return;
+                    }
 
-            fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
-                            'content'),
-                    },
-                    body: JSON.stringify({
-                        email: userEmail,
-                        password: password,
-                    }),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.client) {
-                        document.getElementById('resultMessage').innerHTML =
-                            `<div class="alert alert-success">
-                        Cliente obtenido correctamente: <br>
-                        <strong>Nombre:</strong> ${data.client.name}<br>
-                    </div>`;
+                    const userEmail = match[1];
+                    const password = document.getElementById("password").value;
 
-                        // Guardar los datos en la base de datos
-                        return fetch('/saveClientData', {
-                            method: 'POST',
+                    if (!password) {
+                        document.getElementById("resultMessage").innerHTML =
+                            '<div class="alert alert-danger">Por favor, complete la contraseña.</div>';
+                        return;
+                    }
+
+                    const url = `${apiUrl}/api/getDataClient`;
+
+                    fetch(url, {
+                            method: "POST",
                             headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
-                                    .getAttribute('content'),
+                                "Content-Type": "application/json",
+                                "X-CSRF-TOKEN": document.querySelector("meta[name='csrf-token']")
+                                    .getAttribute("content"),
                             },
                             body: JSON.stringify({
-                                email: match[1], // campo nuevo para el email
-                                id: data.client.id,
-                                user_id: data.client.user_id,
-                                name: data.client.name,
-                                client_secret: data.client.client_secret,
+                                email: userEmail,
+                                password: password,
                             }),
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.client) {
+                                document.getElementById("resultMessage").innerHTML =
+                                    `<div class="alert alert-success">
+                            Cliente obtenido correctamente: <br>
+                            <strong>Nombre:</strong> ${data.client.name}<br>
+                        </div>`;
+
+                                return fetch("/saveClientData", {
+                                    method: "POST",
+                                    headers: {
+                                        "Content-Type": "application/json",
+                                        "X-CSRF-TOKEN": document.querySelector(
+                                            "meta[name='csrf-token']").getAttribute(
+                                            "content"),
+                                    },
+                                    body: JSON.stringify({
+                                        email: match[1],
+                                        id: data.client.id,
+                                        user_id: data.client.user_id,
+                                        name: data.client.name,
+                                        client_secret: data.client.client_secret,
+                                    }),
+                                });
+                            } else {
+                                document.getElementById("resultMessage").innerHTML =
+                                    '<div class="alert alert-danger">Error: No se pudo obtener el cliente.</div>';
+                                return Promise.reject("Cliente no encontrado.");
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(saveResponse => {
+                            if (saveResponse.message) {
+                                document.getElementById("resultMessage").innerHTML +=
+                                    `<div class="alert alert-success">${saveResponse.message}</div>`;
+                            } else {
+                                document.getElementById("resultMessage").innerHTML +=
+                                    `<div class="alert alert-danger">${saveResponse.error}</div>`;
+                            }
+                        })
+                        .catch(error => {
+                            document.getElementById("resultMessage").innerHTML =
+                                `<div class="alert alert-danger">Error en la solicitud: ${error.message}</div>`;
                         });
-                    } else {
-                        document.getElementById('resultMessage').innerHTML =
-                            '<div class="alert alert-danger">Error: No se pudo obtener el cliente.</div>';
-                        return Promise.reject('Cliente no encontrado.');
-                    }
-                })
-                .then(response => response.json())
-                .then(saveResponse => {
-                    if (saveResponse.message) {
-                        document.getElementById('resultMessage').innerHTML +=
-                            `<div class="alert alert-success">${saveResponse.message}</div>`;
-                    } else {
-                        document.getElementById('resultMessage').innerHTML +=
-                            `<div class="alert alert-danger">${saveResponse.error}</div>`;
-                    }
-                })
-                .catch(error => {
-                    document.getElementById('resultMessage').innerHTML =
-                        '<div class="alert alert-danger">Error en la solicitud: ' + error.message + '</div>';
                 });
+            }
         });
     </script>
 

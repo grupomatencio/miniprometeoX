@@ -27,8 +27,14 @@ Route::get('/checkConexion', [ApiCheckConexionesController::class, 'index'])->na
 Route::get('/checkAcumulados', [ApiCheckAcumuladoController::class, 'index'])->name('checkAcumulados');
 // Route::post('/compareSerialNumber', [ApiControllerGetSerialNumber::class, 'compareSerialNumber'])->name('compareSerialNumber');
 
-// rutas para trabajar con los datos de miniprometeo y prometeo
+// ruta para conseguir la url del servidor de donde este prometeo
+Route::get('/getApiServerUrl', function () {
+    return response()->json([
+        'api_server_url' => config('app.api_server_url')
+    ]);
+});
 
+// rutas para trabajar con los datos de miniprometeo y prometeo
 Route::get('/get-data/{table}', [DataController::class, 'getData']); // Obtener datos
 Route::post('/save-data/{table}', [DataController::class, 'saveData']); // Guardar datos
 Route::post('/send-data-frequent/{table}', [DataController::class, 'sendData']); // Enviar datos frecuentemente
