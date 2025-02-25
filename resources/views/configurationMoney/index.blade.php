@@ -9,6 +9,7 @@
                     <h1>de {{ $local->name }}</h1>
                 </div>
             </div>
+            @include('plantilla.messages')
 
             <div class="col-10 offset-1 mt-5">
                 <div class="row">

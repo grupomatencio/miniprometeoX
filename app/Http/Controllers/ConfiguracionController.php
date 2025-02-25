@@ -254,13 +254,6 @@ class ConfiguracionController extends Controller
         return redirect()->route('configuration.index');
     }
 
-    //aliminar cliente
-    public function destroyClient($id)
-    {
-        dd('Método destroy ejecutado en ClientController con ID: ' . $id);
-    }
-
-
     // Para obtener datos de servidores en modo automatico
     public function buscar()
     {

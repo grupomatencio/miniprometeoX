@@ -350,10 +350,10 @@
                             contadores</a>
 
                         <!-- Botón "Borrar datos" corregido
-                                            <button class="btn btn-danger px-4" data-bs-toggle="modal"
-                                                data-bs-target="#modalAccionesLocal{{ $data['user_cambio']->id }}">
-                                                Borrar
-                                            </button>-->
+                                                <button class="btn btn-danger px-4" data-bs-toggle="modal"
+                                                    data-bs-target="#modalAccionesLocal{{ $data['user_cambio']->id }}">
+                                                    Borrar
+                                                </button>-->
                     </div>
 
                 </form>
@@ -393,28 +393,31 @@
     </div>
 
     <!-- MODALES DE ELIMINACIÓN (FUERA DEL FORMULARIO) -->
-    @foreach ($user->clients as $client)
-        <div class="modal fade" id="eliminarClienteModal{{ $client->id }}" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Eliminar Cliente</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        ¿Estás seguro de que deseas eliminar a {{ $client->name }}?
-                    </div>
-                    <div class="modal-footer">
-                        <form action="{{ route('clients.destroy', $client->id) }}" method="POST">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger">Eliminar</button>
-                        </form>
+    @if (isset($user) && $user->clients->isNotEmpty())
+        @foreach ($user->clients as $client)
+            <div class="modal fade" id="eliminarClienteModal{{ $client->id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Eliminar Cliente</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            ¿Estás seguro de que deseas eliminar a {{ $client->name }}?
+                        </div>
+                        <div class="modal-footer">
+                            <form action="{{ route('clients.destroy', $client->id) }}" method="POST">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger">Eliminar</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    @endforeach
+        @endforeach
+    @endif
+
 
     <!--Modal para reiniciar session-->
     <div class="modal fade" id="reiniciarModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"

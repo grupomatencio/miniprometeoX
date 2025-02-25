@@ -13,11 +13,6 @@
 
             <div class="row d-flex justify-content-center">
                 <div class="col-12 isla-list">
-                    <!--<div class="row p-3">
-                                        <div class="col-12">
-                                            <a class="btn btn-primary w-100 btn-ttl">Máquinas</a>
-                                        </div>
-                                    </div>-->
                     <div class="row p-3">
                         <div class="col-12">
                             <form action="{{ route('machines.search') }}" method="GET" class="mb-4" autocomplete="off">

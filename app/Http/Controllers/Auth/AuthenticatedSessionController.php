@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\LoginRequest;
-use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
+use Illuminate\Http\Request;
+use App\Jobs\TestConexionaes;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Artisan;
+use App\Http\Requests\Auth\LoginRequest;
+use App\Jobs\ObtenerDatosTablaAcumulados;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -25,31 +27,39 @@ class AuthenticatedSessionController extends Controller
      * Handle an incoming authentication request.
      */
 
-     public function store(Request $request)
-     {
-         $request->validate([
-             'name' => 'required|string',
-             'password' => 'required|string',
-         ]);
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string',
+            'password' => 'required|string',
+        ]);
 
 
-         // dd($request->password);
-         if (Auth::attempt(['name' => $request->name, 'password' => $request->password], $request->boolean('remember'))) {
-                $request->session()->regenerate();
-                // exec('start php ' . base_path('artisan') . ' queue:work');
+        // dd($request->password);
+        if (Auth::attempt(['name' => $request->name, 'password' => $request->password], $request->boolean('remember'))) {
+            $request->session()->regenerate();
+            // exec('start php ' . base_path('artisan') . ' queue:work');
 
 
-                // dd('tyt');
 
-             return redirect(route('home')) ->with('csrf_token', csrf_token());
-         }
+            // Ejecutar los commands de Artisan para swervidores y acumulados mas lento y frena la app
+            //Artisan::call('check-synchronization-servidores');
+            //Artisan::call('perform-acumulado-synchronization');
 
-         // dd($request);
+            // ejecutando con jobs trabajaando por detras y la app no se frena
+            // Ejecutar los Jobs en segundo plano para que no frenen el login
+            TestConexionaes::dispatch();
+            ObtenerDatosTablaAcumulados::dispatch();
 
-         return back()->withErrors([
-             'name' => __('auth.failed'),
-         ]);
-     }
+            return redirect(route('home'))->with('csrf_token', csrf_token());
+        }
+
+        // dd($request);
+
+        return back()->withErrors([
+            'name' => __('auth.failed'),
+        ]);
+    }
 
     /**
      * Destroy an authenticated session.

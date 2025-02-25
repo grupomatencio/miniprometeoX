@@ -6,6 +6,7 @@
             <div class="ttl text-center mb-4">
                 <h1>Crear máquina</h1>
             </div>
+
             <form action="{{ route('machines.store') }}" method="POST" autocomplete="off">
                 @csrf
 

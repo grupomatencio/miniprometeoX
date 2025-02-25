@@ -10,6 +10,8 @@
                 </div>
             </div>
 
+            @include('plantilla.messages')
+
             <div class="row">
 
                 <!-- Tabla miniprometeo -->

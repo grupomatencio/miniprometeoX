@@ -30,7 +30,7 @@
                         @endif
 
                         @if (session('error') == 'El servidor no está configurado. Configure el servidor.')
-                            <a href ="{{ route('configuracion.index') }}">
+                            <a href ="{{ route('configuration.index') }}">
                                 <button id="pedirAyuda" class="btn btn-primary">
                                     Configurar el servidor.
                                 </button>

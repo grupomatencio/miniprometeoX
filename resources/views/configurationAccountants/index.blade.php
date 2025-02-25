@@ -18,20 +18,6 @@
 
             <div class="row d-flex justify-content-center">
                 <div class="col-12 isla-list">
-                    <!--<div class="row p-3">
-                                                                                                                                                                    <div class="col-12">
-                                                                                                                                                                        <form action="{{ route('machines.search') }}" method="GET" class="mb-4" autocomplete="off">
-                                                                                                                                                                            <div class="input-group">
-                                                                                                                                                                                <input type="text" name="search" class="form-control"
-                                                                                                                                                                                    placeholder="Buscar máquinas...">
-                                                                                                                                                                                <div class="input-group-append">
-                                                                                                                                                                                    <button class="btn btn-warning" type="submit">Buscar</button>
-                                                                                                                                                                                </div>
-                                                                                                                                                                            </div>
-                                                                                                                                                                        </form>
-                                                                                                                                                                    </div>
-                                                                                                                                                                </div>-->
-
                     <div class="row p-3 justify-content-center text-center">
                         <div class="col-12">
                             <h2 class="titleSecondaryMoney">¿Cómo quieres configurar los contadores?</h2>
@@ -464,7 +450,8 @@
                     }
 
                     if (hasNumPlacaZero) {
-                        mostrarModalConfirmacion("Se eliminarán/editarán el número de placa y sus contadores. ¿Deseas continuar?",
+                        mostrarModalConfirmacion(
+                            "Se eliminarán/editarán el número de placa y sus contadores. ¿Deseas continuar?",
                             function(confirmado) {
                                 if (confirmado) {
                                     enviarDatos(data);
