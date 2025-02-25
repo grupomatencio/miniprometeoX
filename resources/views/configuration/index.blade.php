@@ -3,7 +3,6 @@
 @section('contenido')
 
     <div class="container">
-
         <meta name= "csrf-token" content="{{ csrf_token() }}">
 
         <div class="row">
@@ -36,6 +35,8 @@
 
             <!-- configuracion de datos de conexiones -->
 
+
+
             @if ($data['company'])
                 <form action="{{ route('configuration.update', $data['user_cambio']) }}" method="POST" autocomplete="off">
                     @csrf
@@ -47,44 +48,45 @@
                                 <a class="btn btn-primary p-1 m-1 btn-ttl">Configurar compañia {{ $data['company'] }}</a>
                             </div>
                         </div>
+                        <div class="table-responsive">
+                            <table class="table table-bordered text-center">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Delegación</th>
+                                        <th scope="col">Zona</th>
+                                        <th scope="col">Local</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            {{ $data['name_delegation'] }}
+                                        </td>
+                                        <td>
+                                            {{ $data['name_zona'] }}
+                                        </td>
+                                        <td>
+                                            @if (count($data['locales']) === 1)
+                                                {{ $data['locales'][0]->name }}
+                                                <input type='hidden' name='locales' value={{ $data['locales'][0]->id }}>
+                                            @else
+                                                <select name="locales"
+                                                    class="form-control @error('locales') is-invalid @enderror">
+                                                    <option value =""> == Elije un Local ==</option>
+                                                    @foreach ($data['locales'] as $local)
+                                                        <option value = "{{ $local->id }}">{{ $local->name }} </option>
+                                                    @endforeach
+                                                </select>
+                                                @error('locales')
+                                                    <div class="invalid-feedback"> {{ $message }} </div>
+                                                @enderror
+                                            @endif
+                                        </td>
+                                    </tr>
 
-                        <table class="table table-bordered text-center">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Delegación</th>
-                                    <th scope="col">Zona</th>
-                                    <th scope="col">Local</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        {{ $data['name_delegation'] }}
-                                    </td>
-                                    <td>
-                                        {{ $data['name_zona'] }}
-                                    </td>
-                                    <td>
-                                        @if (count($data['locales']) === 1)
-                                            {{ $data['locales'][0]->name }}
-                                            <input type='hidden' name='locales' value={{ $data['locales'][0]->id }}>
-                                        @else
-                                            <select name="locales"
-                                                class="form-control @error('locales') is-invalid @enderror">
-                                                <option value =""> == Elije un Local ==</option>
-                                                @foreach ($data['locales'] as $local)
-                                                    <option value = "{{ $local->id }}">{{ $local->name }} </option>
-                                                @endforeach
-                                            </select>
-                                            @error('locales')
-                                                <div class="invalid-feedback"> {{ $message }} </div>
-                                            @enderror
-                                        @endif
-                                    </td>
-                                </tr>
-
-                            </tbody>
-                        </table>
+                                </tbody>
+                            </table>
+                        </div>
                         @if (session('errorSerialNumber'))
                             <div class="text-danger fw-semibold text-center">{{ session('errorSerialNumber') }} </div>
                         @endif
@@ -121,36 +123,36 @@
                             <!-- Mostrar clientes asignados si existen -->
                             @foreach ($data['users'] as $user)
                                 @if ($user->clients->isNotEmpty())
-                                    <table class="table text-center">
-                                        <thead>
-                                            <tr>
-                                                <th>Nombre</th>
-                                                <th>Cliente</th>
-                                                <th>Creado en</th>
-                                                <th>Acciones</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-
-                                            @foreach ($user->clients as $client)
-
+                                    <div class="table-responsive">
+                                        <table class="table text-center">
+                                            <thead>
                                                 <tr>
-                                                    <td>{{ $user->name }}</td>
-                                                    <td>{{ $client->name }}</td>
-                                                    <td>{{ $client->created_at->format('Y-m-d H:i') }}</td>
-                                                    <td>
-                                                        <!-- Botón para abrir el modal -->
-                                                        <button type="button" class="btn btn-danger" data-bs-toggle="modal"
-                                                            data-bs-target="#eliminarClienteModal{{ $client->id }}">
-                                                            <i class="bi bi-trash3"></i>
-                                                        </button>
-
-                                                    </td>
+                                                    <th>Nombre</th>
+                                                    <th>Cliente</th>
+                                                    <th>Creado en</th>
+                                                    <th>Acciones</th>
                                                 </tr>
-                                            @endforeach
+                                            </thead>
+                                            <tbody>
 
-                                        </tbody>
-                                    </table>
+                                                @foreach ($user->clients as $client)
+                                                    <tr>
+                                                        <td>{{ $user->name }}</td>
+                                                        <td>{{ $client->name }}</td>
+                                                        <td>{{ $client->created_at->format('Y-m-d H:i') }}</td>
+                                                        <td>
+                                                            <!-- Botón para abrir el modal -->
+                                                            <button type="button" class="btn btn-danger"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#eliminarClienteModal{{ $client->id }}">
+                                                                <i class="bi bi-trash3"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 @endif
                             @endforeach
                         @else
@@ -343,52 +345,76 @@
                         <!-- Botón de Enviar dentro del formulario -->
                         <button type="submit" class="btn btn-warning px-4">Guardar</button>
 
-                        <!-- Botón "Obtener datos contadores" -->
-                        <a href="{{ route('configuration.buscar') }}">
-                            <button type="button" class="btn btn-warning px-4">Obtener datos contadores</button>
-                        </a>
+                        <!-- Botón "Obtener datos contadores" corregido -->
+                        <a href="{{ route('configuration.buscar') }}" class="btn btn-warning px-4">Obtener datos
+                            contadores</a>
 
-                        <!-- Botón "Borrar datos" con modal -->
-                        <a data-bs-toggle="modal" data-bs-target="#modalAccionesLocal{{ $data['user_cambio']->id }}">
-                            <button class="btn btn-danger px-4">Borrar</button>
-                        </a>
-                    </div>
-
-
-
-                    <!--MODAL ACCIONES-->
-                    <div class="modal fade" id="modalAccionesLocal{{ $data['user_cambio']->id }}"
-                        data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-                        aria-labelledby="modalAcciones" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h1 class="modal-title fs-5" id="staticBackdropLabel">!Eliminar
-                                        configuración!</h1>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    ¿Estas seguro que quieres eliminar datos del configuración?
-                                </div>
-                                <div class="modal-footer">
-                                    <form action="{{ route('configuration.destroy', $data['user_cambio']) }}"
-                                        method="POST">
-                                        @csrf
-                                        @method('DELETE')
-
-                                        <button type="submitt" class="btn btn-danger">Eliminar</button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
+                        <!-- Botón "Borrar datos" corregido
+                                            <button class="btn btn-danger px-4" data-bs-toggle="modal"
+                                                data-bs-target="#modalAccionesLocal{{ $data['user_cambio']->id }}">
+                                                Borrar
+                                            </button>-->
                     </div>
 
                 </form>
+                <!-- Botón "Borrar datos" FUERA del form de update -->
+                <div class="d-flex justify-content-center gap-3 mt-3">
+                    <button class="btn btn-danger px-4" data-bs-toggle="modal"
+                        data-bs-target="#modalAccionesLocal{{ $data['user_cambio']->id }}">
+                        Borrar
+                    </button>
+                </div>
             @endif
         </div>
-
     </div>
+    <!--modal de eliminar todos los datos de configuracion-->
+    <div class="modal fade" id="modalAccionesLocal{{ $data['user_cambio']->id }}" data-bs-backdrop="static"
+        data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalAcciones" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel">!Eliminar
+                        configuración!</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Estas seguro que quieres eliminar datos del configuración?
+                </div>
+                <div class="modal-footer">
+                    <form action="{{ route('configuration.destroy', $data['user_cambio']) }}" method="POST">
+                        @csrf
+                        @method('DELETE')
+
+                        <button type="submit" class="btn btn-danger">Eliminar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALES DE ELIMINACIÓN (FUERA DEL FORMULARIO) -->
+    @foreach ($user->clients as $client)
+        <div class="modal fade" id="eliminarClienteModal{{ $client->id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Eliminar Cliente</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        ¿Estás seguro de que deseas eliminar a {{ $client->name }}?
+                    </div>
+                    <div class="modal-footer">
+                        <form action="{{ route('clients.destroy', $client->id) }}" method="POST">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger">Eliminar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endforeach
 
     <!--Modal para reiniciar session-->
     <div class="modal fade" id="reiniciarModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
@@ -406,7 +432,7 @@
                     <form action="{{ route('logout') }}" method="POST">
                         @csrf
 
-                        <button type="submitt" class="btn btn-danger">Reiniciarr</button>
+                        <button type="submit" class="btn btn-danger">Reiniciarr</button>
                     </form>
                 </div>
             </div>
@@ -425,9 +451,6 @@
             });
         </script>
     @endif
-
-
-
 
     <script>
         const buttonPedirCompany = document.getElementById('button_company');
@@ -527,10 +550,23 @@
          * Muestra un mensaje de error en el bloque de errores.
          * @param {string} message - Mensaje a mostrar.
          */
-        function showErrorMessage(message) {
-            blockDeError.textContent = message;
+        function showErrorMessage(message, timeout = 2000) {
+            blockDeError.innerHTML = `<div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                        ${message}
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Cerrar">
+                                        <span aria-hidden="true">&times;</span>
+                                        </button>
+                                          </div>`;
+
             blockDeError.classList.add('d-block');
+
+            // Ocultar el mensaje después de 2 segundos
+            setTimeout(() => {
+                blockDeError.classList.remove('d-block');
+                blockDeError.innerHTML = ''; // Limpiar contenido
+            }, timeout);
         }
+
 
         async function fetchApiServerUrl() {
             try {
@@ -546,6 +582,7 @@
         fetchApiServerUrl().then(apiUrl => {
             if (!apiUrl) {
                 console.error("No se pudo obtener la URL del servidor.");
+                showErrorMessage("No se pudo obtener la URL del servidor.");
                 return;
             }
 
@@ -559,8 +596,7 @@
                     const match = userText.match(/\((.*?)\)/);
 
                     if (!match || !match[1]) {
-                        document.getElementById("resultMessage").innerHTML =
-                            '<div class="alert alert-danger">No se pudo obtener el email del usuario seleccionado.</div>';
+                        showErrorMessage("No se pudo obtener el email del usuario seleccionado.");
                         return;
                     }
 
@@ -568,8 +604,7 @@
                     const password = document.getElementById("password").value;
 
                     if (!password) {
-                        document.getElementById("resultMessage").innerHTML =
-                            '<div class="alert alert-danger">Por favor, complete la contraseña.</div>';
+                        showErrorMessage("Por favor, complete la contraseña.");
                         return;
                     }
 
@@ -613,8 +648,7 @@
                                     }),
                                 });
                             } else {
-                                document.getElementById("resultMessage").innerHTML =
-                                    '<div class="alert alert-danger">Error: No se pudo obtener el cliente.</div>';
+                                showErrorMessage("Error: No se pudo obtener el cliente.");
                                 return Promise.reject("Cliente no encontrado.");
                             }
                         })
@@ -623,14 +657,15 @@
                             if (saveResponse.message) {
                                 document.getElementById("resultMessage").innerHTML +=
                                     `<div class="alert alert-success">${saveResponse.message}</div>`;
+
+                                window.location.reload();
                             } else {
-                                document.getElementById("resultMessage").innerHTML +=
-                                    `<div class="alert alert-danger">${saveResponse.error}</div>`;
+                                showErrorMessage(saveResponse.error ||
+                                    "Ocurrió un error al guardar el cliente.");
                             }
                         })
                         .catch(error => {
-                            document.getElementById("resultMessage").innerHTML =
-                                `<div class="alert alert-danger">Error en la solicitud: ${error.message}</div>`;
+                            showErrorMessage(`Error en la solicitud: ${error.message || error}`);
                         });
                 });
             }

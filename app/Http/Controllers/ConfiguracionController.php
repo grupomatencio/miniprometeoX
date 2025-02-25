@@ -223,7 +223,6 @@ class ConfiguracionController extends Controller
      */
     public function destroy($id)
     {
-        dd('configuration.destroy');
         try {
             $user_prometeo = User::where('name', 'prometeo')->first();
             if ($user_prometeo) {
