@@ -85,7 +85,7 @@
                                     </div>
 
                                     <div class="d-flex justify-content-center mt-4">
-                                        pagination
+                                        <!--pagination-->
                                     </div>
                                 </div>
                             </div>
