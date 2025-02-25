@@ -90,7 +90,7 @@ class HomeController extends Controller
             $this -> createTask($taskName, $command);
 
         } else {
-            Log::info("Task '$taskName' already exists.");
+            //Log::info("Task '$taskName' already exists.");
         }
     }
 
@@ -105,13 +105,13 @@ class HomeController extends Controller
         try {
             exec($command, $output, $returnVar);
         } catch (Exception $e) {
-            Log::error($e);
+            //Log::error($e);
         }
 
         if ($returnVar === 0) {
-            Log::info("Task '$taskName' created successfully.");
+            //Log::info("Task '$taskName' created successfully.");
         } else {
-            Log::error("Failed to create task '$taskName': " . implode("\n", $output));
+            //Log::error("Failed to create task '$taskName': " . implode("\n", $output));
         }
     }
 

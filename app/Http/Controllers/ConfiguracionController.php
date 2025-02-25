@@ -190,7 +190,7 @@ class ConfiguracionController extends Controller
                     session()->flash('success', 'Configuración actualizada exitosamente.');
                 } catch (\Exception $exception) {
                     DB::rollBack();
-                    Log::error('Error en la transacción de base de datos: ' . $exception->getMessage());
+                    //Log::error('Error en la transacción de base de datos: ' . $exception->getMessage());
 
                     // Mensaje de error
                     session()->flash('error', 'Error al actualizar la configuración. Inténtelo nuevamente.');
@@ -201,7 +201,7 @@ class ConfiguracionController extends Controller
                 return redirect()->back();
             }
         } catch (\Exception $exception) {
-            Log::error('Error general en la actualización: ' . $exception->getMessage());
+            //Log::error('Error general en la actualización: ' . $exception->getMessage());
 
             // Mensaje de error general
             session()->flash('error', 'Ocurrió un error inesperado. Inténtelo de nuevo más tarde.');
@@ -247,7 +247,7 @@ class ConfiguracionController extends Controller
 
             session()->flash('success', 'Datos eliminados correctamente.');
         } catch (\Exception $exception) {
-            Log::error($exception);
+            //Log::error($exception);
             session()->flash('error', 'Error al eliminar los datos. Inténtelo de nuevo.');
         }
 
@@ -373,7 +373,7 @@ class ConfiguracionController extends Controller
 
             return response()->json(['message' => 'success'], 200);
         } catch (Exception $e) {
-            Log::info($e);
+            //Log::info($e);
             return response()->json(['message' => 'error'], 400);
         }
     }
@@ -427,7 +427,7 @@ class ConfiguracionController extends Controller
             return response()->json(['message' => 'success'], 200);
         } catch (Exception $e) {
             DB::rollBack();
-            Log::info($e);
+            //Log::info($e);
             return response()->json(['message' => 'error'], 400);
         }
     }
@@ -468,7 +468,7 @@ class ConfiguracionController extends Controller
     // para guardar los datos de la petcion POST para obetener client y guardarlo en la base de datos
     public function saveClientData(Request $request)
     {
-        Log::error($request->all());
+        //Log::error($request->all());
 
         $request->validate([
             'id' => 'required|integer',

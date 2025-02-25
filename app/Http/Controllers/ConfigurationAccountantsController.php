@@ -21,7 +21,7 @@ class ConfigurationAccountantsController extends Controller
             $conexionComdata = nuevaConexionLocal('admin');
 
             if (!$conexionComdata) {
-                Log::error('Error: la conexión con ComData es nula o inválida.');
+                //Log::error('Error: la conexión con ComData es nula o inválida.');
                 return;
             }
 
@@ -35,7 +35,7 @@ class ConfigurationAccountantsController extends Controller
                 // Extraer valores únicos de NumPlaca desde ComData
                 $numPlacas = $acumulados->pluck('NumPlaca')->unique()->values();
             } catch (\Exception $e) {
-                Log::error('Error leyendo la tabla Acumulados: ' . $e->getMessage());
+                //Log::error('Error leyendo la tabla Acumulados: ' . $e->getMessage());
                 return;
             }
 
@@ -184,7 +184,7 @@ class ConfigurationAccountantsController extends Controller
 
     public function storeAll(Request $request)
     {
-        Log::info($request->all());
+        //Log::info($request->all());
 
         try {
             // Validar la solicitud
