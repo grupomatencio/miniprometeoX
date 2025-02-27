@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use DOMElement;
 use SimpleXMLElement;
 use App\Models\Machine;
+use App\Models\Acumulado;
 use App\Models\Delegation;
 use Illuminate\Http\Request;
 use App\Models\AuxMoneyStorage;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Artisan;
@@ -21,20 +23,44 @@ class MachineController extends Controller
      */
     public function index()
     {
-
         try {
-
             $auxmoneys = AuxMoneyStorage::orderByRaw('CAST(TypeIsAux AS UNSIGNED) ASC')->get();
-            //dd($auxmoneys);
+
+            // Obtener la cantidad de valores únicos en TypeIsAux
+            $auxCount = AuxMoneyStorage::selectRaw('COUNT(DISTINCT CAST(TypeIsAux AS UNSIGNED)) as count')
+                ->value('count');
+
+            // Obtener todas las máquinas
             $machines = Machine::where('type', 'single')
                 ->orWhere('type', null)
                 ->get();
 
-            return view("machines.index", compact("machines", "auxmoneys"));
+            // Obtener NumPlaca de cada máquina desde la tabla acumulados
+            $numPlacas = Acumulado::whereIn('machine_id', $machines->pluck('id'))
+                ->pluck('NumPlaca', 'machine_id'); // [machine_id => NumPlaca]
+
+            // Si hay placas, buscamos en la tabla `nombres` del comdata
+            $anularPMs = [];
+            if ($numPlacas->isNotEmpty()) {
+                $conexion = nuevaConexionLocal('admin');
+
+                $anularPMs = DB::connection($conexion)->table('nombres')
+                    ->whereIn('NumPlaca', $numPlacas)
+                    ->pluck('AnularPM', 'NumPlaca'); // [NumPlaca => AnularPM]
+            }
+
+            // Asignamos AnularPM a cada máquina
+            foreach ($machines as $machine) {
+                $machine->AnularPM = $anularPMs[$numPlacas[$machine->id] ?? null] ?? 0;
+            }
+
+            return view("machines.index", compact("machines", "auxmoneys" , "auxCount"));
         } catch (\Exception $e) {
-            return redirect()->back()->with("error", $e->getMessage());
+            return redirect()->back()->with("error", "Error al cargar las máquinas: " . $e->getMessage());
         }
     }
+
+
 
     /**
      * Show the form for creating a new resource.
@@ -139,26 +165,88 @@ class MachineController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $id_machine)
     {
-        //dd($request->all());
+        $id_machine = (int) $id_machine;
 
-        $request->validate([
-            'alias.*' => ['required'],
-            'r_auxiliar.*' => ['numeric']
-        ], [
-            'alias.*.required' => 'El alias de la máquina es obligatorio.',
-            'r_auxiliar.*.numeric' => 'En este campo solo deben ir dígitos.',
-        ]);
+        // 1. Buscar el NumPlaca en la tabla acumulados (BD local)
+        $machine_acumulado = Acumulado::where('machine_id', $id_machine)->first();
 
+        if (!$machine_acumulado) {
+            Log::warning("⚠ No se encontró la máquina en acumulados", ['id_machine' => $id_machine]);
+            return back()->with('error', 'No se encontró la máquina asociada a ninguna placa.');
+        }
 
-        Machine::find($id)->update([
-            'alias' => $request->alias[$id],
-            'r_auxiliar' => $request->r_auxiliar[$id]
-        ]);
+        $NumPlaca = $machine_acumulado->NumPlaca;
+        Log::info("✅ NumPlaca encontrado en acumulados: $NumPlaca");
 
-        return redirect()->route('machines.index', $request->delegation_id);
+        // 2. Conectar a la BD externa
+        $conexion = nuevaConexionLocal('admin');
+
+        // 3. Verificar si NumPlaca existe en la tabla acumulado de la BD externa
+        $acumuladoExterno = DB::connection($conexion)
+            ->table('acumulado')
+            ->where('NumPlaca', $NumPlaca)
+            ->first();
+
+        if (!$acumuladoExterno) {
+            Log::warning("⚠ No se encontró NumPlaca en la tabla acumulado de la BD externa", ['NumPlaca' => $NumPlaca]);
+            return redirect()->route('machines.index', $request->delegation_id)
+                ->with('error', 'No se encontró la máquina en la tabla acumulado de la BD externa.');
+        }
+
+        // 4. Buscar el NumPlaca en la tabla nombres de la BD externa
+        $registro = DB::connection($conexion)
+            ->table('nombres')
+            ->where('NumPlaca', $NumPlaca)
+            ->first();
+
+        try {
+            DB::transaction(function () use ($id_machine, $request, $conexion, $NumPlaca, $registro) {
+                // Actualizar la tabla machines en la BD local
+                Machine::find($id_machine)->update([
+                    'alias' => $request->alias[$id_machine], // Esto es para tu base de datos local
+                    'r_auxiliar' => $request->r_auxiliar[$id_machine] ?? null,
+                ]);
+
+                // Construimos los datos con las columnas correctas
+                $datosActualizar = [
+                    'NumPlaca' => $NumPlaca,
+                    'nombre' => $request->alias[$id_machine], // Usamos 'nombre' en vez de 'alias'
+                    'TypeIsAux' => $request->r_auxiliar[$id_machine] ?? null, // 'r_auxiliar' parece ir aquí
+                    'AnularPM' => $request->AnularPM[$id_machine] ?? null, // Incluimos 'AnularPM'
+                ];
+
+                // Si el registro existe, actualizamos
+                if ($registro) {
+                    DB::connection($conexion)
+                        ->table('nombres')
+                        ->where('NumPlaca', $NumPlaca)
+                        ->update($datosActualizar);
+                    Log::info("✅ Registro actualizado en nombres de la BD externa", ['NumPlaca' => $NumPlaca]);
+                } else {
+                    // Si no existe, insertamos
+                    DB::connection($conexion)
+                        ->table('nombres')
+                        ->insert($datosActualizar);
+                    Log::info("✅ Registro insertado en nombres de la BD externa", ['NumPlaca' => $NumPlaca]);
+                }
+
+                // Enviar datos a la BD externa
+                $this->sendAnularPM($id_machine, $request->r_auxiliar[$id_machine] ?? null, $request->AnularPM[$id_machine] ?? null);
+            });
+
+            return redirect()->route('machines.index', $request->delegation_id)
+                ->with('success', 'Máquina actualizada correctamente.');
+        } catch (\Exception $e) {
+            Log::error("❌ Error al actualizar la máquina", ['error' => $e->getMessage()]);
+            return redirect()->route('machines.index', $request->delegation_id)
+                ->with('error', 'Error al actualizar la máquina: ' . $e->getMessage());
+        }
     }
+
+
+
 
     /**
      * Remove the specified resource from storage.
@@ -279,6 +367,7 @@ class MachineController extends Controller
         try {
             // 🔹 Obtener todas las máquinas con r_auxiliar
             $machines = Machine::whereNotNull('r_auxiliar')->get();
+            $existingAliases = $machines->pluck('alias')->toArray();
             Log::info("🔹 Máquinas encontradas: " . count($machines));
 
             // 🔹 Cargar el XML en DOMDocument
@@ -294,6 +383,22 @@ class MachineController extends Controller
 
             // Buscar <AssignToAux>
             $assignToAux = $xpath->query('//AssignToAux')->item(0);
+
+            $entries = $xpath->query('//AssignToAux/CAssignToAux');
+
+            $removedNodes = 0;
+            foreach ($entries as $assign) {
+                if ($assign instanceof \DOMElement) { // Asegurar que es un DOMElement
+                    $keyNode = $assign->getElementsByTagName('Key')->item(0);
+                    if ($keyNode && !in_array($keyNode->nodeValue, $existingAliases)) {
+                        Log::info("❌ Eliminando nodo huérfano: {$keyNode->nodeValue}");
+                        $assign->parentNode->removeChild($assign);
+                        $removedNodes++;
+                    }
+                }
+            }
+
+            Log::info("✅ Eliminados {$removedNodes} nodos huérfanos.");
 
             // Si no existe, crearlo después de </Aux10Concepts>
             if (!$assignToAux) {
@@ -329,29 +434,26 @@ class MachineController extends Controller
                 Log::info("🔹 Procesando máquina: {$machine->alias} - r_auxiliar: {$machine->r_auxiliar}");
 
                 foreach ($entries as $assign) {
-                    // Verificar que $assign es un DOMElement
-                    if (!$assign instanceof \DOMElement) {
-                        continue;
-                    }
+                    if ($assign instanceof \DOMElement) { // Asegurar que es un DOMElement
+                        $keyNode = $assign->getElementsByTagName('Key')->item(0);
+                        if ($keyNode && $keyNode->nodeValue === $machine->alias) {
+                            // Si encontramos la máquina, actualizamos su valor
+                            Log::info("✅ Actualizando alias {$machine->alias} con r_auxiliar {$machine->r_auxiliar}");
 
-                    $keyNode = $assign->getElementsByTagName('Key')->item(0);
-                    if ($keyNode && $keyNode->nodeValue === $machine->alias) {
-                        // Si encontramos la máquina, actualizamos su valor
-                        Log::info("✅ Actualizando alias {$machine->alias} con r_auxiliar {$machine->r_auxiliar}");
+                            // Intentamos obtener el nodo <Value>
+                            $valueNode = $assign->getElementsByTagName('Value')->item(0);
 
-                        // Intentamos obtener el nodo <Value>
-                        $valueNode = $assign->getElementsByTagName('Value')->item(0);
+                            if ($valueNode instanceof \DOMElement) { // Verificar si <Value> existe y es un DOMElement
+                                // Si existe, actualizamos el valor
+                                $valueNode->nodeValue = $machine->r_auxiliar;
+                            } else {
+                                // Si no existe <Value>, lo creamos y lo agregamos
+                                $newValueNode = $dom->createElement('Value', $machine->r_auxiliar);
+                                $assign->appendChild($newValueNode);
+                            }
 
-                        if ($valueNode instanceof DOMElement) {
-                            // Si existe, actualizamos el valor
-                            $valueNode->nodeValue = $machine->r_auxiliar;
-                        } else {
-                            // Si no existe <Value>, lo creamos y lo agregamos
-                            $newValueNode = $dom->createElement('Value', $machine->r_auxiliar);
-                            $assign->appendChild($newValueNode);
+                            $found = true;
                         }
-
-                        $found = true;
                     }
                 }
 
@@ -396,6 +498,63 @@ class MachineController extends Controller
         } catch (\Exception $e) {
             Log::error("❌ Error en sendAuxiliares: " . $e->getMessage());
             return back()->with('error', 'Ocurrió un error al procesar el archivo: ' . $e->getMessage());
+        }
+    }
+
+    // metodo para anular el pago manual en la base de datos del comdata
+    public function sendAnularPM($id_machine, $r_auxiliar, $AnularPM)
+    {
+        Log::info("Ejecutando sendAnularPM", [
+            'id_machine' => $id_machine,
+            'r_auxiliar' => $r_auxiliar,
+            'AnularPM' => $AnularPM
+        ]);
+
+        // 1. Buscar el NumPlaca en la tabla acumulados
+        $machine_acumulado = Acumulado::where('machine_id', $id_machine)->first();
+
+        if (!$machine_acumulado) {
+            Log::warning("⚠ No se encontró la máquina en acumulados", ['id_machine' => $id_machine]);
+            return back()->with('error', 'No se encontró la máquina asociada a ningún número de placa.');
+        }
+
+        $NumPlaca = $machine_acumulado->NumPlaca;
+        Log::info("✅ NumPlaca encontrado: $NumPlaca");
+
+        // 2. Obtener la conexión con la base de datos `comdata`
+        $conexion = nuevaConexionLocal('admin');
+
+        try {
+            // 3. Verificar si el registro ya existe en `nombres`
+            $registro = DB::connection($conexion)->table('nombres')->where('NumPlaca', $NumPlaca)->first();
+
+            if ($registro) {
+                // Si existe, actualizar el registro
+                DB::connection($conexion)->table('nombres')
+                    ->where('NumPlaca', $NumPlaca)
+                    ->update([
+                        'nombre'     => $machine_acumulado->nombre,
+                        'TypeIsAux'  => $r_auxiliar,
+                        'AnularPM'   => $AnularPM
+                    ]);
+
+                Log::info("🔄 Registro actualizado en `nombres` para NumPlaca: $NumPlaca");
+                return back()->with('success', 'Registro actualizado correctamente.');
+            } else {
+                // Si no existe, insertarlo
+                DB::connection($conexion)->table('nombres')->insert([
+                    'NumPlaca'   => $NumPlaca,
+                    'nombre'     => $machine_acumulado->nombre,
+                    'TypeIsAux'  => $r_auxiliar,
+                    'AnularPM'   => $AnularPM
+                ]);
+
+                Log::info("🆕 Nuevo registro insertado en `nombres` para NumPlaca: $NumPlaca");
+                return back()->with('success', 'Nuevo registro creado correctamente.');
+            }
+        } catch (\Exception $e) {
+            Log::error("❌ Error en sendAnularPM: " . $e->getMessage());
+            return back()->with('error', 'Ocurrió un error al procesar la solicitud: ' . $e->getMessage());
         }
     }
 }

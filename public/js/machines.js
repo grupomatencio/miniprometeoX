@@ -3,73 +3,64 @@ const guardarButtons = document.querySelectorAll('.guardar');
 const volverButtons = document.querySelectorAll('.volver');
 const inputs = document.querySelectorAll('.form-control');
 const eliminarButtons = document.querySelectorAll('.eliminar');
+const checkboxes = document.querySelectorAll('input[type="checkbox"][name^="AnularPM"]');
 
 editButtons.forEach(button => {
-    button.addEventListener('click', function () {
+    button.addEventListener('click', function (event) {
         const buttonId = Number(event.target.id);
 
-        console.log('check', buttonId);
         editButtons.forEach(but => {
-            if (Number(but.id) == buttonId) {
-                but.classList.add('d-none');
-                console.log('yyy');
-            } else {
-                but.classList.remove('d-none');
-            }
-        })
+            but.classList.toggle('d-none', Number(but.id) === buttonId);
+        });
+
         inputs.forEach(input => {
-            if (Number(input.id) == buttonId) {
-                input.removeAttribute('disabled');
-            } else {
-                input.setAttribute('disabled', 'true');
-            }
-        })
+            input.toggleAttribute('disabled', Number(input.id) !== buttonId);
+        });
+
+        checkboxes.forEach(checkbox => {
+            checkbox.toggleAttribute('disabled',
+                Number(checkbox.id.replace('AnularPM', '')) !== buttonId
+            );
+        });
+
         guardarButtons.forEach(guardar => {
-            if (Number(guardar.id) == buttonId) {
-                guardar.classList.remove('d-none');
-            } else {
-                guardar.classList.add('d-none');
-            }
-        })
+            guardar.classList.toggle('d-none', Number(guardar.id) !== buttonId);
+        });
 
         volverButtons.forEach(volver => {
-            if (Number(volver.id) == buttonId) {
-                volver.classList.remove('d-none');
-            } else {
-                volver.classList.add('d-none');
-            }
-        })
+            volver.classList.toggle('d-none', Number(volver.id) !== buttonId);
+        });
 
         eliminarButtons.forEach(eliminar => {
-            if (Number(eliminar.id) == buttonId) {
-                eliminar.classList.add('d-none');
-            } else {
-                eliminar.classList.remove('d-none');
-            }
-        })
-
-    })
-})
+            eliminar.classList.toggle('d-none', Number(eliminar.id) === buttonId);
+        });
+    });
+});
 
 volverButtons.forEach(button => {
     button.addEventListener('click', function () {
+        editButtons.forEach(but => but.classList.remove('d-none'));
 
-        editButtons.forEach(but => {
-            but.classList.remove('d-none');
-        })
-        inputs.forEach(input => {
-            input.setAttribute('disabled', 'true');
-        })
-        guardarButtons.forEach(guardar => {
-            guardar.classList.add('d-none');
-        })
+        inputs.forEach(input => input.setAttribute('disabled', 'true'));
 
-        volverButtons.forEach(volver => {
-            volver.classList.add('d-none');
-        })
+        checkboxes.forEach(checkbox => checkbox.setAttribute('disabled', 'true'));
 
-        eliminarButtons.forEach(eliminar => {
-            eliminar.classList.remove('d-none');
-        })
-    })
-})
+        guardarButtons.forEach(guardar => guardar.classList.add('d-none'));
+
+        volverButtons.forEach(volver => volver.classList.add('d-none'));
+
+        eliminarButtons.forEach(eliminar => eliminar.classList.remove('d-none'));
+    });
+});
+
+function validarAuxiliar(input, max) {
+    let errorMsg = document.getElementById("error_" + input.id);
+
+    if (parseInt(input.value) > max) {
+        input.value = max; // Ajusta al valor máximo
+        errorMsg.classList.remove("d-none"); // Muestra el mensaje de error
+    } else {
+        errorMsg.classList.add("d-none"); // Oculta el mensaje si el valor es válido
+    }
+}
+

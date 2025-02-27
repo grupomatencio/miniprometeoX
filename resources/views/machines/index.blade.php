@@ -11,20 +11,6 @@
 
             @include('plantilla.messages')
 
-            <form action="{{ url('/test-connection') }}" method="POST">
-                @csrf
-                <label>IP Address:</label>
-                <input type="text" name="ip_address" value="192.168.1.111" required>
-
-                <label>Usuario:</label>
-                <input type="text" name="username" value="ATM" required>
-
-                <label>Contraseña:</label>
-                <input type="password" name="password" value="ATM10" required>
-
-                <button type="submit">Probar Conexión</button>
-            </form>
-
             <div class="row d-flex justify-content-center">
                 <div class="col-12 isla-list">
                     <div class="row p-3">
@@ -55,6 +41,7 @@
                                         <th scope="col">Alias</th>
                                         <th scope="col">Identificador</th>
                                         <th scope="col">Auxiliar</th>
+                                        <th scope="col">Anular pago manual</th>
                                         <th scope="col"><a class="btn btn-primary w-100 btn-ttl"
                                                 href="{{ route('machines.create') }}">+</a></th>
                                     </tr>
@@ -77,13 +64,34 @@
                                                 </td>
                                                 <td>{{ $machine->identificador }}</td>
                                                 <td>
-                                                    <input type="number" min="0"
+                                                    <input type="number" min="0" max="{{ $auxCount }}"
                                                         class="form-control w-100 @error('r_auxiliar.' . $machine->id) is-invalid @enderror"
                                                         id="{{ $machine->id }}" name="r_auxiliar[{{ $machine->id }}]"
-                                                        value="{{ $machine->r_auxiliar }}" disabled>
+                                                        value="{{ $machine->r_auxiliar }}" disabled
+                                                        oninput="validarAuxiliar(this, {{ $auxCount }})"
+                                                        onchange="validarAuxiliar(this, {{ $auxCount }})">
+
+                                                    <small id="error_{{ $machine->id }}" class="text-danger d-none">
+                                                        No hay más recargas auxiliares para asignar
+                                                    </small>
+
                                                     @error('r_auxiliar.' . $machine->id)
                                                         <div class="invalid-feedback text-start"> {{ $message }} </div>
                                                     @enderror
+                                                </td>
+
+                                                <td>
+                                                    <div class="form-check">
+                                                        <!-- Input hidden para enviar 0 cuando el checkbox está desmarcado -->
+                                                        <input type="hidden" name="AnularPM[{{ $machine->id }}]"
+                                                            value="0">
+
+                                                        <!-- Checkbox con el mismo nombre para que sobrescriba el valor si se marca -->
+                                                        <input type="checkbox" name="AnularPM[{{ $machine->id }}]"
+                                                            id="AnularPM{{ $machine->id }}" value="1"
+                                                            {{ $machine->AnularPM == 1 ? 'checked' : '' }} disabled>
+                                                        <!-- 🔹 Añadimos "disabled" para que esté bloqueado al inicio -->
+                                                    </div>
                                                 </td>
                                                 <td>
                                                     <div class="d-flex">
