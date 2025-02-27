@@ -62,6 +62,8 @@ Route::resource('/configurationAccountants', ConfigurationAccountantsController:
 Route::post('/configurationAccountants/storeAll', [ConfigurationAccountantsController::class, 'storeAll'])->name('configurationAccountants.storeAll');
 Route::post('/configurationAccountants/clearAll', [ConfigurationAccountantsController::class, 'clearAll']);
 
+// enviar las auxiliares al archivo de texto de ticketServer
+Route::post('/send-auxiliares', [MachineController::class, 'sendAuxiliares'])->name('sendAuxiliares');
 
 // traer datos de CLIENT ruta de pruebas
 Route::post('/getDataClient', [ConfiguracionController::class, 'getDataClient']);
@@ -74,4 +76,43 @@ Route::post('/saveClientData', [ConfiguracionController::class, 'saveClientData'
 Route::get('syncTypesTickets', [MachineController::class, 'syncTypesTickets'])->name('syncTypesTickets');
 
 
+use Illuminate\Support\Facades\File;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+
+Route::post('/test-connection', function (Request $request) {
+    $request->validate([
+        'username' => 'required|string',
+        'password' => 'required|string',
+        'ip_address' => 'required|ip',
+    ]);
+
+    $username = escapeshellarg($request->input('username'));
+    $password = escapeshellarg($request->input('password'));
+    $ip = $request->input('ip_address');
+
+    Log::info("🔹 Probando conexión con IP: {$ip}");
+
+    $driveLetter = "Z:";
+    $networkPath = "\\\\{$ip}\\Gistra";
+    $sharedPath = "{$driveLetter}\\SMI2000\\Setup-TicketController\\TicketControllerPreferences.cfg";
+
+    // Desmontar cualquier unidad previa
+    exec("net use {$driveLetter} /delete /y");
+
+    // Intentar conectar
+    $command = "net use {$driveLetter} \"{$networkPath}\" /user:{$username} {$password}";
+    exec($command, $output, $result);
+
+    if ($result !== 0) {
+        return response()->json(['error' => 'No se pudo conectar a la carpeta compartida.'], 500);
+    }
+
+    // Verificar que el archivo existe
+    if (!File::exists($sharedPath)) {
+        return response()->json(['error' => 'Archivo no encontrado.'], 404);
+    }
+
+    return response()->json(['success' => 'Conexión y acceso al archivo exitosos.']);
+});
 

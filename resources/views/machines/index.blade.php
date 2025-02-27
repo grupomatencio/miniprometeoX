@@ -11,6 +11,20 @@
 
             @include('plantilla.messages')
 
+            <form action="{{ url('/test-connection') }}" method="POST">
+                @csrf
+                <label>IP Address:</label>
+                <input type="text" name="ip_address" value="192.168.1.111" required>
+
+                <label>Usuario:</label>
+                <input type="text" name="username" value="ATM" required>
+
+                <label>Contraseña:</label>
+                <input type="password" name="password" value="ATM10" required>
+
+                <button type="submit">Probar Conexión</button>
+            </form>
+
             <div class="row d-flex justify-content-center">
                 <div class="col-12 isla-list">
                     <div class="row p-3">
@@ -191,6 +205,10 @@
                             <a class="btn btn-success px-4" data-bs-toggle="modal" data-bs-target="#modalPdf">
                                 Exportar <i class="bi bi-filetype-pdf"></i>
                             </a>
+                            <button type="button" class="btn btn-warning px-4" data-bs-toggle="modal"
+                                data-bs-target="#grabarAuxiliaresModal">
+                                Grabar auxiliares <i class="bi bi-box-arrow-in-right"></i>
+                            </button>
                         </div>
                     </div>
 
@@ -215,6 +233,49 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Modal enviar auxiliares -->
+                    <div class="modal fade" id="grabarAuxiliaresModal" data-bs-backdrop="static"
+                        data-bs-keyboard="false" tabindex="-1" aria-labelledby="grabarAuxiliaresModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="grabarAuxiliaresModalLabel">
+                                        Grabar Auxiliares en archivo de texto remoto
+                                    </h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Cerrar"></button>
+                                </div>
+                                <form action="{{ route('sendAuxiliares') }}" method="POST" autocomplete="off">
+                                    @csrf
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label for="username" class="form-label">Usuario remoto</label>
+                                            <input type="text" class="form-control" id="username" name="username"
+                                                autocomplete="off">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="password" class="form-label">Contraseña</label>
+                                            <input type="password" class="form-control" id="password" name="password"
+                                                autocomplete="new-password">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="ip_address" class="form-label">Dirección IP remota</label>
+                                            <input type="text" class="form-control" id="ip_address" name="ip_address"
+                                                required autocomplete="off">
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="submit" class="btn btn-warning">Confirmar</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+
+
 
 
                     <div class="col-4 offset-8 pb-4">
