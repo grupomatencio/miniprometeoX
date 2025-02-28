@@ -178,7 +178,6 @@ class MachineController extends Controller
                 ]);
             }
         }
-
         return back()->with('success', 'Máquina actualizada correctamente.');
     }
 
@@ -521,60 +520,5 @@ class MachineController extends Controller
         }
     }
 
-    // metodo para anular el pago manual en la base de datos del comdata
-    public function sendAnularPM($id_machine, $r_auxiliar, $AnularPM)
-    {
-        Log::info("Ejecutando sendAnularPM", [
-            'id_machine' => $id_machine,
-            'r_auxiliar' => $r_auxiliar,
-            'AnularPM' => $AnularPM
-        ]);
 
-        // 1. Buscar el NumPlaca en la tabla acumulados
-        $machine_acumulado = Acumulado::where('machine_id', $id_machine)->first();
-
-        if (!$machine_acumulado) {
-            Log::warning("⚠ No se encontró la máquina en acumulados", ['id_machine' => $id_machine]);
-            return back()->with('error', 'No se encontró la máquina asociada a ningún número de placa.');
-        }
-
-        $NumPlaca = $machine_acumulado->NumPlaca;
-        Log::info("✅ NumPlaca encontrado: $NumPlaca");
-
-        // 2. Obtener la conexión con la base de datos `comdata`
-        $conexion = nuevaConexionLocal('admin');
-
-        try {
-            // 3. Verificar si el registro ya existe en `nombres`
-            $registro = DB::connection($conexion)->table('nombres')->where('NumPlaca', $NumPlaca)->first();
-
-            if ($registro) {
-                // Si existe, actualizar el registro
-                DB::connection($conexion)->table('nombres')
-                    ->where('NumPlaca', $NumPlaca)
-                    ->update([
-                        'nombre'     => $machine_acumulado->nombre,
-                        'TypeIsAux'  => $r_auxiliar,
-                        'AnularPM'   => $AnularPM
-                    ]);
-
-                Log::info("🔄 Registro actualizado en `nombres` para NumPlaca: $NumPlaca");
-                return back()->with('success', 'Registro actualizado correctamente.');
-            } else {
-                // Si no existe, insertarlo
-                DB::connection($conexion)->table('nombres')->insert([
-                    'NumPlaca'   => $NumPlaca,
-                    'nombre'     => $machine_acumulado->nombre,
-                    'TypeIsAux'  => $r_auxiliar,
-                    'AnularPM'   => $AnularPM
-                ]);
-
-                Log::info("🆕 Nuevo registro insertado en `nombres` para NumPlaca: $NumPlaca");
-                return back()->with('success', 'Nuevo registro creado correctamente.');
-            }
-        } catch (\Exception $e) {
-            Log::error("❌ Error en sendAnularPM: " . $e->getMessage());
-            return back()->with('error', 'Ocurrió un error al procesar la solicitud: ' . $e->getMessage());
-        }
-    }
 }
