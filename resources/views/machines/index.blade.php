@@ -41,7 +41,6 @@
                                         <th scope="col">Alias</th>
                                         <th scope="col">Identificador</th>
                                         <th scope="col">Auxiliar</th>
-                                        <th scope="col">Anular pago manual</th>
                                         <th scope="col"><a class="btn btn-primary w-100 btn-ttl"
                                                 href="{{ route('machines.create') }}">+</a></th>
                                     </tr>
@@ -64,7 +63,7 @@
                                                 </td>
                                                 <td>{{ $machine->identificador }}</td>
                                                 <td class="position-relative">
-                                                    <input type="number" min="0" max="{{ $auxCount }}"
+                                                    <input type="number" min="-1" max="{{ $auxCount }}"
                                                         class="form-control w-100 @error('r_auxiliar.' . $machine->id) is-invalid @enderror"
                                                         id="{{ $machine->id }}" name="r_auxiliar[{{ $machine->id }}]"
                                                         value="{{ $machine->r_auxiliar }}" disabled
@@ -83,19 +82,7 @@
                                                         </div>
                                                     @enderror
                                                 </td>
-                                                <td>
-                                                    <div class="form-check">
-                                                        <!-- Input hidden para enviar 0 cuando el checkbox está desmarcado -->
-                                                        <input type="hidden" name="AnularPM[{{ $machine->id }}]"
-                                                            value="0">
 
-                                                        <!-- Checkbox con el mismo nombre para que sobrescriba el valor si se marca -->
-                                                        <input type="checkbox" name="AnularPM[{{ $machine->id }}]"
-                                                            id="AnularPM{{ $machine->id }}" value="1"
-                                                            {{ $machine->AnularPM == 1 ? 'checked' : '' }} disabled>
-                                                        <!-- 🔹 Añadimos "disabled" para que esté bloqueado al inicio -->
-                                                    </div>
-                                                </td>
                                                 <td>
                                                     <div class="d-flex">
                                                         <button type="button" class="btn btn-warning w-100 btn-in edit"

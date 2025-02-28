@@ -3,7 +3,6 @@ const guardarButtons = document.querySelectorAll('.guardar');
 const volverButtons = document.querySelectorAll('.volver');
 const inputs = document.querySelectorAll('.form-control');
 const eliminarButtons = document.querySelectorAll('.eliminar');
-const checkboxes = document.querySelectorAll('input[type="checkbox"][name^="AnularPM"]');
 
 editButtons.forEach(button => {
     button.addEventListener('click', function (event) {
@@ -15,12 +14,6 @@ editButtons.forEach(button => {
 
         inputs.forEach(input => {
             input.toggleAttribute('disabled', Number(input.id) !== buttonId);
-        });
-
-        checkboxes.forEach(checkbox => {
-            checkbox.toggleAttribute('disabled',
-                Number(checkbox.id.replace('AnularPM', '')) !== buttonId
-            );
         });
 
         guardarButtons.forEach(guardar => {
@@ -43,8 +36,6 @@ volverButtons.forEach(button => {
 
         inputs.forEach(input => input.setAttribute('disabled', 'true'));
 
-        checkboxes.forEach(checkbox => checkbox.setAttribute('disabled', 'true'));
-
         guardarButtons.forEach(guardar => guardar.classList.add('d-none'));
 
         volverButtons.forEach(volver => volver.classList.add('d-none'));
@@ -52,6 +43,7 @@ volverButtons.forEach(button => {
         eliminarButtons.forEach(eliminar => eliminar.classList.remove('d-none'));
     });
 });
+
 
 function validarAuxiliar(input, max) {
     let errorMsg = document.getElementById("error_" + input.id);
@@ -63,4 +55,3 @@ function validarAuxiliar(input, max) {
         errorMsg.classList.add("d-none"); // Oculta el mensaje si el valor es válido
     }
 }
-

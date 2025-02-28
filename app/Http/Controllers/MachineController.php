@@ -54,7 +54,7 @@ class MachineController extends Controller
                 $machine->AnularPM = $anularPMs[$numPlacas[$machine->id] ?? null] ?? 0;
             }
 
-            return view("machines.index", compact("machines", "auxmoneys" , "auxCount"));
+            return view("machines.index", compact("machines", "auxmoneys", "auxCount"));
         } catch (\Exception $e) {
             return redirect()->back()->with("error", "Error al cargar las máquinas: " . $e->getMessage());
         }
@@ -165,8 +165,28 @@ class MachineController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id_machine)
+
+    public function update(Request $request)
     {
+        foreach ($request->r_auxiliar as $id => $r_auxiliar) {
+            $machine = Machine::find($id);
+
+            if ($machine) {
+                $machine->update([
+                    'r_auxiliar' => $r_auxiliar == -1 ? null : $r_auxiliar, // Si es -1, lo guardamos como null
+                    'alias' => $request->alias[$id] ?? $machine->alias, // Mantiene el alias actual si no se envió
+                ]);
+            }
+        }
+
+        return back()->with('success', 'Máquina actualizada correctamente.');
+    }
+
+
+
+    /*public function update(Request $request, $id_machine)
+    {
+        dd($request->all());
         $id_machine = (int) $id_machine;
 
         // 1. Buscar el NumPlaca en la tabla acumulados (BD local)
@@ -244,7 +264,7 @@ class MachineController extends Controller
                 ->with('error', 'Error al actualizar la máquina: ' . $e->getMessage());
         }
     }
-
+*/
 
 
 

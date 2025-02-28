@@ -1,10 +1,11 @@
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
     console.log("Script cargado correctamente.");
 
     const editButtons = document.querySelectorAll('.edit');
     const guardarButtons = document.querySelectorAll('.guardar');
     const volverButtons = document.querySelectorAll('.volver');
     const eliminarButtons = document.querySelectorAll('.eliminar');
+    const checkboxes = document.querySelectorAll('input[type="checkbox"][name^="AnularPM"]');
 
     const aliasInputs = document.querySelectorAll('.alias-input');
     const placaInputs = document.querySelectorAll('.placa-input');
@@ -30,13 +31,20 @@ document.addEventListener("DOMContentLoaded", function() {
         guardarButtons.forEach(btn => btn.disabled = isAllChecked);
         volverButtons.forEach(btn => btn.disabled = isAllChecked);
         eliminarButtons.forEach(btn => btn.disabled = isAllChecked);
+
+        // Solo cambiamos el estado de los checkboxes si "All" está seleccionado
+        if (isAllChecked) {
+            checkboxes.forEach(checkbox => checkbox.disabled = false); // Se habilitan
+        } else {
+            checkboxes.forEach(checkbox => checkbox.disabled = true); // Se deshabilitan
+        }
     }
 
     if (radioSingle) radioSingle.addEventListener("change", actualizarEstado);
     if (radioAll) radioAll.addEventListener("change", actualizarEstado);
 
     editButtons.forEach(button => {
-        button.addEventListener('click', function(event) {
+        button.addEventListener('click', function (event) {
             if (filaEnEdicion) {
                 console.log("Ya hay una fila en edición. No se puede editar otra.");
                 return;
@@ -83,11 +91,14 @@ document.addEventListener("DOMContentLoaded", function() {
             row.querySelector('.alias-input')?.removeAttribute('readonly');
             row.querySelector('.placa-input')?.removeAttribute('readonly');
             row.querySelector('.select-control')?.removeAttribute('disabled');
+
+            // ✅ Habilitar el checkbox en edición
+            row.querySelector('input[type="checkbox"]')?.removeAttribute('disabled');
         });
     });
 
     volverButtons.forEach(button => {
-        button.addEventListener('click', function(event) {
+        button.addEventListener('click', function (event) {
             console.log("Botón de volver presionado.");
 
             const buttonElement = event.target.closest('button');
@@ -111,11 +122,15 @@ document.addEventListener("DOMContentLoaded", function() {
             // Restaurar la edición de otras filas
             editButtons.forEach(btn => btn.disabled = false);
             eliminarButtons.forEach(btn => btn.disabled = false);
+            checkboxes.forEach(checkbox => checkbox.setAttribute('disabled', 'true'));
 
             // Restaurar inputs a solo lectura
             row.querySelector('.alias-input')?.setAttribute('readonly', true);
             row.querySelector('.placa-input')?.setAttribute('readonly', true);
             row.querySelector('.select-control')?.setAttribute('disabled', true);
+
+            // ✅ Deshabilitar el checkbox al cancelar edición
+            row.querySelector('input[type="checkbox"]')?.setAttribute('disabled', true);
 
             // Ocultar los botones de guardar y volver
             row.querySelector('.guardar')?.classList.add('d-none');
@@ -126,6 +141,7 @@ document.addEventListener("DOMContentLoaded", function() {
             row.querySelector('.eliminar')?.classList.remove('d-none');
         });
     });
+
 
     actualizarEstado();
 
@@ -140,7 +156,7 @@ document.addEventListener("DOMContentLoaded", function() {
             document.getElementById("confirmModalMessage").textContent = mensaje;
 
             // Cuando el usuario hace clic en "Aceptar"
-            document.getElementById("confirmModalBtn").onclick = function() {
+            document.getElementById("confirmModalBtn").onclick = function () {
                 callback(true);
                 modal.hide();
             };
@@ -170,7 +186,7 @@ document.addEventListener("DOMContentLoaded", function() {
             }, 5000);
         }
 
-        saveAllBtn.addEventListener('click', function() {
+        saveAllBtn.addEventListener('click', function () {
             console.log("Guardando todos los datos...");
 
             let rows = document.querySelectorAll('tbody tr');
@@ -201,19 +217,19 @@ document.addEventListener("DOMContentLoaded", function() {
             if (data.length === 0) {
                 mostrarModalConfirmacion(
                     "No hay datos para guardar. ¿Quieres eliminar todas las asociaciones?",
-                    function(confirmado) {
+                    function (confirmado) {
                         if (confirmado) {
                             fetch(`${window.location.origin}/configurationAccountants/clearAll`, {
-                                    method: "POST",
-                                    headers: {
-                                        "Content-Type": "application/json",
-                                        "X-CSRF-TOKEN": document.querySelector(
-                                            'meta[name="csrf-token"]').content
-                                    },
-                                    body: JSON.stringify({
-                                        clear_all: true
-                                    })
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    "X-CSRF-TOKEN": document.querySelector(
+                                        'meta[name="csrf-token"]').content
+                                },
+                                body: JSON.stringify({
+                                    clear_all: true
                                 })
+                            })
                                 .then(response => response.json())
                                 .then(result => {
                                     window.location.reload();
@@ -229,7 +245,7 @@ document.addEventListener("DOMContentLoaded", function() {
             if (hasNumPlacaZero) {
                 mostrarModalConfirmacion(
                     "Se eliminarán/editarán el número de placa y sus contadores. ¿Deseas continuar?",
-                    function(confirmado) {
+                    function (confirmado) {
                         if (confirmado) {
                             enviarDatos(data);
                         }
@@ -248,15 +264,15 @@ document.addEventListener("DOMContentLoaded", function() {
             }
 
             fetch(`${window.location.origin}/configurationAccountants/storeAll`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRF-TOKEN": csrfToken
-                    },
-                    body: JSON.stringify({
-                        machines: data
-                    })
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": csrfToken
+                },
+                body: JSON.stringify({
+                    machines: data
                 })
+            })
                 .then(response => response.json().catch(() => {
                     throw new Error("Respuesta del servidor no es un JSON válido.");
                 }))
@@ -270,3 +286,5 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 });
+
+

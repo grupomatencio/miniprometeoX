@@ -53,6 +53,7 @@
                                         <th scope="col">Alias</th>
                                         <th scope="col">Identificador</th>
                                         <th scope="col">Asignar Número de placa</th>
+                                        <th scope="col">Anular pago manual</th>
                                         <th scope="col">
                                             <form id="saveAllForm" action="{{ route('configurationAccountants.storeAll') }}"
                                                 method="POST">
@@ -97,7 +98,19 @@
                                                     </select>
 
                                                 </td>
+                                                <td>
+                                                    <div class="form-check">
+                                                        <!-- Input hidden para enviar 0 cuando el checkbox está desmarcado -->
+                                                        <input type="hidden" name="AnularPM[{{ $machine->id }}]"
+                                                            value="0">
 
+                                                        <!-- Checkbox con el mismo nombre para que sobrescriba el valor si se marca -->
+                                                        <input type="checkbox" name="AnularPM[{{ $machine->id }}]"
+                                                            id="AnularPM{{ $machine->id }}" value="1"
+                                                            {{ $machine->AnularPM == 1 ? 'checked' : '' }} disabled>
+                                                        <!-- 🔹 Añadimos "disabled" para que esté bloqueado al inicio -->
+                                                    </div>
+                                                </td>
                                                 <td>
                                                     <div class="d-flex">
                                                         <button type="button" class="btn btn-warning w-100 btn-in edit"
@@ -116,6 +129,7 @@
                                                         </button>
                                                     </div>
                                                 </td>
+
                                             </form>
                                         </tr>
 
