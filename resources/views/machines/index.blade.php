@@ -63,7 +63,7 @@
                                                     @enderror
                                                 </td>
                                                 <td>{{ $machine->identificador }}</td>
-                                                <td>
+                                                <td class="position-relative">
                                                     <input type="number" min="0" max="{{ $auxCount }}"
                                                         class="form-control w-100 @error('r_auxiliar.' . $machine->id) is-invalid @enderror"
                                                         id="{{ $machine->id }}" name="r_auxiliar[{{ $machine->id }}]"
@@ -71,15 +71,18 @@
                                                         oninput="validarAuxiliar(this, {{ $auxCount }})"
                                                         onchange="validarAuxiliar(this, {{ $auxCount }})">
 
-                                                    <small id="error_{{ $machine->id }}" class="text-danger d-none">
+                                                    <small id="error_{{ $machine->id }}"
+                                                           class="text-danger d-none"
+                                                           style="font-size: 12px;">
                                                         No hay más recargas auxiliares para asignar
                                                     </small>
 
                                                     @error('r_auxiliar.' . $machine->id)
-                                                        <div class="invalid-feedback text-start"> {{ $message }} </div>
+                                                        <div class="invalid-feedback text-start">
+                                                            {{ $message }}
+                                                        </div>
                                                     @enderror
                                                 </td>
-
                                                 <td>
                                                     <div class="form-check">
                                                         <!-- Input hidden para enviar 0 cuando el checkbox está desmarcado -->
@@ -204,21 +207,22 @@
 
                     <div class="col-4 offset-4 pb-1 mt-3">
                         <div class="d-flex justify-content-center gap-3">
-                            <a class="btn btn-warning px-4" href="{{ route('import.index') }}">
+                            <a class="btn btn-warning px-4 py-2" href="{{ route('import.index') }}">
                                 Importar <i class="bi bi-box-arrow-in-right"></i>
                             </a>
-                            <a class="btn btn-warning px-4" href="{{ route('syncTypesTickets') }}">
+                            <a class="btn btn-warning px-4 py-2" href="{{ route('syncTypesTickets') }}">
                                 Syncronizar tipos <i class="bi bi-ticket-perforated"></i>
                             </a>
-                            <a class="btn btn-success px-4" data-bs-toggle="modal" data-bs-target="#modalPdf">
+                            <a class="btn btn-success px-4 py-2" data-bs-toggle="modal" data-bs-target="#modalPdf">
                                 Exportar <i class="bi bi-filetype-pdf"></i>
                             </a>
-                            <button type="button" class="btn btn-warning px-4" data-bs-toggle="modal"
+                            <button type="button" class="btn btn-warning px-4 py-2" data-bs-toggle="modal"
                                 data-bs-target="#grabarAuxiliaresModal">
                                 Grabar auxiliares <i class="bi bi-box-arrow-in-right"></i>
                             </button>
                         </div>
                     </div>
+
 
                     <!-- MODAL EXPORTAR PDF -->
                     <div class="modal fade" id="modalPdf" data-bs-backdrop="static" data-bs-keyboard="false"
