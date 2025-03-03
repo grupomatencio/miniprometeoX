@@ -35,25 +35,6 @@ class MachineController extends Controller
                 ->orWhere('type', null)
                 ->get();
 
-            // Obtener NumPlaca de cada máquina desde la tabla acumulados
-            $numPlacas = Acumulado::whereIn('machine_id', $machines->pluck('id'))
-                ->pluck('NumPlaca', 'machine_id'); // [machine_id => NumPlaca]
-
-            // Si hay placas, buscamos en la tabla `nombres` del comdata
-            $anularPMs = [];
-            if ($numPlacas->isNotEmpty()) {
-                $conexion = nuevaConexionLocal('admin');
-
-                $anularPMs = DB::connection($conexion)->table('nombres')
-                    ->whereIn('NumPlaca', $numPlacas)
-                    ->pluck('AnularPM', 'NumPlaca'); // [NumPlaca => AnularPM]
-            }
-
-            // Asignamos AnularPM a cada máquina
-            foreach ($machines as $machine) {
-                $machine->AnularPM = $anularPMs[$numPlacas[$machine->id] ?? null] ?? 0;
-            }
-
             return view("machines.index", compact("machines", "auxmoneys", "auxCount"));
         } catch (\Exception $e) {
             return redirect()->back()->with("error", "Error al cargar las máquinas: " . $e->getMessage());

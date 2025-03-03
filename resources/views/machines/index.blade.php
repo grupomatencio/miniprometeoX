@@ -63,7 +63,7 @@
                                                 </td>
                                                 <td>{{ $machine->identificador }}</td>
                                                 <td class="position-relative">
-                                                    <input type="number" min="-1" max="{{ $auxCount }}"
+                                                    <input type="number" min="0" max="{{ $auxCount }}"
                                                         class="form-control w-100 @error('r_auxiliar.' . $machine->id) is-invalid @enderror"
                                                         id="{{ $machine->id }}" name="r_auxiliar[{{ $machine->id }}]"
                                                         value="{{ $machine->r_auxiliar }}" disabled

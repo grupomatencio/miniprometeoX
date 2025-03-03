@@ -21,8 +21,7 @@ class ConfigurationAccountantsController extends Controller
             $conexionComdata = nuevaConexionLocal('admin');
 
             if (!$conexionComdata) {
-                //Log::error('Error: la conexión con ComData es nula o inválida.');
-                return;
+                return redirect()->back()->with("error", "Error: la conexión con ComData es nula o inválida.");
             }
 
             // Obtener todos los acumulados desde ComData
@@ -35,8 +34,7 @@ class ConfigurationAccountantsController extends Controller
                 // Extraer valores únicos de NumPlaca desde ComData
                 $numPlacas = $acumulados->pluck('NumPlaca')->unique()->values();
             } catch (\Exception $e) {
-                //Log::error('Error leyendo la tabla Acumulados: ' . $e->getMessage());
-                return;
+                return redirect()->back()->with("error", "Error leyendo la tabla Acumulados: " . $e->getMessage());
             }
 
             // Obtener máquinas
@@ -47,11 +45,26 @@ class ConfigurationAccountantsController extends Controller
             // Obtener los numPlacas ya asignados en nuestra base de datos
             $acumuladosLocales = Acumulado::pluck('NumPlaca', 'machine_id');
 
+            // 🔹 Obtener los valores de `AnularPM` desde la tabla `nombres` del ComData
+            $anularPMs = [];
+            if ($acumuladosLocales->isNotEmpty()) {
+                $anularPMs = DB::connection($conexionComdata)
+                    ->table('nombres')
+                    ->whereIn('NumPlaca', $acumuladosLocales)
+                    ->pluck('AnularPM', 'NumPlaca'); // [NumPlaca => AnularPM]
+            }
+
+            // 🔹 Asignar `AnularPM` a cada máquina
+            foreach ($machines as $machine) {
+                $machine->AnularPM = $anularPMs[$acumuladosLocales[$machine->id] ?? null] ?? 0;
+            }
+
             return view("configurationAccountants.index", compact("machines", "acumulados", "numPlacas", "acumuladosLocales"));
         } catch (\Exception $e) {
             return redirect()->back()->with("error", $e->getMessage());
         }
     }
+
 
 
     /**
@@ -355,102 +368,137 @@ class ConfigurationAccountantsController extends Controller
     public function store(Request $request)
     {
         try {
-            // Obtener ID de la máquina desde el request
-            $id_machine = (int) $request->machine_id;
+            $id_machine = (int) ($request->machine_id ?? 0);
+            $machine = Machine::find($request->machine_id);
+
+            if (!$id_machine) {
+                return back()->with('error', 'No se proporcionó una máquina válida.');
+            }
 
             // Obtener el número de placa desde el request
-            $NumPlaca = $request->numPlaca[$id_machine] ?? null;
-            if (!$NumPlaca) {
-                return back()->with('error', 'No se proporcionó un número de placa.');
-            }
+            $numPlaca = $request->numPlaca[$id_machine] ?? null;
 
-            // Conectar a la BD externa
-            $conexion = nuevaConexionLocal('admin');
+            // Si NumPlaca es 0 o vacío, eliminar asociaciones y salir
+            if (empty($numPlaca) || $numPlaca == "0") {
+                if ($machine) {
+                    $conexionComdata = nuevaConexionLocal('admin');
 
-            // Verificar si NumPlaca existe en la tabla acumulado de la BD externa
-            $acumuladoExterno = DB::connection($conexion)
-                ->table('acumulado')
-                ->where('NumPlaca', $NumPlaca)
-                ->first();
+                    $existeEnExterna = DB::connection($conexionComdata)
+                        ->table('nombres')
+                        ->where('nombre', $machine->alias)
+                        ->exists();
 
-            if (!$acumuladoExterno) {
-                Log::warning("⚠ No se encontró NumPlaca en la BD externa", ['NumPlaca' => $NumPlaca]);
-                return redirect()->route('configurationAccountants.index', $request->delegation_id)
-                    ->with('error', 'No se encontró la máquina en la tabla acumulado de la BD externa.');
-            }
-
-            // Ejecutar la transacción
-            DB::transaction(function () use ($id_machine, $request, $NumPlaca, $acumuladoExterno) {
-                // Obtener la máquina desde la BD local
-                $machine = Machine::find($id_machine);
-                if (!$machine) {
-                    return back()->with('error', 'La máquina no existe');
+                    if ($existeEnExterna) {
+                        DB::connection($conexionComdata)
+                            ->table('nombres')
+                            ->where('nombre', $machine->alias)
+                            ->delete();
+                    }
                 }
 
-                // Llamar a sendAnularPM con los valores correctos
-                $this->sendAnularPM(
-                    $id_machine,
-                    $request->r_auxiliar[$id_machine] ?? $machine->r_auxiliar ?? null,
-                    $request->AnularPM[$id_machine] ?? null
-                );
+                // Eliminar cualquier otra placa asociada a esta máquina en nuestra BD
+                Acumulado::where('machine_id', $id_machine)->delete();
 
-                // Insertar o actualizar el registro en la BD local
+                session()->flash('success', 'La máquina ha sido desvinculada de sus antiguos contadores y de la tabla nombres del ComData.');
+                return back();
+            }
+
+            // Verificar si ya existe un registro con el mismo NumPlaca en otra máquina
+            $existe = Acumulado::where('NumPlaca', $numPlaca)
+                ->where('machine_id', '!=', $id_machine)
+                ->exists();
+
+            if ($existe) {
+                return back()->with('error', "La placa Nº$numPlaca ya está asociada a otra máquina, deberá desvincularla antes de reasignarla.");
+            }
+
+            // ✅ Verificar si NumPlaca es válido antes de llamar a checkAccumulated
+            if (!empty($numPlaca) && $numPlaca != "0") {
+                $resultado = $this->checkAccumulated($numPlaca, $machine->alias);
+
+                if (!$resultado['success']) {
+                    return back()->with('error', $resultado['message']);
+                }
+
+                $acumuladoExterno = $resultado['data']; // Datos obtenidos de la BD externa
+            } else {
+                $acumuladoExterno = null;
+            }
+
+            DB::transaction(function () use ($numPlaca, $request, $acumuladoExterno, $id_machine) {
+                $machine = Machine::find($request->machine_id);
+                $nombre = $machine->alias;
+                $r_auxiliar = $request->r_auxiliar[$id_machine] ?? $machine->r_auxiliar ?? null;
+                $AnularPM = $request->AnularPM[$id_machine] ?? null;
+
+                $resultado = $this->sendAnularPM($nombre, $numPlaca, $r_auxiliar, $AnularPM);
+
+                if (!$resultado['success']) {
+                    throw new \Exception($resultado['message']);
+                }
+
+                // Guardar en la base de datos
+                $camposActualizar = collect([
+                    'NumPlaca' => $numPlaca,
+                    'nombre' => $machine->alias ?? null,
+                    'local_id' => $machine->local_id,
+                    'machine_id' => $machine->id,
+                    'updated_at' => now(),
+                ])->merge(collect($acumuladoExterno)->only([
+                    'entradas',
+                    'salidas',
+                    'CEntradas',
+                    'CSalidas',
+                    'acumulado',
+                    'CAcumulado',
+                    'OrdenPago',
+                    'factor',
+                    'PagoManual',
+                    'HoraActual',
+                    'EstadoMaquina',
+                    'comentario',
+                    'TipoProtocolo',
+                    'version',
+                    'e1c',
+                    'e2c',
+                    'e5c',
+                    'e10c',
+                    'e20c',
+                    'e50c',
+                    'e1e',
+                    'e2e',
+                    'e5e',
+                    'e10e',
+                    'e20e',
+                    'e50e',
+                    'e100e',
+                    'e200e',
+                    'e500e',
+                    's1c',
+                    's2c',
+                    's5c',
+                    's10c',
+                    's20c',
+                    's50c',
+                    's1e',
+                    's2e',
+                    's5e',
+                    's10e',
+                    's20e',
+                    's50e',
+                    's100e',
+                    's200e',
+                    's500e',
+                    'c10c',
+                    'c20c',
+                    'c50c',
+                    'c1e',
+                    'c2e',
+                ])->map(fn($val) => $val ?? 0));
+
                 Acumulado::updateOrCreate(
-                    ['NumPlaca' => $NumPlaca, 'local_id' => $machine->local_id], // Condiciones de búsqueda
-                    [
-                        'machine_id' => $id_machine,
-                        'nombre' => $request->nombre ?? null,
-                        'entradas' => $acumuladoExterno->entradas ?? 0,
-                        'salidas' => $acumuladoExterno->salidas ?? 0,
-                        'CEntradas' => $acumuladoExterno->CEntradas ?? 0,
-                        'CSalidas' => $acumuladoExterno->CSalidas ?? 0,
-                        'acumulado' => $acumuladoExterno->acumulado ?? 0,
-                        'CAcumulado' => $acumuladoExterno->CAcumulado ?? 0,
-                        'OrdenPago' => $acumuladoExterno->OrdenPago ?? 0,
-                        'factor' => $acumuladoExterno->factor ?? 1,
-                        'PagoManual' => $acumuladoExterno->PagoManual ?? 0,
-                        'HoraActual' => $acumuladoExterno->HoraActual ?? now(),
-                        'EstadoMaquina' => $acumuladoExterno->EstadoMaquina ?? 'Desconocido',
-                        'comentario' => $acumuladoExterno->comentario ?? null,
-                        'TipoProtocolo' => $acumuladoExterno->TipoProtocolo ?? null,
-                        'version' => $acumuladoExterno->version ?? null,
-                        'e1c' => $acumuladoExterno->e1c,
-                        'e2c' => $acumuladoExterno->e2c,
-                        'e5c' => $acumuladoExterno->e5c,
-                        'e10c' => $acumuladoExterno->e10c,
-                        'e20c' => $acumuladoExterno->e20c,
-                        'e50c' => $acumuladoExterno->e50c,
-                        'e1e' => $acumuladoExterno->s1e,
-                        'e2e' => $acumuladoExterno->s2e,
-                        'e5e' => $acumuladoExterno->s5e,
-                        'e10e' => $acumuladoExterno->s10e,
-                        'e20e' => $acumuladoExterno->s20e,
-                        'e50e' => $acumuladoExterno->s50e,
-                        'e100e' => $acumuladoExterno->s100e,
-                        'e200e' => $acumuladoExterno->s200e,
-                        'e500e' => $acumuladoExterno->s500e,
-                        's1c' => $acumuladoExterno->s1c,
-                        's2c' => $acumuladoExterno->s2c,
-                        's5c' => $acumuladoExterno->s5c,
-                        's10c' => $acumuladoExterno->s10c,
-                        's20c' => $acumuladoExterno->s20c,
-                        's50c' => $acumuladoExterno->s50c,
-                        's1e' => $acumuladoExterno->s1e,
-                        's2e' => $acumuladoExterno->s2e,
-                        's5e' => $acumuladoExterno->s5e,
-                        's10e' => $acumuladoExterno->s10e,
-                        's20e' => $acumuladoExterno->s20e,
-                        's50e' => $acumuladoExterno->s50e,
-                        's100e' => $acumuladoExterno->s100e,
-                        's200e' => $acumuladoExterno->s200e,
-                        's500e' => $acumuladoExterno->s500e,
-                        'c10c' => $acumuladoExterno->c10c,
-                        'c20c' => $acumuladoExterno->c20c,
-                        'c50c' => $acumuladoExterno->c50c,
-                        'c1e' => $acumuladoExterno->c1e,
-                        'c2e' => $acumuladoExterno->c2e,
-                        'updated_at' => now()
-                    ]
+                    ['NumPlaca' => $numPlaca, 'local_id' => $machine->local_id],
+                    $camposActualizar->toArray()
                 );
             });
 
@@ -462,6 +510,8 @@ class ConfigurationAccountantsController extends Controller
                 ->with('error', 'Error al actualizar la máquina: ' . $e->getMessage());
         }
     }
+
+
 
 
 
@@ -621,60 +671,69 @@ class ConfigurationAccountantsController extends Controller
         ], 200);
     }
 
-    // metodo para anular el pago manual en la base de datos del comdata
-    public function sendAnularPM($id_machine, $r_auxiliar, $AnularPM)
+    public function checkAccumulated($numPlaca, $name)
     {
-        Log::info("Ejecutando sendAnularPM", [
-            'id_machine' => $id_machine,
-            'r_auxiliar' => $r_auxiliar,
-            'AnularPM' => $AnularPM
-        ]);
+        $conexion = nuevaConexionLocal('admin');
 
-        // 1. Buscar el NumPlaca en la tabla acumulados
-        $machine_acumulado = Acumulado::where('machine_id', $id_machine)->first();
-
-        if (!$machine_acumulado) {
-            Log::warning("⚠ No se encontró la máquina en acumulados", ['id_machine' => $id_machine]);
-            return back()->with('error', 'No se encontró la máquina asociada a ningún número de placa.');
+        if (!$conexion) {
+            return ['success' => false, 'message' => 'Error de conexión con la base de datos externa.'];
         }
 
-        $NumPlaca = $machine_acumulado->NumPlaca;
-        Log::info("✅ NumPlaca encontrado: $NumPlaca");
+        // Obtener el registro que coincida con el NumPlaca y el nombre
+        $acumuladoExterno = DB::connection($conexion)
+            ->table('acumulado')
+            ->where('NumPlaca', $numPlaca)
+            ->where('nombre', $name)
+            ->first();
 
-        // 2. Obtener la conexión con la base de datos `comdata`
+        if (!$acumuladoExterno) {
+            return ['success' => false, 'message' => "No se encontraron datos con el NumPlaca: $numPlaca y el nombre: $name especificados."];
+        }
+
+        return ['success' => true, 'data' => $acumuladoExterno];
+    }
+
+
+
+
+
+    // Método para anular el pago manual en la base de datos del comdata
+    // podemos editarlo para que la mauina ya este comprobada y en ve de enviarle el id_machine le pasemos en numplaca
+    public function sendAnularPM($nombre, $NumPlaca, $r_auxiliar, $AnularPM)
+    {
+        //dd($nombre);
+        Log::info("🔄 Ejecutando sendAnularPM", compact('NumPlaca', 'r_auxiliar', 'AnularPM'));
+
         $conexion = nuevaConexionLocal('admin');
 
         try {
-            // 3. Verificar si el registro ya existe en `nombres`
             $registro = DB::connection($conexion)->table('nombres')->where('NumPlaca', $NumPlaca)->first();
 
             if ($registro) {
-                // Si existe, actualizar el registro
                 DB::connection($conexion)->table('nombres')
                     ->where('NumPlaca', $NumPlaca)
                     ->update([
-                        'nombre'     => $machine_acumulado->nombre,
-                        'TypeIsAux'  => $r_auxiliar,
-                        'AnularPM'   => $AnularPM
+                        'nombre'    => $nombre,
+                        'TypeIsAux' => $r_auxiliar ?? 0,
+                        'AnularPM'  => $AnularPM
                     ]);
 
                 Log::info("🔄 Registro actualizado en `nombres` para NumPlaca: $NumPlaca");
-                return back()->with('success', 'Registro actualizado correctamente.');
+                return ['success' => true, 'message' => 'Registro actualizado correctamente.'];
             } else {
-                // Si no existe, insertarlo
                 DB::connection($conexion)->table('nombres')->insert([
                     'NumPlaca'   => $NumPlaca,
-                    'nombre'     => $machine_acumulado->nombre,
-                    'TypeIsAux'  => $r_auxiliar,
+                    'nombre'     => $nombre, // Ajustar si hay una forma de obtener el nombre
+                    'TypeIsAux'  => $r_auxiliar ?? 0,
                     'AnularPM'   => $AnularPM
                 ]);
 
                 Log::info("🆕 Nuevo registro insertado en `nombres` para NumPlaca: $NumPlaca");
-                return back()->with('success', 'Nuevo registro creado correctamente.');
+                return ['success' => true, 'message' => 'Nuevo registro insertado correctamente.'];
             }
         } catch (\Exception $e) {
             Log::error("❌ Error en sendAnularPM: " . $e->getMessage());
-            return back()->with('error', 'Ocurrió un error al procesar la solicitud: ' . $e->getMessage());
+            return ['success' => false, 'message' => 'Error al procesar la operación: ' . $e->getMessage()];
         }
     }
 }

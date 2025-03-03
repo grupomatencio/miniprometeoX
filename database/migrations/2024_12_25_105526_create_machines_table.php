@@ -45,7 +45,7 @@ return new class extends Migration
             $table->foreignId('parent_id')->nullable()->constrained('machines')->cascadeOnDelete();
 
             // Campo numérico r_auxiliar money (valor de 1 a 50)
-            $table->integer('r_auxiliar')->unsigned()->nullable()->check('r_auxiliar >= 1 AND r_auxiliar <= 50');
+            $table->integer('r_auxiliar')->unsigned()->default(0)->nullable()->check('r_auxiliar >= 1 AND r_auxiliar <= 50');
 
             // placa de ComData, numero repetitivo que se diferencia por el machine_id, cada placa va asociada a una maquina
             //$table->intenger('Number_comData');
