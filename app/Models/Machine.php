@@ -47,9 +47,9 @@ class Machine extends Model
         return $this->belongsTo(Delegation::class);
     }
 
-    public function loads()
+    public function typeAlias()
     {
-        return $this->hasMany(Load::class);
+        return $this->hasMany(TypeAlias::class);
     }
 
     public function auxiliars()
