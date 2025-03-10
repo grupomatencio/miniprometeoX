@@ -119,16 +119,71 @@ class ConfigurationTypeAliasController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $type)
     {
-        dd($request->all());
+        // Iniciar la transacción de la base de datos
+        DB::beginTransaction();
+
+        try {
+            // Validar los datos de entrada
+            $request->validate([
+                'id_machine' => 'required|exists:machines,id',
+                'alias' => 'required|string|max:255',
+            ]);
+
+            // Buscar el registro por el campo 'type'
+            $typeAlias = TypeAlias::where('type', $type)->first();
+
+            // Verificar si se encontró el registro
+            if (!$typeAlias) {
+                session()->flash('error', "No se encontró el tipo de ticket '{$type}'.");
+                return redirect()->back();
+            }
+
+            // Actualizar los campos del registro
+            $typeAlias->id_machine = $request->id_machine;
+            $typeAlias->alias = $request->alias;
+            $typeAlias->save(); // Guardar los cambios
+
+            // Mensaje de éxito con el tipo y alias
+            session()->flash('success', "Configuración actualizada exitosamente: tipo de ticket '{$type}' asociado a su alias '{$typeAlias->alias}'.");
+
+            // Confirmar la transacción
+            DB::commit();
+        } catch (\Exception $exception) {
+            // Revertir la transacción en caso de error
+            DB::rollBack();
+
+            // Mensaje de error con el tipo de ticket y alias
+            session()->flash('error', "Error al actualizar la configuración para el tipo de ticket '{$type}' y alias '{$request->alias}'. Inténtelo nuevamente.");
+            // Aquí puedes registrar el error si es necesario
+            // Log::error('Error en la transacción de base de datos: ' . $exception->getMessage());
+
+            return redirect()->back();
+        }
+
+        // Redirigir a la lista de configuraciones
+        return redirect()->route('configurationTypeAlias.index');
     }
+
+
+
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $type)
     {
-        dd($id);
+        // Buscar el alias antes de eliminarlo, usando una comparación que distinga mayúsculas y minúsculas
+        $typeAlias = TypeAlias::whereRaw('BINARY type = ?', [$type])->first();
+
+        if ($typeAlias) {
+            $alias = $typeAlias->alias; // Guardar alias antes de eliminar
+            $typeAlias->delete(); // Eliminar el registro
+
+            return redirect()->back()->with('success', "Eliminada la asociación de Tipo \"$type\" y el Alias \"$alias\" correctamente.");
+        } else {
+            return redirect()->back()->with('error', "No se encontró la asociación para el Tipo \"$type\".");
+        }
     }
 }

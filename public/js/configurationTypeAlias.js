@@ -99,6 +99,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // Selecciona todos los botones con la clase 'guardar'
     document.querySelectorAll('.guardar').forEach(button => {
         button.addEventListener("click", function () {
             let ticketNumber = this.getAttribute("data-row"); // Número de ticket
@@ -107,15 +108,41 @@ document.addEventListener('DOMContentLoaded', function () {
             // Obtener el select del alias
             let aliasSelect = document.querySelector(`tr[data-row="${ticketNumber}"] select[name="alias"]`);
             let selectedAlias = aliasSelect.options[aliasSelect.selectedIndex].text; // Obtener el alias (texto visible)
+            let selectedIdMachine = aliasSelect.options[aliasSelect.selectedIndex].value; // Obtener el alias (texto visible)
+
+            console.log("Alias seleccionado:", selectedAlias); // Log del alias seleccionado
+
+            // Obtener el select del id_machine
+            console.log("Valor de id_machine seleccionado:", selectedIdMachine); // Log del id_machine
+
+            // Validar que se haya seleccionado un alias
+            const errorElement = document.getElementById(`error_${ticketNumber}`);
+            if (!selectedAlias) {
+                // Mostrar mensaje de error
+                errorElement.classList.remove('d-none'); // Mostrar mensaje de error
+                console.warn(`No se seleccionó un alias para TicketNumber: ${ticketNumber}`);
+                return; // Detener la ejecución
+            } else {
+                errorElement.classList.add('d-none'); // Ocultar mensaje de error
+            }
 
             // Buscar el input hidden dentro del modal
             let modal = document.querySelector(`#modalAccionesLocal${ticketNumber}`);
             let aliasInput = modal ? modal.querySelector(`input[name="alias"]`) : null;
+            let idMachineInput = modal ? modal.querySelector(`input[name="id_machine"]`) : null; // Buscar el input del id_machine
 
             if (aliasInput) {
                 aliasInput.value = selectedAlias; // Asignar el alias real al input hidden
+                console.log(`Alias guardado en input: ${aliasInput.value}`); // Log del alias guardado
             } else {
                 console.error(`No se encontró input[name="alias"] en el formulario del modal para el ticket ${ticketNumber}`); // Log de error
+            }
+
+            if (idMachineInput) {
+                idMachineInput.value = selectedIdMachine; // Asignar el id_machine real al input hidden
+                console.log(`id_machine asignado: ${selectedIdMachine}`); // Log de verificación
+            } else {
+                console.error(`No se encontró input[name="id_machine"] en el formulario del modal para el ticket ${ticketNumber}`); // Log de error
             }
 
             // Actualizar el texto visible en el modal
@@ -123,8 +150,18 @@ document.addEventListener('DOMContentLoaded', function () {
             if (aliasText) {
                 aliasText.innerText = selectedAlias ? selectedAlias : 'Sin alias';
             }
+
+            // Abrir el modal
+            const bsModal = new bootstrap.Modal(modal);
+            bsModal.show(); // Mostrar el modal
+
+            console.log(`Modal rellenado y abierto para TicketNumber: ${ticketNumber}`);
         });
     });
+
+
+
+
 
 
     // Selecciona todos los botones con la clase 'crear'
@@ -137,6 +174,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Registrar los datos obtenidos
             console.log(`Botón clicado para TicketNumber: ${ticketNumber}, Tipo: ${tipo}, ID Máquina: ${idMachine}, Alias: ${alias}`);
+
+            // Validar que hay un alias seleccionado antes de continuar
+            const select = document.querySelector(`tr[data-row="${ticketNumber}"] select[name="alias"]`);
+            const errorElement = document.getElementById(`error_${ticketNumber}`);
+
+            if (!select.value) {
+                // Mostrar mensaje de error
+                errorElement.classList.remove('d-none'); // Mostrar mensaje de error
+                console.warn(`No se seleccionó un alias para TicketNumber: ${ticketNumber}`);
+                return; // Detener la ejecución
+            } else {
+                errorElement.classList.add('d-none'); // Ocultar mensaje de error
+            }
 
             // Seleccionar el modal basado en el número del ticket
             let modal = document.querySelector(`#modalCrearTipoAlias${ticketNumber}`);
