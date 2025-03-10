@@ -127,6 +127,26 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
 
+    document.querySelectorAll('.crear').forEach(button => {
+        button.addEventListener('click', function () {
+            let ticketNumber = this.getAttribute('data-row');
+            let tipo = this.getAttribute('data-tipo');
+            let idMachine = this.getAttribute('data-maquina-id');
+            let alias = this.getAttribute('data-alias');
+
+            let modal = document.querySelector(`#modalCrearTipoAlias${ticketNumber}`);
+            if (modal) {
+                modal.querySelector('#nuevoTipo').value = tipo;
+                modal.querySelector('#nuevoAlias').value = alias;
+                modal.querySelector('#idMachine').value = idMachine;
+                modal.querySelector('#tipoMostrar').innerText = tipo;
+                modal.querySelector('#aliasMostrar').innerText = alias ? alias : 'Sin alias';
+            }
+        });
+    });
+
+
+
 
     crearButtons.forEach(button => {
         button.addEventListener('click', function (event) {
@@ -163,7 +183,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 
-
+    document.querySelectorAll('.modal').forEach(modal => {
+        modal.addEventListener('hidden.bs.modal', function () {
+            document.body.classList.remove('modal-open');
+            document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
+        });
+    });
 
 
 
