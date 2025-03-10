@@ -127,6 +127,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
 
+    // Selecciona todos los botones con la clase 'crear'
     document.querySelectorAll('.crear').forEach(button => {
         button.addEventListener('click', function () {
             let ticketNumber = this.getAttribute('data-row');
@@ -134,52 +135,88 @@ document.addEventListener('DOMContentLoaded', function () {
             let idMachine = this.getAttribute('data-maquina-id');
             let alias = this.getAttribute('data-alias');
 
+            // Registrar los datos obtenidos
+            console.log(`Botón clicado para TicketNumber: ${ticketNumber}, Tipo: ${tipo}, ID Máquina: ${idMachine}, Alias: ${alias}`);
+
+            // Seleccionar el modal basado en el número del ticket
             let modal = document.querySelector(`#modalCrearTipoAlias${ticketNumber}`);
             if (modal) {
-                modal.querySelector('#nuevoTipo').value = tipo;
-                modal.querySelector('#nuevoAlias').value = alias;
-                modal.querySelector('#idMachine').value = idMachine;
-                modal.querySelector('#tipoMostrar').innerText = tipo;
-                modal.querySelector('#aliasMostrar').innerText = alias ? alias : 'Sin alias';
+                // Rellenar los campos del modal
+                modal.querySelector('#nuevoTipo').value = tipo || ''; // Asegúrate que no sea undefined
+                modal.querySelector('#nuevoAlias').value = alias || ''; // Asegúrate que no sea undefined
+                modal.querySelector('#idMachine').value = idMachine || ''; // Asegúrate que no sea undefined
+                modal.querySelector('#tipoMostrar').innerText = tipo || 'Sin tipo'; // Mostrar un valor por defecto
+                modal.querySelector('#aliasMostrar').innerText = alias || 'Sin alias'; // Mostrar un valor por defecto
+
+                // Abrir el modal
+                const bsModal = new bootstrap.Modal(modal);
+                bsModal.show(); // Mostrar el modal
+
+                console.log(`Modal rellenado y abierto para TicketNumber: ${ticketNumber}`);
+            } else {
+                console.error(`Modal no encontrado para TicketNumber: ${ticketNumber}`);
             }
         });
     });
 
-
-
-
+    // Agregar el listener de eventos a crearButtons (suponiendo que tienes este elemento definido)
     crearButtons.forEach(button => {
         button.addEventListener('click', function (event) {
-            const ticketNumber = this.getAttribute('data-row'); // Obtener el TicketNumber del botón
-            console.log(`Botón de crear presionado para ticket: ${ticketNumber}`); // Log del ticket number
-            validarSeleccionAlias(ticketNumber, this); // Llamar a la función de validación
+            const ticketNumber = this.getAttribute('data-row'); // Obtener el TicketNumber
+            console.log(`Botón de crear presionado para ticket: ${ticketNumber}`);
+            validarSeleccionAlias(ticketNumber, this);
         });
     });
 
+    // Validar la selección de alias
     function validarSeleccionAlias(ticketNumber, button) {
         const select = document.querySelector(`tr[data-row="${ticketNumber}"] select[name="alias"]`);
         const errorElement = document.getElementById(`error_${ticketNumber}`);
-        const tipoMaquinaElement = document.querySelector(`tr[data-row="${ticketNumber}"] td input[type="text"]`); // Suponiendo que el tipo de máquina está en un input dentro de un td
+        const tipoMaquinaElement = document.querySelector(`tr[data-row="${ticketNumber}"] td input[type="text"]`);
 
         if (select) {
-            const selectedValue = select.value; // Esto devuelve el ID
-            const selectedText = select.options[select.selectedIndex].text; // Esto devuelve el texto visible
-            const tipoMaquina = tipoMaquinaElement ? tipoMaquinaElement.value : ''; // Obtener el tipo de máquina
+            const selectedValue = select.value; // ID del alias seleccionado
+            const selectedText = select.options[select.selectedIndex]?.text || 'Sin alias'; // Texto del alias seleccionado
+            const tipoMaquina = tipoMaquinaElement ? tipoMaquinaElement.value : ''; // Tipo de máquina
 
-            console.log(`Validando selección de alias: ID=${selectedValue}, Texto=${selectedText}, Tipo=${tipoMaquina}`); // Log de validación
+            // Registrar la información de validación
+            console.log(`Validando selección de alias: ID=${selectedValue}, Texto=${selectedText}, Tipo=${tipoMaquina}`);
 
             if (!selectedValue) {
-                errorElement.classList.remove('d-none'); // Muestra el mensaje de error
+                errorElement.classList.remove('d-none'); // Mostrar mensaje de error
+                console.warn(`No se seleccionó un alias para TicketNumber: ${ticketNumber}`);
+                return; // Detener la ejecución
             } else {
-                errorElement.classList.add('d-none'); // Oculta el mensaje de error
+                errorElement.classList.add('d-none'); // Ocultar mensaje de error
+            }
 
-                // Aquí llamas a prepararModalCrear con los datos correctos
-                prepararModalCrear(tipoMaquina, selectedValue, selectedText, ticketNumber);
+            // Rellenar los valores del modal antes de abrirlo
+            const modalId = `#modalCrearTipoAlias${ticketNumber}`;
+            const modal = document.querySelector(modalId);
+            if (modal) {
+                modal.querySelector("#nuevoTipo").value = tipoMaquina;
+                modal.querySelector("#nuevoAlias").value = selectedText; // Usar el texto del alias seleccionado
+                modal.querySelector("#idMachine").value = selectedValue; // ID de la máquina desde el botón
+
+                // Actualizar la vista previa del modal
+                modal.querySelector("#tipoMostrar").textContent = tipoMaquina;
+                modal.querySelector("#aliasMostrar").textContent = selectedText;
+
+                // Abrir el modal manualmente
+                const bsModal = new bootstrap.Modal(modal);
+                bsModal.show(); // Abrir el modal si la validación es exitosa
+
+                console.log(`Modal abierto para TicketNumber: ${ticketNumber}`);
+            } else {
+                console.error(`Modal no encontrado para el ticket: ${ticketNumber}`);
             }
         } else {
-            console.error('Select no encontrado para el ticket:', ticketNumber); // Log de error
+            console.error(`Elemento select no encontrado para el ticket: ${ticketNumber}`);
         }
     }
+
+
+
 
 
 
@@ -190,21 +227,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-
-
-
 });
-
-
-
-
-
-
-
-
-
-
-
 
 function prepararModalCrear(tipo, idMachine, alias, ticketNumber) {
     // Asignar valores a los inputs ocultos
@@ -220,8 +243,6 @@ function prepararModalCrear(tipo, idMachine, alias, ticketNumber) {
     const modal = new bootstrap.Modal(document.getElementById(`modalCrearTipoAlias${ticketNumber}`));
     modal.show();
 }
-
-
 
 
 function enviarDatosCrear(ticketNumber) {
