@@ -17,9 +17,8 @@ class FixBugsJob implements ShouldQueue
      *
      * @param array $data
      */
-    public function __construct(array $data)
+    public function __construct()
     {
-        $this->data = $data;
     }
 
     /**

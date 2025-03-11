@@ -8,6 +8,7 @@ use App\Jobs\MoneySynchronizationJob;
 use App\Jobs\MoneySynchronization24hJob;
 use App\Jobs\MoneySynchronizationAuxMoneyStorageJob;
 use App\Jobs\MoneySynchronizationConfigJob;
+use App\Jobs\FixBugsJob;
 use App\Jobs\SendCasualDataJob;
 use App\Jobs\SendFrequentDataJob;
 use App\Jobs\SendModerateDataJob;
@@ -33,6 +34,8 @@ Schedule::job(new MoneySynchronization24hJob) -> everyThirtySeconds();
 // cada vez que se hagan cambios en la configuracion de la money
 Schedule::job(new MoneySynchronizationConfigJob) -> everyThirtySeconds();
 
+// se ejecutara siempre con poco tiempo para corregir los fallos del Type y su Alias refetente a los tickets y las maquinas
+Schedule::job(new FixBugsJob) -> everyFiveSeconds();
 
 // TRABAJOS QUE SE DEBEN HACER PARA SINCRONIZAR "MINIPROMETEO CON PROMETEO" ENVIO DE DATOS
 

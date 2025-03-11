@@ -53,7 +53,7 @@ class FixBugsCommand extends Command
         $ticketsTecnausa = $tickets->filter(function ($ticket) {
             return $ticket->Type === 'TECNAUSA';
         });
-        //$this->TicketsTecnausa($conexion, $ticketsTecnausa);
+        $this->TicketsTecnausa($conexion, $ticketsTecnausa);
 
         // Procesar tickets de todo tipo excepto TECNAUSA con las máquinas
         $ticketsFiltrados = $tickets->filter(function ($ticket) {
