@@ -70,6 +70,9 @@
                         <a class="nav-link" href="{{ route('configurationAccountants.index') }}">
                             <i class="bi bi-square-fill"></i> Configuración de contadores
                         </a>
+                        <a class="nav-link" href="{{ route('configurationTypeAlias.index') }}">
+                            <i class="bi bi-square-fill"></i> Configuración de Tipo y alias
+                        </a>
                     </li>
                 </ul>
             </div>

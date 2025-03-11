@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ConfigMoneyController;
+use App\Http\Controllers\ConfigurationTypeAliasController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PedirAyudaController;
 use App\Http\Controllers\MachineController;
@@ -61,6 +62,9 @@ Route::get('/sync-hcinfo', [ConfigMoneyController::class, 'syncHcInfo'])->name('
 Route::resource('/configurationAccountants', ConfigurationAccountantsController::class);
 Route::post('/configurationAccountants/storeAll', [ConfigurationAccountantsController::class, 'storeAll'])->name('configurationAccountants.storeAll');
 Route::post('/configurationAccountants/clearAll', [ConfigurationAccountantsController::class, 'clearAll']);
+
+// configuraciones de type/alias  para los tipos de tickets vayan asociados a una maquina con su alias en Type de tickets "Type(ticket)"="Machine(alias)"
+Route::resource('/configurationTypeAlias', ConfigurationTypeAliasController::class);
 
 // enviar las auxiliares al archivo de texto de ticketServer
 Route::post('/send-auxiliares', [MachineController::class, 'sendAuxiliares'])->name('sendAuxiliares');
