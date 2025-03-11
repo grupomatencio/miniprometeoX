@@ -217,9 +217,7 @@
                             </table>
                         </div>
                     </div>
-                    <div class="d-flex justify-content-center">
-                        <a class="btn btn-secondary m-3" href="{{ route('home') }}">Volver</a>
-                    </div>
+
 
                 </div>
 
@@ -247,8 +245,9 @@
                     <!-- pagination -->
                 </div>
             </div>
-
-
+            <div class="d-flex justify-content-center">
+                <a class="btn btn-secondary m-3" href="{{ route('home') }}">Volver</a>
+            </div>
         </div>
     </div>
 
