@@ -170,6 +170,19 @@ class Machine extends Model
         return $orderedMachines;
     }
 
+    public static function getOnlyChildren($id){
+
+        $machinesChildren = self::where('local_id', $id)
+            ->where(function ($query) {
+                $query->whereNotIn('type', ['roulette', 'parent']) // Excluir 'roulette' y 'parent'
+                    ->orWhereHas('parent', function ($q) {
+                        $q->whereIn('type', ['roulette', 'parent']); // Incluir hijos de estos tipos
+                    });
+            })
+            ->get();
+        return $machinesChildren;
+    }
+
     public function acumulado()
     {
         return $this->hasOne(Acumulado::class);
