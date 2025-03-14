@@ -303,6 +303,7 @@ class TicketsController extends Controller
 
     public function generarTicket(Request $request, $local)
     {
+        //dd(getRealIpAddr());
 
         try {
             //Log::info("Iniciando generación de ticket para el local: " . $local);
@@ -395,7 +396,7 @@ class TicketsController extends Controller
                 'Used' => $newTicket->Used,
                 'TITOExpirationType' => $newTicket->TITOExpirationType,
                 'UsedDateTime' => $newTicket->UsedDateTime,
-                'ExpirationDate' => Carbon::parse($newTicket->ExpirationDate)->addHour(),
+                'ExpirationDate' => $newTicket->ExpirationDate = request()->has('expired') ? now() : '1970-01-01 01:01:01'
             ];
 
             // Si tiene fecha de expiración, agregarla

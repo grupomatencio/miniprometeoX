@@ -285,15 +285,22 @@ function desconectMachines()
 }
 
 /*OBTER IP */
-function getRealIpAddr()
-{
+function getRealIpAddr() {
     if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
         $ip = $_SERVER['HTTP_CLIENT_IP'];
     } elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-        $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
-    } else {
+        $ip = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'])[0]; // Toma solo la primera IP en caso de múltiples proxies
+    } elseif (!empty($_SERVER['REMOTE_ADDR'])) {
         $ip = $_SERVER['REMOTE_ADDR'];
+    } else {
+        $ip = 'UNKNOWN';
     }
+
+    // Si la IP es 127.0.0.1, intenta obtener la IP real de la red local
+    if ($ip == "127.0.0.1" || $ip == "::1") {
+        $ip = getHostByName(getHostName());
+    }
+
     return $ip;
 }
 
